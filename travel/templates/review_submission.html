@@ -1,0 +1,107 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Submit Your Review for {{ place.name }}</title>
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+  </head>
+  <body>
+    <!-- Navbar Section -->
+    <header>
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+      <a href="{% url 'home' %}">
+        <img src="{% static 'images/logo.png' %}" alt="Travel Reviews Logo" class="logo">
+      </a>
+      {% if user.is_authenticated %}
+      <div class="profile-menu">
+        <p>Welcome, {{ user.username }}!</p>
+        <a href="{% url 'profile' %}">
+          <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
+        </a>
+        <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+      </div>
+      {% else %}
+      <button class="login-btn" onclick="openModal()">Login</button>
+      {% endif %}
+    </header>
+
+    <!-- Main Content -->
+    <div class="review-container">
+      <div class="review-header3">
+        <h1>Submit Your Review for {{ place.name }}</h1>
+      </div>
+      <div class="place-info">
+        Reviewing: <strong>{{ place.name }}</strong>
+      </div>
+      <form id="reviewForm" method="POST" enctype="multipart/form-data" action="{% url 'submit_place_review' place.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="place_id" value="{{ place.id }}">
+    
+        <!-- Rating Section -->
+        <h2>Rate Your Experience:</h2>
+        <div class="rating-stars">
+            <input type="radio" name="rating" id="star5" value="5" required><label for="star5">&#9733;</label>
+            <input type="radio" name="rating" id="star4" value="4"><label for="star4">&#9733;</label>
+            <input type="radio" name="rating" id="star3" value="3"><label for="star3">&#9733;</label>
+            <input type="radio" name="rating" id="star2" value="2"><label for="star2">&#9733;</label>
+            <input type="radio" name="rating" id="star1" value="1"><label for="star1">&#9733;</label>
+        </div>
+        
+        <!-- When Did You Go Section -->
+        <h2>When did you go?</h2>
+        <div class="when-did-you-go">
+            <label for="date">Select Month</label>
+            <select name="date" id="date" required>
+                <option value="" disabled selected>Select one</option>
+                <option value="January">January</option>
+                <option value="February">February</option>
+                <option value="March">March</option>
+                <option value="April">April</option>
+                <option value="May">May</option>
+                <option value="June">June</option>
+                <option value="July">July</option>
+                <option value="August">August</option>
+                <option value="September">September</option>
+                <option value="October">October</option>
+                <option value="November">November</option>
+                <option value="December">December</option>
+            </select>
+        </div>
+    
+        <!-- Write a Review Section -->
+        <h2>Write Your Review</h2>
+        <textarea name="content" placeholder="The views were amazing..." required></textarea>
+    
+        <!-- Title Your Review Section -->
+        <h2>Title Your Review</h2>
+        <input type="text" name="title" placeholder="Give us the gist of your experience" maxlength="120" required>
+    
+        <!-- Add Photos Section -->
+        <h2>Add Some Photos (Optional)</h2>
+        <div class="photos-container">
+            <label for="photos">Click to add photos or drag and drop</label>
+            <input type="file" name="photos" id="photos" accept="image/*" multiple>
+        </div>
+    
+        <!-- Agreement Checkbox -->
+        <div class="review-agreement">
+            <input type="checkbox" name="agreement" required>
+            <label>I certify that this review is based on my own experience and is my genuine opinion of this establishment.</label>
+        </div>
+    
+        <!-- Submit Button -->
+        <button type="submit" class="submit-button">Submit Review</button>
+    </form>    
+    </div>
+
+    <script src="{% static 'images/javascript/java.js' %}"></script>
+  </body>
+</html>

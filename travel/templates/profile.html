@@ -1,0 +1,107 @@
+{% load static %}
+<script src="{% static 'images/javascript/java.js' %}"></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>User Profile</title>
+    <link rel="stylesheet" href="{% static 'css/profile.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+  </head>
+  <body>
+    <header>
+        <nav class="nav">
+          <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+          <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+          <a href="{% url 'about' %}" class="nav-item">About Us</a>
+          <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+        </nav>
+      
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+      
+        {% if user.is_authenticated %}
+        <div class="profile-menu">
+            <p>Welcome, {{ user.username }}!</p>
+            <a href="{% url 'profile' %}">
+                <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
+            </a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+        {% else %}
+        <button class="login-btn" onclick="openModal()">Login</button>
+        {% endif %}
+    </header>
+        <!-- Update Profile Form -->
+        <div class="profile-container">
+            <div class="profile-header">
+                <img src="{% static 'images/profile-pic.jpg' %}" alt="Profile Picture" class="profile-picture">
+                <div class="profile-info">
+                    <h2>{{ user.first_name }} {{ user.last_name }}</h2>
+                    <p>@{{ user.username }}</p>
+                </div>
+            </div>
+        
+            <div class="profile-actions">
+                <button class="action-button" onclick="toggleEditProfile()">Edit Profile</button>
+                <button class="action-button" onclick="toggleAddPhoto()">Add Photo</button>
+                <button class="action-button">Add Friends</button>
+            </div>
+        
+            <div class="profile-navigation">
+                <button class="nav-button active">Profile Overview</button>
+                <button class="nav-button">Reviews</button>
+                <button class="nav-button">Collections</button>
+                <button class="nav-button">Events</button>
+            </div>
+        </div>  
+        
+        <div class="edit-profile-container" id="editProfileContainer" style="display: none;">
+            <h2>Edit Profile</h2>
+            <form method="post" action="" enctype="multipart/form-data">
+                {% csrf_token %}
+                <label for="profile_picture">Profile Picture:</label>
+                <input type="file" id="profile_picture" name="profile_picture" accept="image/*">
+    
+                <label for="first_name">First Name:</label>
+                <input type="text" id="first_name" name="first_name" value="{{ user.first_name }}" required>
+    
+                <label for="last_name">Last Name:</label>
+                <input type="text" id="last_name" name="last_name" value="{{ user.last_name }}" required>
+    
+                <label for="nickname">Nickname:</label>
+                <input type="text" id="nickname" name="nickname" value="{{ user.profile.nickname }}" placeholder="Enter your nickname">
+    
+                <label for="gender">Gender:</label>
+                <select id="gender" name="gender">
+                    <option value="male" {% if user.profile.gender == "male" %}selected{% endif %}>Male</option>
+                    <option value="female" {% if user.profile.gender == "female" %}selected{% endif %}>Female</option>
+                    <option value="other" {% if user.profile.gender == "other" %}selected{% endif %}>Other</option>
+                </select>
+    
+                <label for="headline">Headline:</label>
+                <input type="text" id="headline" name="headline" value="{{ user.profile.headline }}" placeholder="Enter your headline">
+    
+                <label for="interests">I Love...</label>
+                <textarea id="interests" name="interests" rows="2" placeholder="Comma-separated values (e.g., sushi, movies, football)">{{ user.profile.interests }}</textarea>
+    
+                <button type="submit" class="action-button">Save Changes</button>
+            </form>
+        </div>
+    </div>
+    <!-- Add Photo Form (Initially Hidden) -->
+<div class="add-photo-container" id="addPhotoContainer" style="display: none;">
+    <h2>Update Profile Picture</h2>
+    <form method="post" action="{% url 'update_profile_picture' %}" enctype="multipart/form-data">
+        {% csrf_token %}
+        <label for="profile_picture">Choose a new profile picture:</label>
+        <input type="file" id="profile_picture" name="profile_picture" accept="image/*" required>
+        <button type="submit" class="action-button">Upload</button>
+    </form>
+</div>
+  </body>
+</html>

@@ -1,0 +1,109 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Travel Reviews - Contact</title>
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+</head>
+
+<body>
+    <!-- Header Section -->
+    <header>
+        <nav class="nav">
+          <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+          <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+          <a href="{% url 'about' %}" class="nav-item">About Us</a>
+          <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+        </nav>
+      
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo.png' %}" alt="Travel Reviews logo" class="logo">
+        </a>
+      
+        <!-- Authentication Section -->
+        {% if user.is_authenticated %}
+        <div class="profile-menu">
+            <p>Welcome, {{ user.username }}!</p>
+            <a href="{% url 'profile' %}">
+                <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
+            </a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+        {% else %}
+        <button class="login-btn" onclick="openModal()">Login</button>
+        {% endif %}
+    </header>
+
+    <!-- Contact Form Section -->
+    <div class="contact-container">
+        <form action="https://api.web3forms.com/submit" method="POST" class="contact-left">
+            <div class="contact-left-title">
+                <h2>Get in Touch</h2>
+                <hr> 
+            </div>
+            <input type="hidden" name="access_key" value="2ed4b521-74e1-4c5b-8ffd-2fb8fe5decd6">
+            <input type="text" name="name" placeholder="Your Name" class="contact-inputs" required>
+            <input type="email" name="email" placeholder="Your Email" class="contact-inputs" required>
+            <textarea name="message" placeholder="Your Message" class="contact-inputs" required></textarea>
+            <button type="submit">Submit <img src="{% static 'images/arrow_icon.png' %}" alt=""></button>
+        </form>
+        <div class="contact-right">
+            <img src="{% static 'images/right_img.png' %}" alt="Contact illustration">
+        </div>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div id="loginModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <div class="container">
+                <!-- Signup Section -->
+                <div class="signup-section">
+                    <header>Sign Up</header>
+                    <div class="social-buttons">
+                        <button><i class='bx bxl-google'></i> Use Google</button>
+                        <button><i class='bx bxl-apple'></i> Use Apple</button>
+                    </div>
+                    <div class="separator">
+                        <div class="line"></div>
+                        <p>Or</p>
+                        <div class="line"></div>
+                    </div>
+                    <form id="signupForm" method="post" data-signup-url="{% url 'register' %}">
+                        {% csrf_token %}
+                        <input type="text" name="username" placeholder="Username" required>
+                        <input type="text" name="full_name" placeholder="Full Name" required>
+                        <input type="email" name="email" placeholder="Email Address" required>
+                        <input type="password" name="password" placeholder="Password" required>
+                        <button type="submit" class="btn">Signup</button>
+                    </form>
+                </div>
+
+                <!-- Login Section -->
+                <div class="login-section">
+                    <header>Login</header>
+                    <div class="social-buttons">
+                        <button><i class='bx bxl-google'></i> Use Google</button>
+                        <button><i class='bx bxl-apple'></i> Use Apple</button>
+                    </div>
+                    <div class="separator">
+                        <div class="line"></div>
+                        <p>Or</p>
+                        <div class="line"></div>
+                    </div>
+                    <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                        {% csrf_token %}
+                        <input type="text" name="username" placeholder="Username" required>
+                        <input type="password" name="password" placeholder="Password" required>
+                        <button type="submit" class="btn">Login</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

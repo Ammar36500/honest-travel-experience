@@ -1,0 +1,153 @@
+{% load static %}
+<script src="{% static 'images/javascript/java.js' %}"></script>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Travel Reviews</title>
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+  </head>
+
+  <body>
+    <header>
+        <nav class="nav">
+          <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+          <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+          <a href="{% url 'about' %}" class="nav-item">About Us</a>
+          <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+        </nav>
+      
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+      
+        <!-- Toggle Login Button or Profile Logo Based on User Authentication -->
+        {% if user.is_authenticated %}
+        <div class="profile-menu">
+            <p>Welcome, {{ user.username }}!</p>
+            <a href="{% url 'profile' %}">
+                <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
+            </a>
+            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
+        </div>
+        {% else %}
+        <button class="login-btn" onclick="openModal()">Login</button>
+        {% endif %}
+      </header>
+
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+              <header>Sign Up</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="signupForm" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+          </div>
+
+          <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit" class="btn">Signup</button>
+                </form>                
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+     <!-- About Section -->
+     <div class="about-container">
+        <!-- Image and Text Overlay -->
+        <div class="image-container">
+          <img src="{% static 'images/travel.jpg' %}" alt="About Us" class="about-image">
+          <div class="text-overlay">
+            <h1>About Us</h1>
+            <p>
+              Welcome to True Travel Reviews, your trusted platform for honest and reliable travel reviews. 
+              Share your experiences and explore reviews from fellow travelers.
+            </p>
+          </div>
+        </div>
+  
+        <!-- Additional Details Section -->
+        <div class="about-details">
+          <h2>What We Offer</h2>
+          <p>
+            True Travel Reviews is designed to empower travelers by providing a platform to share genuine travel experiences. 
+            Whether you're exploring a new city, visiting a remote island, or enjoying a local adventure, our community allows you to:
+          </p>
+          <ul>
+            <li>Read honest reviews from real travelers.</li>
+            <li>Submit your own travel experiences to help others.</li>
+            <li>Discover top-rated destinations around the world.</li>
+            <li>Make informed decisions based on authentic feedback.</li>
+          </ul>
+          <p>
+            Our mission is to foster a global community of travelers who value transparency, trust, and inspiration. 
+            Join us today and become a part of a movement that celebrates real stories and authentic travel experiences.
+          </p>
+        </div>
+      </div>
+    
+    
+    <script src="{% static 'images/javascript/java.js' %}"></script>
+  </body>
+</html>
