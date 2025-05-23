@@ -1,0 +1,626 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/iceland2.jpg' %}" alt="Icelandic landscape with waterfall" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Iceland</h1>
+              <p class="destination-description">Discover the land of fire and ice with its dramatic landscapes, powerful waterfalls, geothermal wonders, and vibrant culture.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Iceland Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Iceland</h2>
+            
+            <p class="about-text">Iceland, officially the Republic of Iceland, is a Nordic island country in the North Atlantic Ocean. With a population of just over 370,000, it's one of Europe's most sparsely populated countries. Known as the "Land of Fire and Ice," Iceland features a dramatic landscape with volcanoes, geysers, hot springs, lava fields, and massive glaciers. The island sits on the Mid-Atlantic Ridge where the North American and Eurasian tectonic plates meet, resulting in significant volcanic activity. Settled by Norse explorers in the 9th century, Iceland has preserved its Nordic heritage while developing a distinct culture. Its capital, Reykjavík, is the northernmost capital of a sovereign state and home to two-thirds of the country's population. Iceland is renowned for its commitment to renewable energy, with nearly all electricity produced from hydroelectric and geothermal sources. The nation consistently ranks among the top countries for quality of life, gender equality, and happiness. Despite its name and northerly location, Iceland's climate is milder than might be expected, thanks to the Gulf Stream. The country's unspoiled nature, breathtaking landscapes, and unique phenomena like the midnight sun and Northern Lights draw visitors from around the world.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Subarctic Climate</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">Icelandic</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">Icelandic Króna (ISK)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">GMT (No Daylight Saving)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/Blue Lagoon.jpg' %}" alt="Blue Lagoon geothermal spa" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Blue Lagoon</h3>
+                  <p class="destination-description">Famous geothermal spa with milky-blue waters rich in minerals, set amid a dramatic lava field landscape.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Golden Circle.jpg' %}" alt="Gullfoss waterfall in Golden Circle" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Golden Circle</h3>
+                  <p class="destination-description">Popular tourist route featuring the powerful Gullfoss waterfall, Geysir geothermal area, and Þingvellir National Park.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Jökulsárlón.jpg' %}" alt="Jökulsárlón glacier lagoon with icebergs" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Jökulsárlón</h3>
+                  <p class="destination-description">Stunning glacier lagoon filled with floating icebergs, adjacent to the famous Diamond Beach where ice chunks wash ashore.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Reykjavík.jpg' %}" alt="Colorful houses in Reykjavik with Hallgrímskirkja church" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Reykjavík</h3>
+                  <p class="destination-description">Iceland's vibrant capital featuring distinctive architecture, colorful buildings, innovative cuisine, and a dynamic arts scene.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Icelandic adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Summer (June-August) offers mild temperatures (10-15°C), nearly 24 hours of daylight, and ideal conditions for hiking and exploring. This is peak tourist season with higher prices. Winter (November-March) brings shorter days but creates perfect conditions for viewing the Northern Lights and experiencing winter activities like ice caving. Expect temperatures between -5°C and 5°C. The shoulder seasons of spring (April-May) and autumn (September-October) offer fewer crowds and reasonable weather, though some highland roads may be closed. Iceland's weather is famously changeable year-round—the local saying "if you don't like the weather, wait five minutes" holds true.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Renting a car is the most popular and flexible way to explore Iceland, 
+                        with the Ring Road (Route 1) circling the entire island. 
+                        In winter, consider a 4x4 vehicle due to snow and ice.
+                         Iceland has no train system, but efficient buses connect major towns and tourist destinations.
+                          The Reykjavík area has good public transportation with the Strætó bus system. For remote areas, 
+                          especially in the highlands, super jeep tours or specialized vehicles are necessary. 
+                          Many travelers opt for guided tours, ranging from day trips from Reykjavík to multi-day expeditions. 
+                          Domestic flights connect Reykjavík with larger towns like Akureyri and Ísafjörður, 
+                          saving time when traveling longer distances. Always check road conditions before driving, 
+                          especially in winter or when venturing into the highlands, at road.is.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Icelandic cuisine features fresh seafood, free-range lamb, and dairy products. 
+                        Try traditional dishes like hákarl (fermented shark), skyr (yogurt-like dairy product), hangikjöt (smoked lamb),
+                         and plokkfiskur (fish stew). For adventurous eaters, specialties include svið (sheep's head) and lifrarpylsa 
+                         (liver sausage). Modern Icelandic restaurants blend traditional ingredients with international techniques,
+                          creating an innovative food scene. Hot dogs (pylsur) are a popular street food—try one "with everything" at 
+                          Bæjarins Beztu Pylsur in Reykjavík. Geothermal bakeries use natural heat to bake rúgbrauð (rye bread) 
+                          underground. Alcohol is expensive, with beer only being legalized in 1989. Tap water in Iceland is some 
+                          of the purest in the world—bring a reusable bottle and avoid buying bottled water.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-emotion-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Cultural Etiquette</h3>
+                    <p class="tip-description">Icelanders are direct, informal, and eco-conscious. 
+                        When entering a residence, remove shoes.  Service charges are included in invoices,
+                         thus tipping is not anticipated.  Swimming pools are cultural institutions; shower sans swimwear before 
+                         entering for hygiene.  Follow "leave no trace" and stay on established trails to respect nature. Off-road
+                          driving is forbidden and harms sensitive ecosystems.  Icelanders are proud of their language, so try some 
+                          phrases.  Most Icelanders speak English well.  Take Icelanders' belief in huldufólk (hidden people) and elves
+                           as more than superstition.  Icelanders cherish punctuality and communicate openly.  Resistance to severe 
+                           conditions has built community and resilience.  Even in formal settings, Icelanders use first names.  
+                           Weather is always discussed due to its changeability.  Many companies are closed or have limited hours 
+                           on Sunday, a family day.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Iceland travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some self-drive tour itineraries in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Popular self-drive itineraries include: 1) Golden Circle (1 day) - covering Þingvellir National Park, Geysir geothermal area, and Gullfoss waterfall in a 300km loop from Reykjavik. 2) South Coast (2-3 days) - featuring Seljalandsfoss and Skógafoss waterfalls, Reynisfjara black beach, and Jökulsárlón glacier lagoon. 3) Ring Road (7-10 days) - the complete 1,332km circuit visiting all regions including Akureyri, Lake Mývatn, and the East Fjords. 4) Snæfellsnes Peninsula (1-2 days) - exploring the "Iceland in miniature" peninsula with Kirkjufell mountain and black churches. 5) Westfjords (3-4 days) - for travelers seeking remote landscapes and fewer tourists. Best driving seasons are May-September; winter trips (October-April) should stick to main roads and require 4WD vehicles. Always check road conditions at road.is before departing.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best accommodation options in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Iceland accommodation options include: 1) Hotels - ranging from international chains in Reykjavik (€150-300/night) to boutique countryside hotels (€200-400/night). 2) Guesthouses - family-run options offering shared or private bathrooms (€100-200/night) and often including breakfast. 3) Hostels - budget-friendly dormitories (€30-50/bed) and private rooms (€80-120/night) in major towns. 4) Farm stays - authentic rural experiences (€120-180/night) with potential for horseback riding or farm activities. 5) Apartments/cottages - self-catering options ideal for families (€150-300/night). 6) Camping - permitted only at designated sites (€10-15/person) from June-September. Book accommodations 4-6 months in advance for summer (June-August) and 2-3 months ahead for other seasons. Options become extremely limited in small towns, particularly along the eastern Ring Road. Many properties require full payment in advance with strict cancellation policies.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are notable stops on Iceland's Ring Road?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Key Ring Road (Route 1) stops include: South - Seljalandsfoss waterfall (walkable behind), Skógafoss waterfall, Dyrhólaey cliffs, Reynisfjara black sand beach, Fjaðrárgljúfur canyon, and Jökulsárlón glacier lagoon. East - Vestrahorn mountain, scenic East Fjords, and colorful Seyðisfjörður town. North - Lake Mývatn geothermal area, Dettifoss (Europe's most powerful waterfall), whale-watching town of Húsavík, and Akureyri (Iceland's "northern capital"). West - Hraunfossar lava waterfalls, Borgarnes historical museum, and Gerðuberg basalt columns. The complete 1,332km circuit requires minimum 7 days but 10-14 days is ideal. Summer (June-August) offers 24-hour daylight but crowded sites; May and September provide balance between accessibility and fewer tourists. Winter driving (October-April) often encounters road closures, particularly in the eastern and northern sections.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the payment methods in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Iceland is essentially cashless: 1) Credit/debit cards are accepted almost everywhere, even for small purchases and at remote locations. Visa and Mastercard are universally accepted; American Express less so. 2) Contactless payment is widely available. 3) Mobile payments including Apple Pay and Google Pay work throughout the country. 4) For the few cash situations (small rural businesses, some toilets), the currency is Icelandic Króna (ISK). ATMs are available in towns but can be scarce in rural areas. Notify your bank before travel as suspicious foreign transactions may trigger card blocks. PIN numbers are required for credit card transactions. Currency exchange at Keflavík Airport offers reasonable rates if needed, but most travelers operate entirely without cash. Tipping is not expected or customary in restaurants or taxis, as service charges are included.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended tour operators in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Recommended tour operators include: 1) Arctic Adventures - adventure specialists offering glacier hikes, ice caves, and multi-day treks. 2) Reykjavik Excursions - runs the popular Airport Flybus and comprehensive Golden Circle tours. 3) GJ Travel - offers small-group super jeep and highland tours with local guides. 4) Extreme Iceland - focuses on off-the-beaten-path experiences and winter activities. 5) Guide to Iceland - an aggregator platform with customer reviews for comparing different operators. 6) Hey Iceland - specializes in farm stays and culturally immersive experiences. 7) Nordic Visitor - highly rated for self-drive tour packages with accommodations included. 8) Special Tours - known for whale watching excursions. For Northern Lights tours (September-March), choose operators offering free second attempts if lights aren't visible. Summer tours should be booked 2-3 months in advance; popular glacier cave tours (November-March) sell out 4+ months ahead.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What should I know about renting a car in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Essential car rental information: 1) Local companies (Blue Car Rental, Lotus, Arctic) often offer better value than internationals (Hertz, Avis, Budget). 2) 2WD vehicles are sufficient for summer Ring Road trips on paved roads; 4WD is essential for F-roads (highlands) and winter driving. 3) Typical costs: €50-80/day for compact 2WD, €100-180/day for 4WD SUVs, €200-350/day for campervans. 4) Insurance options are crucial - Sand and Ash Protection (SAAP) and Gravel Protection are strongly recommended but not always included in basic coverage. 5) Drivers must be 20+ (23+ for larger vehicles) with 1+ year license history. 6) Fuel is expensive (€2.00-2.30/liter) and stations are scarce in rural areas; many require chip-and-PIN credit cards at unmanned pumps. 7) Off-road driving is strictly prohibited and heavily fined. 8) Always check road.is for conditions and safetravel.is for weather warnings before departures. Book 3-4 months ahead for summer rentals.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the bus transportation options in Iceland?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Iceland's bus options include: 1) Strætó - public bus service connecting major towns with limited schedules (1-2 daily departures) and affordable fares (Reykjavik-Akureyri around €70). 2) Reykjavik City Bus - local transportation in the capital area (single ride €4). 3) Airport transfers - Flybus and Airport Direct connect Keflavík Airport with Reykjavik (45 minutes, €25-30 one-way). 4) Hop-on/hop-off passes - summer-only bus passports by companies like Sterna Travel allow flexible travel along the Ring Road. 5) Highland buses - specialized 4WD services to Þórsmörk, Landmannalaugar, and other mountain areas from June-September requiring advance booking. Buses offer free WiFi and sometimes USB charging. The main limitation is frequency, with daily service on popular routes (Reykjavik-Vík-Höfn) during summer reducing to 3-4 weekly departures in winter, while remote areas may only have 1-2 weekly connections. Download the official Strætó app for schedules and tickets.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the must-see cultural attractions in Reykjavik?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Reykjavik cultural highlights include: 1) Hallgrímskirkja - iconic Lutheran church with observation tower offering city views (€10 entry fee). 2) Harpa Concert Hall - award-winning glass architecture hosting musical performances and exhibitions. 3) National Museum of Iceland - comprehensive history collection from settlement to modern times (€15 entry). 4) Settlement Exhibition - archaeological remains of a Viking longhouse with interactive displays. 5) Reykjavik Art Museum - spanning three locations with Icelandic and international modern art. 6) Perlan - nature museum with ice cave replica and excellent city viewpoint. 7) Árbær Open Air Museum - reconstructed historical buildings showing traditional Icelandic life. 8) Saga Museum - Viking history through realistic wax figures. 9) Street art throughout downtown, especially along Laugavegur and Skólavörðustígur. Most museums open 10am-5pm with extended summer hours and are walkable within downtown. The Reykjavik City Card (€35/24 hours) includes entry to most attractions plus public transportation.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+      
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

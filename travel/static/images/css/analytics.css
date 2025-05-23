@@ -1,0 +1,554 @@
+/* Date Range Selector */
+.date-range-selector {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 15px 20px;
+    margin-bottom: 30px;
+    display: flex;
+    align-items: center;
+}
+
+.date-range-label {
+    font-weight: 600;
+    color: var(--dark);
+    margin-right: 20px;
+}
+
+.date-range-buttons {
+    display: flex;
+    gap: 10px;
+}
+
+.date-range-btn {
+    background-color: var(--light);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.date-range-btn:hover {
+    background-color: var(--gray-light);
+}
+
+.date-range-btn.active {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.date-range-btn.custom {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Chart Container */
+.chart-container {
+    padding: 20px;
+    height: 300px;
+}
+
+.chart-container.large {
+    height: 400px;
+}
+
+/* Pill Buttons */
+.pill-button {
+    background-color: var(--light);
+    border: 1px solid var(--border-color);
+    border-radius: 50px;
+    padding: 6px 15px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.pill-button:hover {
+    background-color: var(--gray-light);
+}
+
+.pill-button.active {
+    background-color: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+/* Export Button */
+.export-btn {
+    background-color: var(--light);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.export-btn:hover {
+    background-color: var(--gray-light);
+}
+
+/* Rating */
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.rating i {
+    color: #f59e0b;
+}
+
+.rating span {
+    margin-left: 5px;
+    font-weight: 500;
+}
+
+/* Sentiment */
+.sentiment {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 10px;
+    border-radius: 50px;
+    font-size: 14px;
+}
+
+.sentiment.positive {
+    background-color: rgba(56, 193, 114, 0.1);
+    color: var(--success);
+}
+
+.sentiment.neutral {
+    background-color: rgba(108, 117, 125, 0.1);
+    color: var(--gray);
+}
+
+.sentiment.negative {
+    background-color: rgba(227, 52, 47, 0.1);
+    color: var(--danger);
+}
+
+/* Trend */
+.trend {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: 500;
+}
+
+.trend.up {
+    color: var(--success);
+}
+
+.trend.down {
+    color: var(--danger);
+}
+
+/* Progress Bar */
+.progress-bar-container {
+    height: 8px;
+    background-color: var(--gray-light);
+    border-radius: 4px;
+    position: relative;
+    width: 120px;
+    display: inline-block;
+}
+
+.progress-bar {
+    height: 100%;
+    border-radius: 4px;
+    position: absolute;
+    left: 0;
+    top: 0;
+}
+
+.progress-bar-container span {
+    position: absolute;
+    right: -40px;
+    top: -5px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.bg-success {
+    background-color: var(--success);
+}
+
+.bg-warning {
+    background-color: #f59e0b;
+}
+
+.bg-danger {
+    background-color: var(--danger);
+}
+
+/* Fairness Analysis */
+.fairness-analysis {
+    margin-bottom: 30px;
+}
+
+.fairness-header {
+    margin-bottom: 20px;
+}
+
+.fairness-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+
+.fairness-title i {
+    color: var(--primary);
+}
+
+.fairness-subtitle {
+    color: var(--gray);
+    font-size: 14px;
+}
+
+.fairness-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.fairness-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.fairness-card .card-title {
+    padding: 15px 20px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.fairness-insight {
+    padding: 10px 20px;
+    background-color: var(--light);
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.fairness-insight i.warning {
+    color: #f59e0b;
+}
+
+.fairness-insight i.info {
+    color: var(--primary);
+}
+
+.fairness-insight i.success {
+    color: var(--success);
+}
+
+/* Purple Icon */
+.icon-purple {
+    background-color: rgba(138, 43, 226, 0.1);
+    color: #8a2be2;
+}
+
+/* Fairness Insight Panel */
+.fairness-insight-panel {
+    background-color: #f8f9fa;
+    border-radius: 0 0 8px 8px;
+    padding: 20px;
+    border-top: 1px solid var(--border-color);
+}
+
+.insight-header {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.insight-header i {
+    color: #f59e0b;
+}
+
+.insight-content ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.insight-content li {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.insight-content li:last-child {
+    margin-bottom: 0;
+}
+
+.insight-content li strong {
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.insight-actions {
+    margin-top: 15px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+/* Top Destinations Table */
+.data-table th {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--gray);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.data-table td {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    vertical-align: middle;
+}
+
+/* --- Added CSS for Table Links --- */
+.data-table td a {
+    color: var(--primary); /* Use your primary color variable */
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.data-table td a:hover {
+    text-decoration: underline;
+    color: #3452d9; /* Darker shade of primary on hover */
+}
+/* --- End Added CSS --- */
+
+
+.data-table tbody tr:hover {
+    background-color: rgba(0, 0, 0, 0.02);
+    transition: background-color 0.2s;
+}
+
+/* User Cell Styling */
+.user-cell {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.user-cell img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 2px solid white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.user-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.user-name {
+    font-weight: 600;
+    color: var(--dark);
+    font-size: 14px;
+}
+
+/* Filter Dropdown */
+.filter-dropdown {
+    position: relative;
+}
+
+.filter-btn {
+    background-color: var(--light);
+    border: 1px solid var(--border-color);
+    border-radius: 4px;
+    padding: 8px 12px;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.filter-btn:hover {
+    background-color: var(--gray-light);
+}
+
+.filter-btn i {
+    font-size: 12px;
+}
+
+/* Primary Button */
+.primary-btn {
+    background-color: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 8px 16px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.primary-btn:hover {
+    background-color: #3452d9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+/* Debug Information */
+div[style*="background-color: #f8d7da"] {
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+    border-radius: 4px;
+    padding: 15px;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+div[style*="background-color: #f8d7da"] h4 {
+    margin-top: 0;
+    margin-bottom: 10px;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+div[style*="background-color: #f8d7da"] p {
+    margin-bottom: 5px;
+}
+
+/* Content Card */
+.content-card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+    overflow: hidden;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--dark);
+}
+
+.card-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+/* Table Responsive */
+.table-responsive {
+    overflow-x: auto;
+    width: 100%;
+}
+
+/* Text Center */
+.text-center {
+    text-align: center;
+}
+
+/* Responsive Styles */
+@media (max-width: 992px) {
+    .date-range-selector {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .date-range-label {
+        margin-bottom: 10px;
+    }
+
+    .date-range-buttons {
+        flex-wrap: wrap;
+    }
+
+    .fairness-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 768px) {
+    .data-table {
+        min-width: 900px;
+    }
+}
+
+/* Progress Bar Styles */
+.progress-bar-container {
+    height: 20px;
+    background-color: #e9ecef;
+    border-radius: 4px;
+    position: relative;
+    overflow: hidden;
+    width: 100%;
+    margin-right: 45px; /* Space for percentage */
+}
+
+.progress-bar {
+    height: 100%;
+    display: flex;
+    align-items: center;
+    transition: width 0.6s ease;
+}
+
+.progress-bar-container span {
+    position: absolute;
+    right: -45px;
+    top: 0;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+/* Color classes */
+.progress-bar.bg-success {
+    background-color: #28a745;
+}
+
+.progress-bar.bg-info {
+    background-color: #17a2b8;
+}
+
+.progress-bar.bg-warning {
+    background-color: #ffc107;
+}
+
+.progress-bar.bg-danger {
+    background-color: #dc3545;
+}

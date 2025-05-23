@@ -7,7 +7,9 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Travel Reviews</title>
     <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/home.css' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
   </head>
 
   <body>
@@ -20,22 +22,40 @@
       </nav>
   
       <a href="{% url 'home' %}">
-          <img src="{% static 'images/logo.png' %}" alt="Travel logo Reviews" class="logo">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
       </a>
   
       <!-- Authentication Section -->
-        {% if user.is_authenticated %}
-        <div class="profile-menu">
-            <p>Welcome, {{ user.username }}!</p>
-            <a href="{% url 'profile' %}">
-                <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
-            </a>
-            <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-        </div>
-        {% else %}
-        <button class="login-btn" onclick="openModal()">Login</button>
-        {% endif %}
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
     </header>
+
+    <div class="search-container">
+        <h1 class="search-title">Where to?</h1>
+        <form method="GET" action="{% url 'search' %}">
+            <div class="search-bar">
+                <i class="ri-search-line search-icon"></i>
+                <input type="text" name="q" placeholder="Places to go, things to do, hotels..." class="search-input">
+                <button type="submit" class="search-button">Search</button>
+            </div>
+        </form>
+    </div>
   
     <div class="main-content">
     <!-- Modal Section -->
@@ -48,44 +68,66 @@
           
           <!-- Signup Section -->
           <div class="signup-section">
-              <header>Sign Up</header>
-              <div class="social-buttons">
-                  <button><i class='bx bxl-google'></i> Use Google</button>
-                  <button><i class='bx bxl-apple'></i> Use Apple</button>
-              </div>
-    
-              <div class="separator">
-                  <div class="line"></div>
-                  <p>Or</p>
-                  <div class="line"></div>
-              </div>
-    
-              <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
-                {% csrf_token %}
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="text" name="full_name" placeholder="Full Name" required>
-                <input type="email" name="email" placeholder="Email Address" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <a href="#">Forget Password?</a>
-                <button type="submit" class="btn">Signup</button>
-            </form>
-          </div>
+    <header>Sign Up</header>
+    <div class="social-buttons">
+        <button><i class='bx bxl-google'></i> Use Google</button>
+        <button><i class='bx bxl-apple'></i> Use Apple</button>
+    </div>
 
-          <div id="signupModal" class="modal">
-            <div class="modal-content">
-                <span class="close-btn" onclick="closeModal()">&times;</span>
-                <h2>Sign Up</h2>
-                <form id="signupForm2" method="post">
-                    {% csrf_token %}
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="text" name="full_name" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Email Address" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit" class="btn">Signup</button>
-                </form>                
-                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
-            </div>
+    <div class="separator">
+        <div class="line"></div>
+        <p>Or</p>
+        <div class="line"></div>
+    </div>
+
+    <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+        {% csrf_token %}
+        <input type="text" name="username" placeholder="Username" required>
+        <input type="text" name="full_name" placeholder="Full Name" required>
+        <input type="email" name="email" placeholder="Email Address" required>
+        <input type="password" name="password" placeholder="Password" required>
+        
+        <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+            <input type="checkbox" 
+                   name="terms_accepted" 
+                   id="id_terms_accepted1" {# Unique ID #}
+                   required 
+                   style="width: auto; vertical-align: middle; margin-right: 5px;">
+            <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+            </label>
         </div>
+        <a href="#">Forget Password?</a>
+        <button type="submit" class="btn">Signup</button>
+    </form>
+</div>
+
+<div id="signupModal" class="modal">
+    <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        <h2>Sign Up</h2>
+        <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+            {% csrf_token %}
+            <input type="text" name="username" placeholder="Username" required>
+            <input type="text" name="full_name" placeholder="Full Name" required>
+            <input type="email" name="email" placeholder="Email Address" required>
+            <input type="password" name="password" placeholder="Password" required>
+
+            <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                <input type="checkbox" 
+                       name="terms_accepted" 
+                       id="id_terms_accepted2" {# Unique ID #}
+                       required 
+                       style="width: auto; vertical-align: middle; margin-right: 5px;">
+                <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                    I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                </label>
+            </div>
+            <button type="submit" class="btn">Signup</button>
+        </form>
+        <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+    </div>
+</div>
     
           <!-- Login Section -->
           <div class="login-section">
@@ -113,45 +155,243 @@
       </div>
     </div>
 
-    <div class="home-search">
-        <input placeholder="What do you want to see..." type="text">
-        <button type="submit">Search</button>
+    
+
+<!-- Slideshow container -->
+<div class="slideshow-container">
+    <!-- Travel text overlay -->
+    <div class="travel-text-overlay">
+        <p>Embark on unforgettable journeys to breathtaking destinations. Life is too short not to explore!</p>
+        <a href="{% url 'destinations' %}">
+            <button class="explore-btn">Explore</button>
+        </a>
+    </div>
+    <!-- Full-width images with number and caption text -->
+
+    <div class="mySlides fade">
+        <div class="numbertext">1 / 3</div>
+        <img src="{% static 'images/New Zeeland.jpg' %}" alt="New Zealand" style="width:100%">
+        <div class="text">New Zeeland</div>
+      </div>
+
+    <div class="mySlides fade">
+      <div class="numbertext">2 / 3</div>
+      <img src="{% static 'images/Greece.jpg' %}" alt="Greece" style="width:100%">
+      <div class="text">Greece</div>
     </div>
 
-    <div class="top-destinations">
-      <h2>Top Destinations</h2>
-      <div class="row">
-          <div class="column">
-              <div class="image-container2">
-                  <img src="{% static 'images/Greece.jpg' %}" alt="Greece">
-                  <div class="image-text">Greece</div>
-              </div>
-          </div>
-          <div class="column">
-              <div class="image-container2">
-                  <img src="{% static 'images/Japan.jpg' %}" alt="Japan">
-                  <div class="image-text">Japan</div>
-              </div>
-          </div>
-          <div class="column">
-              <div class="image-container2">
-                  <img src="{% static 'images/Turkey.jpg' %}" alt="Turkey">
-                  <div class="image-text">Turkey</div>
-              </div>
-          </div>
+    <div class="mySlides fade">
+        <div class="numbertext">3 / 3</div>
+        <img src="{% static 'images/Switzerland.jpg' %}" alt="Switzerland" style="width:100%">
+        <div class="text">Switzerland</div>
+      </div>
+    
+  
+    
+  
+    <!-- Next and previous buttons -->
+    <a class="prev" onclick="plusSlides(-1)">&#10094;</a>
+    <a class="next" onclick="plusSlides(1)">&#10095;</a>
+</div>
+<br>
+<!-- Popular Destinations Section -->
+<section class="popular-destinations">
+    <h2 class="section-title">Popular Destinations</h2>
+    
+    <div class="destinations-carousel-container">
+        <button class="carousel-arrow carousel-prev" id="prevDestination">
+            <i class="ri-arrow-left-s-line"></i>
+        </button>
+        
+        <div class="destinations-carousel">
+            <div class="destinations-row">
+                <div class="destination">
+                    <a href="{% url 'California' %}">
+                        <img src="{% static 'images/California.jpg' %}" alt="California">
+                        <div class="overlay">California</div>
+                    </a>
+                </div>
+                <div class="destination">
+                    <a href="{% url 'London' %}">
+                        <img src="{% static 'images/London.jpg' %}" alt="London">
+                        <div class="overlay">London</div>
+                    </a>
+                </div>
+                <div class="destination">
+                    <a href="{% url 'Tokyo' %}">
+                        <img src="{% static 'images/Tokyo.jpg' %}" alt="Tokyo">
+                        <div class="overlay">Tokyo</div>
+                    </a>
+                </div>
+                <div class="destination">
+                    <a href="{% url 'Rome' %}">
+                        <img src="{% static 'images/Rome.jpg' %}" alt="Rome">
+                        <div class="overlay">Rome</div>
+                    </a>
+                </div>
+                <div class="destination">
+                    <a href="{% url 'New_York' %}">
+                        <img src="{% static 'images/NewYork.jpg' %}" alt="New York">
+                        <div class="overlay">New York</div>
+                    </a>
+                </div>
+                <div class="destination">
+                    <a href="{% url 'Sydney' %}">
+                        <img src="{% static 'images/Sydney.jpg' %}" alt="Sydney">
+                        <div class="overlay">Sydney</div>
+                    </a>
+                </div>
+            </div>
+        </div>
+        
+        <button class="carousel-arrow carousel-next" id="nextDestination">
+            <i class="ri-arrow-right-s-line"></i>
+        </button>
+    </div>
+</section>
+
+<!-- Seaside Destinations Section -->
+<section class="seaside-destinations">
+    <h2 class="section-title">Explore the world's most stunning seasides</h2>
+    
+    <div class="seaside-carousel">
+        <a href="{% url 'Worlds_Beach' %}" class="seaside-card-link">
+            <div class="seaside-card">
+                <img src="{% static 'images/world beach.jpg' %}" alt="World Beach" class="seaside-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x330?text=World';">
+                <div class="seaside-overlay">
+                    <h3 class="region-name">World</h3>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'Europe_Beach' %}" class="seaside-card-link">
+            <div class="seaside-card">
+                <img src="{% static 'images/europe beach.jpg' %}" alt="Europe Beach" class="seaside-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x330?text=Europe';">
+                <div class="seaside-overlay">
+                    <h3 class="region-name">Europe</h3>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'Asia_Beach' %}" class="seaside-card-link">
+            <div class="seaside-card">
+                <img src="{% static 'images/asia beach.jpg' %}" alt="Asia Beach" class="seaside-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x330?text=Asia';">
+                <div class="seaside-overlay">
+                    <h3 class="region-name">Asia</h3>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'South_Pacific_Beach' %}" class="seaside-card-link">
+            <div class="seaside-card">
+                <img src="{% static 'images/South-pasific-beach.jpg' %}" alt="South Pacific Beach" class="seaside-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x330?text=South+Pacific';">
+                <div class="seaside-overlay">
+                    <h3 class="region-name">South Pacific</h3>
+                </div>
+            </div>
+        </a>
+        
+        <a href="{% url 'Caribbean_beach' %}" class="seaside-card-link">
+            <div class="seaside-card">
+                <img src="{% static 'images/carribbean.avif' %}" alt="Caribbean Beach" class="seaside-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/300x330?text=Caribbean';">
+                <div class="seaside-overlay">
+                    <h3 class="region-name">Caribbean</h3>
+                </div>
+            </div>
+        </a>
+    </div>
+    <button class="seaside-next-btn">
+        <i class="ri-arrow-right-circle-fill"></i>
+    </button>
+</section>
+
+
+
+<section class="newsletter-section">
+  <div class="newsletter-content">
+      <h2>Subscribe to Our Newsletter</h2>
+      <p>Stay updated with the latest travel tips and offers.</p>
+      <input type="email" class="newsletter-input" placeholder="Enter your email">
+      <button class="subscribe-btn">Subscribe</button>
+  </div>
+</section>
+
+<section class="features-section">
+  <div class="features-container">
+      <div class="feature">
+          <i class="ri-train-line feature-icon"></i>
+          <h3>Comfortable Journey</h3>
+        <p>Discover the art of traveling with ease and tranquility.</p>
+      </div>
+      <div class="feature">
+          <i class="ri-hotel-line feature-icon"></i>
+          <h3>Luxuries Hotel</h3>
+<p>Indulge in unparalleled elegance where five-star amenities meet personalized service.</p>
+      </div>
+      <div class="feature">
+          <i class="ri-earth-line feature-icon"></i>
+          <h3>Travel Guide</h3>
+<p>Navigate unfamiliar destinations with confidence using our comprehensive resources.</p>
       </div>
   </div>
-  
-  <div class="latest-reviews">
+</section>
+
+
+<div class="latest-reviews">
     <h2>Latest Reviews</h2>
     <div class="reviews-grid">
         {% for review in reviews %}
             <div class="review-item">
-                <h3>Review for {{ review.place.name }}</h3>
-                <p><strong>By:</strong> {{ review.user.username }}</p>
-                <p><strong>Reviews Written:</strong> {{ review.user.reviews.count }}</p>
+                <h3>{{ review.title }} - {{ review.place.name }}</h3>
+
+                {# Removed the Moderation Status and Credibility meta-line as requested #}
+                <div class="review-meta">
+                    {% if review.moderated and not review.flagged %}
+                        <p class="approved-status">Approved by Moderator</p>
+                    {% elif review.flagged %}
+                        {% if is_moderator %}
+                             <p class="flagged-status">Flagged for review</p>
+                        {% endif %}
+                    {% endif %}
+                </div>
+
+                <div class="rating">
+                    {% with stars=review.rating|add:"0" %}
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= stars %}
+                                <i class="ri-star-fill"></i>
+                            {% else %}
+                                <i class="ri-star-line"></i>
+                            {% endif %}
+                        {% endfor %}
+                    {% endwith %}
+                </div>
+
+                {# --- Modified Username Line with Trustworthy Badge (Emoji) --- #}
+                <p>
+                    <strong>By:</strong> {{ review.user.username }}
+                    {% if review.user.approved_review_count >= 30 %}
+                        {# Display a checkmark emoji if the user has 1 or more approved reviews #}
+                        <span title="Trustworthy Traveler">✅</span>
+                    {% endif %}
+                </p>
+                {# --- End: Modified Username Line with Trustworthy Badge (Emoji) --- #}
+
+                {# Removed the "Reviews Written" line as it seems you want to remove it based on context #}
+                {# <p><strong>Reviews Written:</strong> {{ review.user.review_count }}</p> #}
+
                 <p>{{ review.content }}</p>
+
+                {% if review.images.all %}
+                <div class="review-images">
+                    {% for image in review.images.all %}
+                    <img src="{{ image.image.url }}" alt="Image for {{ review.title }}" class="review-image" style="max-width: 200px; margin: 10px 0;">
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <p><strong>Submitted on:</strong> {{ review.created_at|date:"F j, Y" }}</p>
+
                 {% if not is_moderator %}
                     <div class="review-actions">
                         <button class="thumbs-up" data-id="{{ review.id }}">👍 {{ review.thumbs_up_count }}</button>
@@ -167,43 +407,66 @@
 </div>
 
 
-<footer>
-    <div class="footer-container">
-        <!-- About Section -->
-        <div class="footer-section">
-            <h4>About</h4>
-            <ul>
-                <li><a href="/about-us/">About us</a></li>
-                <li><a href="/contact-us/">Contact us</a></li>
-            </ul>
-        </div>
+<footer class="footer">
+  <div class="footer-container">
+      <div class="footer-section">
+          <h3>Follow Us</h3>
+          <div class="social-icons">
+              <a href="#"><i class="ri-facebook-fill"></i></a>
+              <a href="#"><i class="ri-twitter-fill"></i></a>
+              <a href="#"><i class="ri-instagram-fill"></i></a>
+          </div>
+      </div>
 
-        <!-- Explore Section -->
-        <div class="footer-section">
-            <h4>Explore</h4>
-            <ul>
-                <li><a href="/write-review/">Write a Review</a></li>
-                <li><a href="/join-us/">Join us</a></li>
-            </ul>
-        </div>
+      <div class="footer-section">
+          <h3>Newsletter</h3>
+          <div class="newsletter-form">
+              <input type="email" placeholder="Your email" class="newsletter-input">
+              <button class="subscribe-btn">Subscribe</button>
+          </div>
+      </div>
+  </div>
 
-        <!-- Footer Bottom -->
-        <div class="footer-bottom">
-            <div class="footer-logo">
-                <img src="/static/images/logo.png" alt="Honest Travel Review Logo">
-            </div>
-            <div class="footer-copyright">
-                <p>Copyright &copy; 2025 Honest Travel Review</p>
-                <p>
-                    <a href="/contact-us/">Contact us</a> | 
-                    <a href="/site-map/">Site Map</a>
-                </p>
-            </div>
+<!-- AI Assistant Chat Widget -->
+<!-- AI Assistant Chat Widget -->
+<div class="chat-widget">
+    <button id="chatToggle" class="chat-toggle">
+        <i class="ri-customer-service-2-fill"></i>
+        <span>Travel Assistant</span>
+    </button>
+<div id="chatContainer" class="chat-container hidden">
+    <div class="chat-header">
+        <h3>Travel Assistant</h3>
+        <button id="closeChat" class="close-chat"><i class="ri-close-line"></i></button>
+    </div>
+    <div id="chatMessages" class="chat-messages">
+        <div class="message assistant-message initial-message">
+            Hello! I'm your travel assistant. Ask me anything about destinations, popular places, or travel tips!
         </div>
     </div>
+    <div id="suggestedResponses" class="suggested-responses">
+        <button class="suggested-response-button">What are the Popular destinations?</button>
+        <button class="suggested-response-button">What are the Best beaches?</button>
+        <button class="suggested-response-button">Top countries to visit?</button>
+    </div>
+    <div class="chat-input-area">
+        <input type="text" id="userMessage" placeholder="Ask a question...">
+        <button id="sendMessage"><i class="ri-send-plane-fill"></i></button>
+    </div>
+</div>
+</div>
+
+  <hr> <!-- Divider line -->
+
+  <p class="footer-bottom">&copy; 2025 Honest Travel Reviews. All rights reserved.</p>
 </footer>
 
 
+
     <script src="{% static 'images/javascript/java.js' %}"></script>
+    <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    <script src="{% static 'images/javascript/AI.js' %}"></script>
+    <script src="{% static 'images/javascript/Home.js' %}"></script>
   </body>
 </html>
+

@@ -1,0 +1,392 @@
+.user-profile-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+    margin-top: 550px; 
+    position: relative; 
+}
+
+.back-link {
+    margin-bottom: 20px;
+}
+
+.back-link a {
+    color: #505050;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+}
+
+.back-link a:hover {
+    color: #2196f3;
+}
+
+.user-profile-header {
+    display: flex;
+    align-items: center;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+}
+
+.user-avatar {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    overflow: hidden;
+    margin-right: 20px;
+}
+
+.user-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.avatar-initials {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4285f4;
+    color: white;
+    font-size: 36px;
+    font-weight: bold;
+}
+
+.user-header-info {
+    flex-grow: 1;
+}
+
+.user-header-info h1 {
+    margin: 0 0 10px 0;
+    font-size: 24px;
+}
+
+.user-metadata {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    color: #666;
+}
+
+.user-actions {
+    display: flex;
+    gap: 10px;
+}
+
+/* Stats Cards */
+.stats-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin-bottom: 30px;
+}
+
+.stat-card {
+    background-color: white;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 24px;
+    color: #4285f4;
+    margin-bottom: 10px;
+}
+
+.stat-value {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.stat-label {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Tabs Navigation */
+.profile-content-tabs {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.tab-navigation {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.tab-btn {
+    padding: 15px 20px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    color: #666;
+    position: relative;
+}
+
+.tab-btn.active {
+    color: #4285f4;
+    font-weight: 500;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: -1px;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background-color: #4285f4;
+}
+
+/* Tab Content */
+.tab-content {
+    display: none;
+    padding: 30px;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+.tab-content h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+}
+
+/* Reviews List */
+.user-reviews-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.review-item {
+    border: 1px solid #eee;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.review-header {
+    margin-bottom: 15px;
+}
+
+.review-header h3 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+}
+
+.review-metadata {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    color: #666;
+    font-size: 14px;
+}
+
+.review-rating {
+    color: #ffc107;
+}
+
+.review-content p {
+    margin-bottom: 10px;
+}
+
+.view-full-review {
+    color: #4285f4;
+    text-decoration: none;
+    font-size: 14px;
+}
+
+.review-status {
+    margin-top: 15px;
+}
+
+/* Status badges */
+.status-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
+
+.status-active {
+    background-color: #e8f5e9;
+    color: #4caf50;
+}
+
+.status-inactive {
+    background-color: #eeeeee;
+    color: #757575;
+}
+
+.status-flagged {
+    background-color: #ffebee;
+    color: #f44336;
+}
+
+.status-pending {
+    background-color: #fff8e1;
+    color: #ffc107;
+}
+
+/* Activity Timeline */
+.activity-timeline {
+    position: relative;
+    margin-left: 30px;
+}
+
+.activity-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 100%;
+    width: 2px;
+    background-color: #e0e0e0;
+    transform: translateX(-50%);
+}
+
+.timeline-item {
+    position: relative;
+    padding-bottom: 30px;
+    padding-left: 30px;
+}
+
+.timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background-color: #4285f4;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transform: translateX(-50%);
+}
+
+.timeline-content h3 {
+    margin: 0 0 10px 0;
+    font-size: 16px;
+}
+
+.timeline-date {
+    display: block;
+    font-size: 12px;
+    color: #666;
+    margin-top: 5px;
+}
+
+/* Locations Grid */
+.locations-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+    gap: 20px;
+}
+
+.location-card {
+    background-color: #f5f5f5;
+    border-radius: 8px;
+    padding: 20px;
+}
+
+.location-card h3 {
+    margin: 0 0 5px 0;
+    font-size: 18px;
+}
+
+.location-card p {
+    margin: 0 0 10px 0;
+    color: #666;
+}
+
+.review-count {
+    font-size: 14px;
+    color: #4285f4;
+}
+
+/* User Details */
+.user-details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.detail-item {
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+.detail-item.full-width {
+    grid-column: 1 / -1;
+}
+
+.detail-label {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 5px;
+}
+
+.detail-value {
+    font-size: 16px;
+}
+
+/* No content states */
+.no-reviews, .no-activity, .no-locations {
+    text-align: center;
+    padding: 40px 20px;
+    color: #757575;
+}
+
+.no-reviews i, .no-activity i, .no-locations i {
+    font-size: 48px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+
+/* See more button */
+.see-more-reviews {
+    text-align: center;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .user-profile-header {
+        flex-direction: column;
+        text-align: center;
+    }
+
+    .user-avatar {
+        margin-right: 0;
+        margin-bottom: 20px;
+    }
+
+    .user-metadata {
+        justify-content: center;
+    }
+
+    .tab-navigation {
+        overflow-x: auto;
+    }
+
+    .user-details-grid {
+        grid-template-columns: 1fr;
+    }
+}

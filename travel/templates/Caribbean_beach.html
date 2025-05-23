@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Caribbean Beaches - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Beach.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <!-- Hero Section with Large Image and Title -->
+<section class="hero-section">
+    <div class="hero-image">
+        <img src="{% static 'images/carribbean.avif' %}" alt="Beautiful beach panorama">
+        <div class="hero-overlay">
+            <h1 class="hero-title">Caribbean Beaches</h1>
+        </div>
+    </div>
+</section>
+
+<div class="world-description">
+    <h1>Caribbean</h1>
+    <p>From secluded coves with crystal waters to vibrant shores alive with culture, explore the Caribbean's most magnificent coastlines. Each beach tells its own story—of volcanic formations sculpting dramatic landscapes, of coral reefs painting underwater canvases, of centuries-old traditions carried on sea breezes.</p>
+    <p>Our curated selection represents the pinnacle of coastal beauty across the Caribbean, handpicked by seasoned travelers and marine enthusiasts. These destinations don't just offer a place to swim—they provide transformative experiences that connect you with nature's most spectacular meeting of land and sea.</p>
+    <p>The Caribbean's beaches epitomize tropical perfection with over 7,000 islands offering an extraordinary tapestry of coastal wonders. The Bahamas' powdery white sand beaches shimmer against shallow turquoise waters so clear you can spot marine life from shore. Jamaica's vibrant shores pulse with reggae rhythms, where dramatic coastal cliffs at Negril give way to seven miles of perfect sand, and hidden coves offer intimate escapes from bustling resort areas.</p>
+    <p>The Lesser Antilles display remarkable diversity—from St. Lucia's volcanic beaches nestled between the iconic Pitons to Anguilla's 33 pristine beaches with flour-soft sand and gin-clear waters. The Cayman Islands' Seven Mile Beach offers one of the world's finest stretches of continuous sand, with calm waters perfect for families. The French/Dutch island of Saint Martin combines European sophistication with Caribbean charm across its 37 distinctive beaches.</p>
+    <p>What distinguishes Caribbean beaches is their accessibility to phenomenal underwater worlds. Many shores lead directly to vibrant coral reefs where snorkelers can swim among tropical fish just steps from their beach towel. This combination of perfect sand, crystalline waters in every shade of blue imaginable, and rich cultural heritage—from pirate legends to colonial history and vibrant local traditions—creates an unmatched coastal experience where relaxation meets adventure in perfect harmony.</p>
+</div>
+
+<div class="beach-grid">
+    <!-- Caribbean - Destination 1 -->
+    <div class="destination-card">
+        <div class="destination-image">
+            <img src="{% static 'images/seven-mile-beach.jpg' %}" alt="Caribbean">
+        </div>
+        <div class="destination-info">
+            <h3 class="destination-name">Seven Mile Beach</h3>
+            <p class="destination-location">Grand Cayman, Caribbean</p>
+            <p class="destination-description">This pristine stretch of coral sand offers calm, clear waters perfect for swimming and sunset strolls. Luxury resorts line the shore, while offshore reefs invite spectacular snorkeling adventures.</p>
+            <a href="{% url 'Seven_Mile_Beach' %}" class="destination-link">Explore Beach →</a>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'images/javascript/Profile.js' %}"></script>
+<script src="{% static 'images/javascript/java.js' %}"></script>
+  </body>
+</html>

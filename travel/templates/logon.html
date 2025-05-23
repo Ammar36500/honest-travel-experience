@@ -1,0 +1,84 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Travel Review</title>
+    <link rel="stylesheet" href="{% static 'images/css/signup.css' %}">
+</head>
+<body>
+    <!-- Forest Background Elements -->
+    <div class="forest-bg"></div>
+    <div class="light"></div>
+    <div class="tree tree-1"></div>
+    <div class="tree tree-2"></div>
+    <div class="tree tree-3"></div>
+    <div class="tree tree-4"></div>
+    <div class="bird bird-1"></div>
+    <div class="bird bird-2"></div>
+    <div class="bird bird-3"></div>
+    
+    <!-- Login Form -->
+    <div class="auth-container">
+        <h1>Login</h1>
+        <div id="errorContainer" class="error-message" style="display: none;"></div>
+        
+        <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+            
+            <button type="submit" class="auth-btn">Login</button>
+        </form>
+        <div class="alt-link">
+            Don't have an account? <a href="{% url 'SignUp' %}">Sign up</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const loginForm = document.getElementById('loginForm');
+        const errorContainer = document.getElementById('errorContainer');
+        
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(loginForm);
+            const loginUrl = loginForm.getAttribute('data-login-url');
+            
+            fetch(loginUrl, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Redirect on success
+                    window.location.href = data.redirect_url || '/submit_review';
+                } else {
+                    // Show error
+                    errorContainer.textContent = data.error || 'Invalid username or password.';
+                    errorContainer.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorContainer.textContent = 'An unexpected error occurred. Please try again.';
+                errorContainer.style.display = 'block';
+            });
+        });
+    });
+    </script>
+
+<script src="{% static 'images/javascript/Profile.js' %}"></script>
+</body>
+</html>

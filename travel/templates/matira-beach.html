@@ -1,0 +1,602 @@
+
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Matira Beach - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+      <!-- Banner section with proper closing -->
+      <div class="destination-banner">
+        <div class="banner-container">
+          <img src="{% static 'images/matira-beach-panorama.jpg' %}" alt="Matira Beach with stunning azure waters, white sand, and palm trees with Mount Otemanu in the background" class="banner-image">
+          <div class="banner-overlay"></div>
+          <div class="destination-overlay-text">
+            <h1 class="destination-title">Matira Beach</h1>
+            <p class="destination-description">Experience Bora Bora's most famous stretch of sand, where powdery white shores meet impossibly blue lagoon waters against the backdrop of Mount Otemanu's majestic silhouette.</p>
+            <div class="destination-meta">
+              <!-- Meta content here -->
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+
+    <!-- About Matira Beach Section -->
+<section class="about-destination">
+  <div class="about-container">
+      <h2 class="section-title">About Matira Beach</h2>
+      
+      <p class="about-text">Matira Beach is widely celebrated as one of the most beautiful beaches in the world and stands as Bora Bora's premier public beach. Located on the southern end of the main island, this mile-long stretch of powdery white sand gradually slopes into a shallow, crystal-clear lagoon with mesmerizing shades of turquoise and azure blue. Framed by swaying palm trees and lush tropical vegetation, the beach offers breathtaking views of the lagoon and Bora Bora's smaller motus (islets) in the distance, with the iconic silhouette of Mount Otemanu creating a dramatic backdrop. What sets Matira Beach apart is its perfect combination of accessibility and beauty—unlike many of Bora Bora's beaches, which are limited to resort guests, Matira remains open to the public while rivaling the splendor of any private stretch of sand. Its gentle slope and protected location make it ideal for swimming and snorkeling, with colorful coral gardens located just offshore. As the sun sets, the beach transforms into one of French Polynesia's most enchanting spots to witness the day's end, with the sky and water merging in a spectacular display of color.</p>
+      
+      <div class="info-tiles">
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-sun-line"></i>
+              </div>
+              <div class="info-title">Tropical Climate</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-translate"></i>
+              </div>
+              <div class="info-title">French & Tahitian</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+              </div>
+              <div class="info-title">CFP Franc (XPF)</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-time-fill"></i>
+              </div>
+              <div class="info-title">TAHT (UTC-10)</div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Top Attractions Section -->
+<section class="top-destinations">
+  <div class="destinations-container">
+      <h2 class="section-title">Top Experiences</h2>
+      
+      <div class="destinations-grid">
+          <div class="destination-card">
+              <img src="{% static 'images/matira-snorkeling.jpg' %}" alt="Snorkeling in the crystal clear waters of Matira Beach" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Snorkeling</h3>
+                  <p class="destination-description">Explore vibrant coral gardens and encounter tropical fish just offshore in the shallow, protected lagoon waters.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/matira-sunset.jpg' %}" alt="Breathtaking sunset at Matira Beach with silhouettes of palm trees" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Sunset Watching</h3>
+                  <p class="destination-description">Witness spectacular sunsets as the sky ignites with color and Mount Otemanu creates a dramatic silhouette.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/matira-paddleboarding.jpg' %}" alt="Paddleboarding on the calm waters of Matira Beach" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Paddleboarding</h3>
+                  <p class="destination-description">Glide across the translucent lagoon waters on a paddleboard, with unobstructed views of the surrounding paradise.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/matira-dining.jpg' %}" alt="Beachside dining at Matira Beach" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Beachside Dining</h3>
+                  <p class="destination-description">Enjoy fresh seafood and Polynesian specialties at restaurants facing the lagoon with perfect sunset views.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Travel Tips Section -->
+<section class="travel-tips">
+  <div class="tips-container">
+      <div class="tips-header">
+          <h2 class="section-title">Travel Tips</h2>
+          <p class="tips-subtitle">Essential information for your Matira Beach adventure</p>
+      </div>
+      
+      <div class="tips-content-container">
+          <div class="tips-list">
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Best Time to Visit</h3>
+                      <p class="tip-description">The ideal time to visit Matira Beach is during the dry season from May to October when temperatures average 78-84°F (25-29°C) with lower humidity and minimal rainfall. The peak tourist months are July and August; visit in May, June, September, or October for pleasant weather with fewer crowds. The wet season (November-April) brings warmer temperatures, higher humidity, and occasional heavy rainfall, but also lush green landscapes and lower accommodation rates.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-taxi-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Transportation</h3>
+                      <p class="tip-description">Reach Matira Beach via Bora Bora's coastal road, either by rental car, bicycle (from Vaitape town, about 5-6 km), or the public "Le Truck" bus that makes regular circuits around the island (fare approximately 500 XPF/~$4.50 USD). Many resorts offer complimentary shuttle services to Matira. For greater flexibility, consider renting a bicycle (3,000-5,000 XPF/~$27-45 USD per day) or a car (10,000-15,000 XPF/~$90-135 USD per day) to explore at your own pace.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-money-dollar-circle-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Currency & Costs</h3>
+                      <p class="tip-description">French Polynesia uses the CFP Franc (XPF), with approximate exchange rates of 100 XPF = $0.90 USD. While credit cards are accepted at hotels and larger restaurants, smaller establishments near Matira often require cash. ATMs are available in Vaitape town. Bora Bora is exceptionally expensive—budget 6,000-10,000 XPF ($55-90 USD) daily for basic meals and transportation if not staying at an all-inclusive resort. Bringing snacks and water from the grocery store in Vaitape can help reduce costs.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Important Notes</h3>
+                      <p class="tip-description">Matira Beach has limited facilities—bring essentials like water, snacks, sunscreen, and beach gear. Public restrooms are available but basic. The beach has natural shade from palm trees, but arrive early to secure a shady spot during peak times. Reef-safe sunscreen is strongly encouraged to protect the marine ecosystem. While generally safe, avoid leaving valuables unattended. French Polynesian culture is conservative—respectful attire is appreciated when visiting nearby shops or restaurants. Bring water shoes for protection from occasional sharp coral fragments in the sand.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+    <div class="faq-container">
+        <h2 class="section-title">Matira Beach FAQs</h2>
+        <p class="faq-intro">The most common questions about visiting Matira Beach, answered.</p>
+        
+        <div class="faq-list">
+            <!-- FAQ Item 1 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>How do I get to Matira Beach from my resort?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Transportation options to Matira Beach vary depending on your accommodation location: 1) From mainland resorts - If you're staying on Bora Bora's main island, Matira Beach is accessible via the island's main coastal road. Hotels near Vaitape are approximately 5-6 km from Matira, reachable by bicycle (30-40 minutes), taxi (2,000-3,000 XPF/~$18-27 USD), or the public "Le Truck" bus (500 XPF/~$4.50 USD). Most mainland hotels offer complimentary or paid shuttle services to the beach. 2) From motu (islet) resorts - If you're staying in an overwater bungalow resort on one of the outer motus, your hotel will operate boat shuttles to the main island, usually to Vaitape. Inquire with your concierge about schedules and whether they offer transfers directly to Matira Beach. Some luxury resorts charge for boat transfers (1,500-3,000 XPF/~$13-27 USD round-trip), while others include them. From Vaitape, take a taxi or "Le Truck" to Matira. 3) Self-transportation options - Rental cars are available in Vaitape (10,000-15,000 XPF/~$90-135 USD per day); bicycles provide an enjoyable way to reach the beach (3,000-5,000 XPF/~$27-45 USD per day); scooters offer a quick option (6,000-8,000 XPF/~$55-73 USD per day). Note that if you're arriving by cruise ship, shore excursions often include time at Matira Beach, or you can take the tender to Vaitape and arrange transportation from there.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 2 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>What are the best snorkeling spots at Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Matira Beach offers excellent shore-accessible snorkeling in several specific areas: 1) Southern End Coral Gardens - The area near Matira Point (the southeastern tip of the beach) features patches of coral about 15-30 meters from shore in water 1-2 meters deep. This spot is best accessed by entering the water near the Hotel Matira, where you'll find clownfish, butterflyfish, parrotfish, and occasionally small reef sharks. 2) Central Beach Coral Clusters - Scattered coral formations are located 20-40 meters offshore along the middle section of the beach, hosting colorful damselfish, triggerfish, and angelfish. Look for darker patches visible from shore indicating coral. 3) Northern Shallow Reef - Near the boundary with Sofitel Resort, a more extensive reef section begins about 50 meters offshore with slightly deeper water (2-3 meters). This area offers the most diverse marine life including larger fish species and occasionally eagle rays. 4) Matira Point Drop-off - Advanced snorkelers can explore beyond the southern point where the lagoon shelf drops off more dramatically, offering sightings of larger pelagic species, though currents can be stronger here. For the best snorkeling experience, visit during morning hours (8-11 AM) when the water is typically calmest and sunlight penetrates the water at an ideal angle for visibility. Bring your own gear or rent from nearby hotels and small beach vendors (1,500-2,500 XPF/~$13-22 USD per day). Reef-safe sunscreen is strongly encouraged, and wearing a rash guard/thin wetsuit top provides sun protection while reducing sunscreen usage. During high tide, snorkeling conditions improve as water covers more of the shallow coral, reducing risk of contact damage to both coral and snorkelers.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 3 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>What facilities are available at Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Matira Beach offers limited but adequate facilities for visitors: 1) Restrooms - Basic public facilities are located near the central area of the beach and at the nearby Matira Point public park. These are functional but modestly maintained. 2) Showers - A few fresh water rinse stations are available near the main public access points. 3) Food & Drink - Several dining options flank the beach, including Matira Beach Restaurant (mid-range pricing), Snack Matira (budget-friendly), and Lucky House (Asian-Polynesian fusion). The Sunday Beach Lounge offers drinks and light fare with beachfront seating. Small grocery stores near the beach sell drinks, snacks, and basic supplies at somewhat elevated prices. 4) Equipment Rental - A few small vendors offer snorkeling gear (1,500-2,500 XPF/~$13-22 USD/day), kayaks (half-hour: 1,500 XPF/~$13 USD; full day: 6,000 XPF/~$55 USD), and paddleboards (half-hour: 2,000 XPF/~$18 USD; full day: 8,000 XPF/~$73 USD). Advance reservations aren't typically necessary except during peak season. 5) Shade - Natural shade from palm trees is available but limited during midday. There are no rental umbrellas or loungers on the public sections of the beach, so bringing a beach mat or towel is recommended. 6) Trash facilities - Waste bins are provided at regular intervals; please use them as Bora Bora works hard to maintain beach cleanliness. 7) Medical facilities - No lifeguards or medical services are directly on the beach. The nearest medical clinic is in Vaitape, about 6 km away. What Matira lacks in sophisticated facilities, it makes up for with natural beauty and accessibility. Many visitors stop at the grocery store in Vaitape before heading to the beach to purchase refreshments and supplies at lower prices than those available near the beach.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 4 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>What restaurants are near Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Several dining options are available within walking distance of Matira Beach, spanning various cuisines and price points: 1) Matira Beach Restaurant - Beachfront establishment offering French-Polynesian fusion cuisine with excellent sunset views. Well-known for fresh mahi-mahi and traditional poisson cru (Tahitian raw fish in coconut milk). Mid-to-high price range (main courses 2,500-4,500 XPF/~$23-40 USD). 2) Snack Matira - Casual eatery serving sandwiches, burgers, and simple Polynesian dishes at more reasonable prices (1,000-2,000 XPF/~$9-18 USD per item). Popular with locals and budget travelers. 3) Lucky House - Asian-Polynesian fusion restaurant a short walk from the beach, offering Chinese, Vietnamese, and Tahitian dishes. Known for generous portions at moderate prices (mains 1,800-3,000 XPF/~$16-27 USD). 4) Sunday Beach Lounge - Trendy beach bar with tapas-style small plates, cocktails, and occasional live music. Perfect for sunset drinks (cocktails 1,500-2,000 XPF/~$13-18 USD). 5) Fare Manuia - Slightly more upscale restaurant specializing in fresh seafood with French influences. Beautiful sunset views from their terrace (mains 3,000-5,000 XPF/~$27-45 USD). 6) Le Matira Beach - Pizza and casual Italian fare in a relaxed setting. Popular for takeaway options to enjoy on the beach (pizzas 2,000-2,800 XPF/~$18-25 USD). 7) Hotel Sofitel's restaurants - While pricier, non-guests can dine at the Sofitel's restaurants at the northern end of Matira, including Latitude 16° for Polynesian-influenced French cuisine. Reservations recommended during peak season for sunset dining at any beachfront establishment. Most restaurants accept credit cards, but smaller "snacks" (casual eateries) may be cash-only. For budget-conscious travelers, the grocery stores near Matira Beach sell baguettes, cheese, fruits, and drinks for creating your own beach picnic at a fraction of restaurant prices.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 5 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>Is Matira Beach suitable for children?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Matira Beach is exceptionally well-suited for families with children of all ages due to several key features: 1) Gentle Slope & Shallow Waters - The beach has a gradual entry into the lagoon with shallow, clear water extending far from shore. Children can wade comfortably in knee to waist-deep water for extensive distances, making it ideal for younger kids. 2) Protected Lagoon - The beach is situated within Bora Bora's sheltered lagoon, meaning minimal waves and currents under normal conditions. The surrounding barrier reef prevents large swells from reaching the beach. 3) Soft Sand - The beach features fine, powder-soft white sand without sharp rocks or substantial coral fragments, comfortable for children to play and walk on. 4) Marine Life Accessibility - Colorful fish often swim in the shallow waters, allowing children to experience tropical marine life without needing to venture into deeper areas. Simple snorkeling near shore is rewarding for beginners. 5) Natural Shade - Palm trees provide shaded areas for children to play out of direct sunlight, though these spots fill quickly during peak hours. 6) Family-Friendly Dining - Several restaurants along the beach offer children's menus, including Snack Matira and Lucky House. Important considerations for families: Bring ample sun protection as the tropical sun is intense, and shaded areas are limited during midday. No lifeguards are present, so children require constant supervision. Basic restroom facilities are available but may not include changing tables. The beach lacks playground equipment or organized children's activities—bring beach toys if desired. For very young children, a pop-up sun tent is recommended. Most accommodations near Matira Beach welcome families, with Matira House and various vacation rentals offering multi-room options more suitable than the luxury overwater bungalows found elsewhere on the island.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 6 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>What water activities are available at Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Matira Beach offers diverse water activities accessible directly from shore or through nearby providers: 1) Snorkeling - The most popular activity, with rental equipment available from beach vendors (1,500-2,500 XPF/~$13-22 USD per day). Multiple coral gardens are accessible from shore, particularly near the beach ends. 2) Paddleboarding - Stable, beginner-friendly waters make this an ideal location, with rentals available hourly (2,000 XPF/~$18 USD) or daily (8,000 XPF/~$73 USD). 3) Kayaking - Single and transparent-bottom kayaks for lagoon exploration, rented hourly (1,500 XPF/~$13 USD) or daily (6,000 XPF/~$55 USD). 4) Kiteboarding - When conditions permit, usually during the windier months (June-August), lessons and rentals available through Matira Activity Center. 5) Jet Ski Tours - Guided excursions (not independent rentals) around the lagoon departing from adjacent operators (30 minutes: 12,000 XPF/~$110 USD per machine; 2-hour island circuit: 30,000 XPF/~$275 USD). 6) Parasailing - Aerial views of Bora Bora's stunning lagoon colors, arranged through nearby activity providers (15,000 XPF/~$135 USD per flight). 7) Swimming - The gradual slope and protected waters create ideal swimming conditions for all abilities. 8) Boat Excursions - Various tour operators at the beach offer half or full-day lagoon tours, including shark/ray feeding experiences and motu picnics (half-day from 8,000 XPF/~$73 USD per person). 9) Sunset Cruises - Evening boat trips departing near Matira Beach for spectacular sunset views (10,000-15,000 XPF/~$90-135 USD per person, often including drinks). 10) Fishing Charters - Lagoon fishing and deep-sea fishing arranged through providers at the northern end of the beach. For equipment rentals, mornings typically offer calmer conditions. Activity providers generally accept cash only, with advanced booking recommended for jet ski tours and boat excursions, especially during high season (June-September). Instruction in basic English and French is available for most activities. Sunset hours bring a natural pause to most water activities as operators close, making this the perfect time for swimming and beach relaxation.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 7 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>Where can I stay near Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>Accommodation options near Matira Beach range from luxury resorts to budget-friendly pensions: 1) Luxury - Sofitel Bora Bora Marara Beach Resort sits at the northern end of Matira with beachfront and overwater bungalows (80,000-150,000 XPF/~$730-1,370 USD per night). InterContinental Le Moana offers overwater and beach bungalows within walking distance (90,000-180,000 XPF/~$820-1,640 USD nightly). 2) Mid-Range - Hotel Matira features garden and beach view rooms at the southern end of the beach (30,000-60,000 XPF/~$275-550 USD per night). Matira House offers apartment-style accommodation with kitchen facilities (25,000-40,000 XPF/~$230-365 USD nightly). 3) Budget - Sunset Hill Lodge provides simple rooms with partial lagoon views a short walk from the beach (15,000-25,000 XPF/~$135-230 USD per night). Pension Alice et Raphael offers basic guest house accommodations nearby (12,000-18,000 XPF/~$110-165 USD nightly). 4) Vacation Rentals - Several privately owned bungalows and apartments are available through platforms like Airbnb and Booking.com, often representing better value than resorts (20,000-40,000 XPF/~$180-365 USD per night). If seeking direct beach access, Hotel Matira and Sofitel Marara offer the most convenient options with immediate beach access. Budget-conscious travelers should consider accommodations in Vaitape with transportation to Matira Beach, as prices decrease significantly with distance from the beach. High season (June-September) sees rates increase by 20-40% across all property types with limited availability—booking 4-6 months ahead is recommended during this period. Many accommodations include breakfast, though full board or all-inclusive options are limited outside major resorts. When choosing accommodation, consider that Matira Beach faces west, offering spectacular sunsets, while properties on its eastern side may have Mount Otemanu views but no sunset vistas. For longer stays (5+ days), properties with kitchen facilities can significantly reduce the high cost of dining in Bora Bora.</p>
+                </div>
+            </details>
+            
+            <!-- FAQ Item 8 -->
+            <details class="faq-item">
+                <summary class="faq-question">
+                    <h3>What other attractions are near Matira Beach?</h3>
+                </summary>
+                <div class="faq-answer">
+                    <p>While Matira Beach is Bora Bora's premier attraction, several other noteworthy experiences are available nearby: 1) Matira Point Lookout - A short hike to the elevated point at the southern end of the beach offers panoramic views of the lagoon, outer motus, and Mount Otemanu (free, 15-minute walk from the beach). 2) Lagoonarium - Located on a motu accessible by boat tour, this natural aquarium offers guided snorkeling with rays, sharks, and hundreds of fish species in a controlled environment (8,000-12,000 XPF/~$73-110 USD, including transportation). 3) Mount Pahia Hiking - For adventurous travelers, guided hikes up Bora Bora's second-highest peak provide breathtaking views (half-day guided tours from 10,000 XPF/~$90 USD per person). 4) Vaitape Town - The island's main settlement is about 6 km from Matira, offering shopping, dining, and cultural experiences, including the local market and artisan shops. 5) Coral Gardens - A famous snorkeling spot accessible by boat tour, featuring exceptionally vibrant coral formations and abundant marine life (typically included in lagoon tours). 6) Bloody Mary's Restaurant - This iconic Bora Bora establishment famous for its celebrity visitors is about 3 km from Matira Beach (free transport often provided with dinner reservations). 7) Motu Picnic Excursions - Full or half-day trips to private islets for authentic Polynesian meals and snorkeling (10,000-15,000 XPF/~$90-135 USD per person). 8) Cultural Village Tours - Learn about traditional Polynesian crafts, music, and cooking techniques at cultural demonstrations (5,000-7,000 XPF/~$45-64 USD). 9) Circle Island Tours - Van tours circumnavigating Bora Bora's main island, visiting historic sites and viewpoints (6,000-8,000 XPF/~$55-73 USD, half-day). 10) Jet Ski Island Tours - High-energy exploration of the entire lagoon by personal watercraft (30,000 XPF/~$275 USD for two-hour guided tour). Most excursions can be booked through accommodation concierge services or directly with operators in Vaitape. For the best value, consider combination tours that include multiple attractions. During peak season (June-September), booking at least 1-2 days in advance is recommended for popular excursions like motu picnics and Lagoonarium visits.</p>
+                </div>
+            </details>
+        </div>
+    </div>
+  </section>
+  
+  <!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

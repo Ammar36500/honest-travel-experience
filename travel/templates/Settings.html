@@ -1,0 +1,139 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Settings - Travel Review Admin</title>
+    <link rel="stylesheet" href="{% static 'images/css/Dashboard.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Settings.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo"><a href="{% url 'home' %}">HTR ADMIN</a></div>
+            <nav>
+                <a href="{% url 'moderator_dashboard' %}" class="nav-item"><i class="fas fa-th-large"></i> Dashboard</a>
+                <a href="{% url 'User_management' %}" class="nav-item"><i class="fas fa-users"></i> User Management</a>
+                <a href="{% url 'moderator_reviews' %}" class="nav-item"><i class="fas fa-star"></i> Reviews</a>
+                <a href="{% url 'Analytics' %}" class="nav-item"><i class="fas fa-chart-bar"></i> Analytics</a>
+                <a href="{% url 'Settings' %}" class="nav-item active"><i class="fas fa-cog"></i> Settings</a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="top-nav">
+                 <div class="search-bar"><i class="fas fa-search"></i><input type="text" placeholder="Search..."></div>
+                 <div class="user-menu">
+                     <div class="notification"><i class="fas fa-bell"></i><span class="notification-badge">1</span></div>
+                     <div class="user-profile">
+                         <img src="{{ request.user.get_profile_picture_url }}" alt="Profile" class="profile-icon" id="profileIconBtn">
+                         <span>{{ request.user.username }}</span>
+                     </div>
+                 </div>
+            </div>
+
+            <div class="page-header">
+                <h1>Settings</h1>
+                <p>Configure your travel review platform preferences and system settings</p>
+                <div id="message-container" style="margin-top: 15px;"></div>
+            </div>
+
+            <div class="settings-content">
+                 <script> const CSRF_TOKEN = '{{ csrf_token }}'; </script>
+
+                 <div class="settings-card">
+                    <div class="settings-card-header"><h2>General Settings</h2></div>
+                    <div class="settings-card-body">
+                        <div class="form-group">
+                            <label for="platform-name">Platform Name</label>
+                            <input type="text" id="platform-name" name="platform_name" class="form-control" placeholder="e.g., Awesome Travel Reviews" maxlength="100">
+                            <p class="setting-description">The public name displayed for your platform.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="default-reviews-per-page">Default Reviews Per Page</label>
+                            <input type="number" id="default-reviews-per-page" name="default_reviews_per_page" class="form-control" min="5" max="50" step="1">
+                            <p class="setting-description">Number of reviews shown on listing pages (5-50).</p>
+                        </div>
+                         <div class="form-group">
+                            <label for="minimum-review-length">Minimum Review Length</label>
+                            <input type="number" id="minimum-review-length" name="minimum_review_length" class="form-control" min="10" step="10">
+                            <p class="setting-description">Minimum characters required for review content (e.g., 50).</p>
+                        </div>
+                         <div class="form-group">
+                            <label for="support-contact-email">Support Contact Email</label>
+                            <input type="email" id="support-contact-email" name="support_contact_email" class="form-control" placeholder="e.g., support@example.com">
+                            <p class="setting-description">Public email for support inquiries (optional).</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-card-header"><h2>Bias Prevention Settings</h2></div>
+                    <div class="settings-card-body">
+                        <div class="alert alert-info"><i class="fas fa-info-circle"></i><div><strong>Bias Mitigation</strong><p>Configure settings to help reduce potential bias in review moderation.</p></div></div>
+                        <div class="form-group">
+                            <label for="secondary-review">Secondary Review for Non-English Content</label>
+                            <div class="toggle-switch"><input type="checkbox" id="secondary-review" name="secondary_review_non_english"><label for="secondary-review"></label></div>
+                            <p class="setting-description">Requires an additional moderator review for content identified as non-English.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="decision-tracking">Admin Decision Tracking</label>
+                            <div class="toggle-switch"><input type="checkbox" id="decision-tracking" name="admin_decision_tracking"><label for="decision-tracking"></label></div>
+                             <p class="setting-description">Log moderator decisions to monitor consistency and identify potential biases.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="rejection-reason">Require Rejection Reason</label>
+                            <div class="toggle-switch"><input type="checkbox" id="rejection-reason" name="require_rejection_reason"><label for="rejection-reason"></label></div>
+                             <p class="setting-description">Force moderators to select a reason code when rejecting a review.</p>
+                        </div>
+                        <div class="form-group">
+                            <label for="bias-threshold">Fairness Alert Threshold (%)</label>
+                            <select id="bias-threshold" name="fairness_alert_threshold" class="form-control">
+                                <option value="10">10% (Strict)</option>
+                                <option value="15" selected>15% (Recommended)</option>
+                                <option value="20">20% (Relaxed)</option>
+                            </select>
+                             <p class="setting-description">Set the percentage difference in rejection rates that triggers a fairness alert.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-card-header"><h2>Approval/Rejection Reason Codes</h2></div>
+                    <div class="settings-card-body">
+                         <p class="section-description">Manage the predefined reasons moderators can use.</p>
+                        <div class="reason-codes-list" id="reason-codes-list">
+                             <div class="loading-indicator" id="reason-codes-loading"><i class="fas fa-spinner fa-spin"></i> Loading...</div>
+                        </div>
+                        <div class="add-reason-btn"><button class="secondary-btn" id="add-reason-btn"><i class="fas fa-plus"></i> Add Reason Code</button></div>
+                    </div>
+                </div>
+
+                <div class="settings-card">
+                    <div class="settings-card-header"><h2>Save Settings</h2></div>
+                    <div class="settings-card-body">
+                        <p class="section-description">Save all changes made in the General and Bias Prevention sections.</p>
+                        <div class="save-settings">
+                            <button class="secondary-btn" id="cancel-changes-btn">Cancel Changes</button>
+                            <button class="primary-btn" id="save-settings-btn"><i class="fas fa-save"></i> Save Changes</button>
+                        </div>
+                    </div>
+                </div>
+            </div> </div> </div> <div id="reasonCodeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header"><h2 id="modal-title">Add Reason Code</h2><button class="close-btn" id="closeModalBtn">&times;</button></div>
+            <div class="modal-body">
+                <input type="hidden" id="reasonCodeId" value="">
+                <div class="form-group"><label for="reasonCodeInput">Code <span style="color:red;">*</span></label><input type="text" id="reasonCodeInput" placeholder="e.g., SPAM" required maxlength="20"><p class="setting-description">Short, unique identifier (uppercase, no spaces).</p></div>
+                <div class="form-group"><label for="reasonLabelInput">Label <span style="color:red;">*</span></label><input type="text" id="reasonLabelInput" placeholder="e.g., Spam / Irrelevant" required maxlength="100"><p class="setting-description">User-friendly name.</p></div>
+                <div class="form-group"><label for="reasonDescriptionInput">Description</label><textarea id="reasonDescriptionInput" placeholder="Detailed explanation (optional)"></textarea></div>
+            </div>
+            <div class="modal-footer"><button class="secondary-btn" id="cancelModalBtn">Cancel</button><button class="primary-btn" id="saveReasonCodeBtn"><i class="fas fa-save"></i> Save Reason Code</button></div>
+        </div>
+    </div>
+
+    <script src="{% static 'images/javascript/settings.js' %}"></script>
+</body>
+</html>

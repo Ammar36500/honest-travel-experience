@@ -1,97 +1,277 @@
 {% load static %}
+{% load humanize %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Moderator Dashboard</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 20px;
-            background-color: #f4f4f4;
-        }
-        header {
-            background-color: #333;
-            color: white;
-            padding: 15px 20px;
-            text-align: center;
-            font-size: 24px;
-        }
-        main {
-            padding: 20px;
-        }
-        h3 {
-            text-align: center;
-            margin-bottom: 20px;
-        }
-        .review-item {
-            border: 1px solid #ddd;
-            padding: 16px;
-            margin: 15px auto;
-            border-radius: 8px;
-            background-color: #fff;
-            max-width: 600px;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            position: relative;
-        }
-        .review-item h4 {
-            font-size: 1.2em;
-            margin-bottom: 10px;
-            color: #333;
-        }
-        .review-item p {
-            font-size: 0.95em;
-            color: #555;
-        }
-        .review-item form button {
-            margin-right: 10px;
-            padding: 8px 14px;
-            border: none;
-            background-color: #007bff;
-            color: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-        .review-item form button:nth-child(2) {
-            background-color: #dc3545;
-        }
-        .review-item form button:hover {
-            opacity: 0.85;
-        }
-        .no-reviews {
-            text-align: center;
-            font-size: 1.1em;
-            color: #888;
-            margin-top: 40px;
-        }
-    </style>
+    <title>Travel Review Admin Dashboard</title>
+    <link rel="stylesheet" href="{% static 'images/css/Dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="{% static 'images/javascript/Moderator_Dashboard.js' %}"></script>
 </head>
 <body>
-    <header>
-        Moderator Dashboard
-    </header>
-    <main>
-        <h3>Flagged Reviews Assigned to You</h3>
-        {% for flag in reviews %}
-            <div class="review-item" id="review-{{ flag.review.id }}">
-                <h4>Review for {{ flag.review.place.name }}</h4>
-                <p><strong>By:</strong> {{ flag.review.user.username }}</p>
-                <p><strong>Reason for Flagging:</strong> {{ flag.reason }}</p>
-                <p>{{ flag.review.content }}</p>
-                <form method="POST" class="moderation-form" data-id="{{ flag.review.id }}" action="{% url 'moderate_review' flag.review.id %}">
-                    {% csrf_token %}
-                    <button type="submit" name="action" value="approve" class="approve-btn" data-id="{{ flag.review.id }}">Approve</button>
-                    <button type="submit" name="action" value="reject" class="reject-btn" data-id="{{ flag.review.id }}">Reject</button>
-                </form>                             
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <a href="{% url 'home' %}">HTR ADMIN</a>
             </div>
-        {% empty %}
-            <p class="no-reviews">No flagged reviews assigned to you!</p>
-        {% endfor %}
-    </main>
-             
-    <script src="{% static 'images/javascript/java.js' %}"></script>
+            <nav>
+                <a href="{% url 'moderator_dashboard' %}" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    Dashboard
+                </a>
+                <a href="{% url 'User_management' %}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="{% url 'moderator_reviews' %}" class="nav-item active">
+                    <i class="fas fa-star"></i>
+                    Reviews
+                </a>
+                <a href="{% url 'Analytics' %}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+                <a href="{% url 'Settings' %}" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search...">
+                </div>
+                <div class="user-menu">
+                    <div class="notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">1</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+                        <span>{{ user.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Welcome Section -->
+            <div class="welcome-section">
+                <h1>Welcome back, {{ user.username }}!</h1>
+                <p>Here's what's happening with your travel review platform today.</p>
+            </div>
+
+            <!-- Stats Cards -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <span class="vs-text">vs last week</span>
+                    <div class="stat-icon icon-blue">
+                        <i class="fas fa-clipboard-list"></i>
+                    </div>
+                    <div class="stat-value">{{ stats.total_reviews.value|intcomma }}</div>
+                    <div class="stat-label">Total Reviews</div>
+                    <div class="stat-change {% if stats.total_reviews.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.total_reviews.is_positive %}up{% else %}down{% endif %}"></i>
+                        {{ stats.total_reviews.change|floatformat:1 }}%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="vs-text">vs last week</span>
+                    <div class="stat-icon icon-yellow">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-value">{{ stats.pending_reviews.value|intcomma }}</div>
+                    <div class="stat-label">Pending Reviews</div>
+                    <div class="stat-change {% if stats.pending_reviews.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.pending_reviews.is_positive %}up{% else %}down{% endif %}"></i>
+                        {{ stats.pending_reviews.change|floatformat:1 }}%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="vs-text">vs last week</span>
+                    <div class="stat-icon icon-green">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-value">{{ stats.active_users.value|intcomma }}</div>
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-change {% if stats.active_users.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.active_users.is_positive %}up{% else %}down{% endif %}"></i>
+                        {{ stats.active_users.change|floatformat:1 }}%
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <span class="vs-text">vs last week</span>
+                    <div class="stat-icon icon-red">
+                        <i class="fas fa-flag"></i>
+                    </div>
+                    <div class="stat-value">{{ stats.flagged_content.value|intcomma }}</div>
+                    <div class="stat-label">Flagged Content</div>
+                    <div class="stat-change {% if stats.flagged_content.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.flagged_content.is_positive %}up{% else %}down{% endif %}"></i>
+                        {{ stats.flagged_content.change|floatformat:1 }}%
+                    </div>
+                </div>
+            </div>
+
+            <!-- Bias Monitoring Section -->
+            <div class="bias-monitoring">
+                <div class="bias-title">
+                    <i class="fas fa-balance-scale"></i>
+                    Fairness Monitor
+                </div>
+                
+                {% if bias_metrics.has_bias_alert %}
+                <div class="bias-alert">
+                    <p><strong>Potential Inconsistency Alert:</strong> Non-English reviews are being rejected at a {{ bias_metrics.non_english_rate|floatformat:0 }}% rate compared to {{ bias_metrics.english_rate|floatformat:0 }}% for English reviews.</p>
+                </div>
+                {% endif %}
+                
+                <div class="bias-metrics">
+                    <div class="bias-metric">
+                        <div class="bias-metric-title">English Reviews</div>
+                        <div class="bias-metric-value">{{ bias_metrics.english_rate|floatformat:0 }}%</div>
+                        <div class="bias-metric-label">Rejection Rate</div>
+                    </div>
+                    
+                    <div class="bias-metric {% if bias_metrics.has_bias_alert %}highlighted{% endif %}">
+                        <div class="bias-metric-title">Non-English Reviews</div>
+                        <div class="bias-metric-value">{{ bias_metrics.non_english_rate|floatformat:0 }}%</div>
+                        <div class="bias-metric-label">Rejection Rate</div>
+                    </div>
+                    
+                    <div class="bias-metric">
+                        <div class="bias-metric-title">Admin Consistency</div>
+                        <div class="bias-metric-value">{{ bias_metrics.admin_consistency }}%</div>
+                        <div class="bias-metric-label">Decision Alignment</div>
+                        <div class="consistency-score">
+                            <div class="consistency-bar {% if bias_metrics.admin_consistency >= 80 %}high-consistency{% elif bias_metrics.admin_consistency >= 60 %}medium-consistency{% else %}low-consistency{% endif %} width-{{ bias_metrics.admin_consistency|floatformat:0 }}"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="view-details">
+                    <a href="{% url 'Analytics' %}">View Detailed Report</a>
+                </div>
+            </div>
+
+            <!-- Charts -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Review Trends</div>
+                    </div>
+                    <div class="chart-container" style="height: 250px;">
+                        <canvas id="reviewTrendsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">Review Distribution</div>
+                    </div>
+                    <div class="chart-container">
+                        <div class="donut-chart" style="height: 200px; position: relative;">
+                            <canvas id="reviewDistributionChart"></canvas>
+                          </div>
+                        <div class="chart-legend">
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #3490dc;"></div>
+                                <span>Approved</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #a0e0d1;"></div>
+                                <span>Pending</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #ffe082;"></div>
+                                <span>Rejected</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-color" style="background-color: #f8a5a3;"></div>
+                                <span>Flagged</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            
+            <!-- Recent Reviews Table -->
+            <div class="recent-reviews">
+                <div class="table-header">
+                    <div class="table-title">Recent Reviews</div>
+                </div>
+                
+                <table class="review-table">
+                    <thead>
+                        <tr>
+                            <th>USER</th>
+                            <th>DESTINATION</th>
+                            <th>RATING</th>
+                            <th>STATUS</th>
+                            <th>DATE</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for review in recent_reviews %}
+                        <tr data-review-id="{{ review.id }}">
+                            <td>
+                                <div class="user-cell">
+                                    <img src="{% if review.user.userprofile.profile_picture %}{{ review.user.userprofile.profile_picture.url }}{% else %}{% static 'images/user-avatar-1.png' %}{% endif %}" 
+                                         alt="{{ review.user.username }}">
+                                    <div class="user-info">
+                                        <div class="user-name">{{ review.user.username }}</div>
+                                        <div class="user-email">{{ review.user.email }}</div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>{{ review.place.name }}</td>
+                            <td>★ {{ review.rating }}</td>
+                            <td>
+                                <span class="status-badge 
+                                    {% if review.flagged %}status-rejected
+                                    {% elif not review.moderated %}status-pending
+                                    {% else %}status-approved
+                                    {% endif %}">
+                                    {% if review.flagged %}Flagged
+                                    {% elif not review.moderated %}Needs Moderation
+                                    {% else %}Approved
+                                    {% endif %}
+                                </span>
+                            </td>
+                            <td>{{ review.created_at|date:"M d, Y" }}</td>
+                            <td>
+                                <div class="action-buttons">
+                                    <button class="action-btn view-review-btn" data-review-id="{{ review.id }}">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                    <button class="action-btn edit-review-btn" data-review-id="{{ review.id }}">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="action-btn delete-review-btn" data-review-id="{{ review.id }}">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center">No recent reviews found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
 </body>
 </html>

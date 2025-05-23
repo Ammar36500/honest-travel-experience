@@ -1,0 +1,600 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section with proper closing -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/Sydney 2.jpg' %}" alt="Sydney Harbour with Opera House and Harbour Bridge" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Sydney</h1>
+              <p class="destination-description">Discover Australia's iconic harbor city, where stunning beaches meet urban sophistication against a backdrop of architectural marvels.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Sydney Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Sydney</h2>
+            
+            <p class="about-text">Sydney, the capital of New South Wales and Australia's largest city, is built around one of the world's most beautiful harbors. Known for its iconic Sydney Opera House with its distinctive sail-like design, the impressive Harbour Bridge, and over 100 stunning beaches including the famous Bondi Beach, Sydney offers a perfect blend of natural beauty and urban excitement. The city's rich history includes both Aboriginal heritage and European settlement, creating a unique cultural landscape. With its world-class dining, vibrant arts scene, and easy access to nature, Sydney consistently ranks among the world's most livable and tourist-friendly cities.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Temperate Climate</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">English</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">Australian Dollar (A$)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">AEST/AEDT</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/Sydney Opera House.jpg' %}" alt="Sydney Opera House" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Sydney Opera House</h3>
+                  <p class="destination-description">UNESCO World Heritage site with its iconic sail-shaped architecture hosting over 1,500 performances annually.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Bondi Beach.jpg' %}" alt="Bondi Beach" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Bondi Beach</h3>
+                  <p class="destination-description">Famous crescent-shaped beach with golden sand, clear waters, and a vibrant beachside culture.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Sydney Harbour Bridge.jpg' %}" alt="Sydney Harbour Bridge" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Sydney Harbour Bridge</h3>
+                  <p class="destination-description">Iconic steel arch bridge nicknamed "The Coathanger," offering bridge climbs and panoramic views.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/taronga zoo.jpg' %}" alt="Taronga Zoo" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Taronga Zoo</h3>
+                  <p class="destination-description">Award-winning zoo with over 4,000 animals and spectacular views of Sydney Harbour.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Sydney adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Spring (September-November) and fall (March-May) offer pleasant temperatures and fewer crowds. Summer (December-February) is perfect for beaches but can be hot and busy. Winter (June-August) is mild with occasional rain.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Use the Opal card for trains, buses, ferries, and light rail. Ferries are a scenic way to explore the harbor. Consider the Sydney Explorer Pass for unlimited travel and attraction discounts.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Try fresh seafood at the Sydney Fish Market, modern Australian cuisine at waterfront restaurants, and multicultural dishes in neighborhoods like Chinatown and Newtown. Don't miss Australian barbecue and brunch culture.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-sun-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Sun Safety</h3>
+                    <p class="tip-description">Australia has high UV levels, so wear sunscreen (SPF 50+), a hat, and sunglasses, especially between 10 AM and 4 PM. Swim between the flags at patrolled beaches and stay hydrated.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Sydney travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the public transportation options in Sydney?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Sydney public transport options: 1) Opal Card - reloadable smartcard for all public transport; adult cards available at convenience stores, stations, and airports (no fee for card itself); minimum load AU$10. 2) Sydney Trains - extensive network connecting suburbs to CBD; major stations include Central, Town Hall, Wynyard, and Circular Quay; frequency every 5-15 minutes during weekdays. 3) Sydney Metro - newer driverless system currently running Northwest line; connects to train network at Chatswood. 4) Buses - comprehensive network including B-Line express services to Northern Beaches; frequency varies by route. 5) Ferries - iconic harbor transport with routes to Manly, Taronga Zoo, Parramatta River, and other harbor destinations; most scenic way to travel. 6) Light Rail - connects Central to Dulwich Hill (L1 line) and Circular Quay to Randwick/Kingsford (L2/L3 lines). Fare structure based on distance and capped at AU$16.80 daily (AU$8.40 on Sundays). Airport stations (domestic/international) have AU$15.13 access fee added to regular fare. Transport Planner apps include Trip View and Opal Travel. Best value for tourists: consider Sunday travel when daily cap is reduced by 50%. During peak hours (7-9am, 4-6:30pm weekdays), trains can be crowded; ferries often fill completely on weekends with good weather.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best hotel options in Sydney?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Sydney hotel recommendations: 1) Luxury options - Park Hyatt Sydney offers harbourfront rooms with Opera House views (AU$900-1,500/night); Four Seasons and Shangri-La provide excellent harbor views in Circular Quay (AU$400-800/night); The Langham in The Rocks combines historic district with modern luxury (AU$450-700/night). 2) Mid-range options - Meriton Suites (various locations) offer apartment-style accommodations with kitchens (AU$200-350/night); QT Sydney provides quirky designer rooms in CBD (AU$250-400/night); The Old Clare Hotel in Chippendale offers boutique heritage accommodation near universities (AU$250-350/night). 3) Budget-friendly - Sydney Harbour YHA in The Rocks features dormitories and private rooms with rooftop harbor views (AU$50-180/night); Veriu Broadway and Adina Apartment Hotels offer reasonable rates slightly outside the center (AU$150-250/night). Best locations for tourists: Circular Quay/The Rocks for harbor views and attractions; Darling Harbour for family-friendly options; CBD for shopping and business; Surry Hills or Potts Point for neighborhood atmosphere and dining. High season (December-February) rates increase 30-50%; book 3-4 months ahead. Many hotels charge significant premiums for New Year's Eve and Vivid Sydney festival periods. Request higher floors for better views and less street noise, particularly in CBD locations.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some family-friendly itinerary suggestions for Sydney?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Family-friendly Sydney itineraries: 1) Harbor Highlights (3 days) - Day 1: Sydney Opera House tour (junior tour available), Royal Botanic Garden including Calyx exhibitions, ferry to Manly Beach for swimming and marine sanctuary. Day 2: Taronga Zoo (take ferry for harbor views) with shows and Wild Ropes course for older children; evening at Darling Harbour for dinner and Sea Life Aquarium (open until 7pm). Day 3: Luna Park amusement park and North Sydney Olympic Pool beneath Harbour Bridge; afternoon Bridge climb (minimum age 8) or Pylon Lookout (more affordable, all ages). 2) Western Sydney Adventure (2 days) - Day 1: Sydney Olympic Park Aquatic Centre and Bicentennial Park with bike rentals and nature trails. Day 2: Featherdale Wildlife Park for koala/kangaroo encounters followed by Blue Mountains day trip. 3) Coastal Experience (2 days) - Day 1: Bondi to Coogee coastal walk (stroller-friendly sections available) with stops at beaches and playgrounds; Bondi Icebergs Pool for safe swimming. Day 2: Watsons Bay ferry trip, Camp Cove beach (calmer waters), and Hornby Lighthouse walk. Family-specific tips: Sydney's Museum of Contemporary Art and Australian Museum offer free children's activity sheets; most ferry routes and Manly beach have excellent bathroom and changing facilities; pick up grocery supplies from major supermarkets (Woolworths/Coles) to save on food costs.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the options for a day trip to the Blue Mountains?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Blue Mountains day trip options: 1) Self-drive - 90-minute drive from Sydney via M4 motorway; offers maximum flexibility; national park entry free but parking fees at major lookouts (AU$8); GPS navigation essential for finding viewpoints. 2) Train - regular service from Central Station to Katoomba (2 hours, AU$8.40 one-way with Opal); local Blue Mountains Explorer Bus (AU$50 hop-on-hop-off day pass) connects Katoomba Station to attractions including Echo Point (Three Sisters), Scenic World, and Leura village. 3) Organized tours - full-day guided tours (AU$110-180) include hotel pickup, major lookouts, Scenic World entry, wildlife encounters at Featherdale Wildlife Park, and often a river cruise return to Sydney. 4) Key attractions: Three Sisters rock formation (free viewing platform), Scenic World (AU$49.90) with world's steepest railway and cable cars, Wentworth Falls walking tracks (free, various difficulties), and Leura village for shopping/dining. 5) Adventure options include canyoning, abseiling, and mountain biking through companies like High and Wild or Blue Mountains Adventure Company (AU$150-250). Early departures recommended (7-8am) to avoid tour bus crowds arriving mid-morning; weekdays less crowded than weekends. Weather significantly cooler than Sydney (5-10°C difference); check forecasts and bring layers even in summer. Return to Sydney by 3-4pm to avoid peak hour traffic if driving.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best accommodation options near Circular Quay?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Circular Quay accommodation options: 1) Luxury - Park Hyatt Sydney offers waterfront rooms with direct Opera House views and rooftop pool (AU$900-1,500/night); Four Seasons Sydney features harbor views and excellent service (AU$400-800/night); Pullman Quay Grand provides apartment-style suites overlooking harbor (AU$500-900/night). 2) Mid-range - Sydney Harbour Marriott at Circular Quay (AU$300-500/night) offers central location between Quay and CBD; Rydges Sydney Harbour (formerly Holiday Inn) in The Rocks (AU$250-450/night) features rooftop pool with bridge views; Mantra 2 Bond Street (AU$250-400/night) provides apartment options within walking distance. 3) Budget options limited in this premium area, but consider The Russell Hotel (AU$200-300/night) historic boutique property in The Rocks; Sydney Harbour YHA (AU$50-180/night) offers private rooms and dormitories with harbor views from rooftop terrace. 4) Serviced apartments - Quay West Suites and Adina Apartment Hotel offer kitchens and laundry facilities ideal for longer stays or families. Room selection tips: "Harbor view" supplements (AU$50-200/night) worthwhile in this area; higher floors provide better views and less street noise; west-facing rooms in The Rocks offer sunset views over Harbour Bridge. Book 4-6 months ahead for December-February high season and special events like New Year's Eve (minimum stays and premium rates apply). Most properties charge 1.5-3% credit card fees; many include breakfast options that can be overpriced compared to nearby cafés.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What cruise options are available in Sydney Harbour?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Sydney Harbour cruise options: 1) Sightseeing cruises - Captain Cook Cruises and Sydney Harbour Tall Ships offer 1-2 hour commentated tours (AU$39-59) departing Circular Quay or Darling Harbour; shorter 30-minute highlight journeys available (AU$25-35). 2) Lunch/dinner cruises - Sydney Showboats and Vagabond Cruises provide 2-3 hour dining experiences with entertainment (AU$89-150); premium option from Clearview Cruises with multi-course meals and unobstructed glass viewing (AU$129-189). 3) Specialty cruises - sunset cocktail cruises (AU$60-90, 1.5 hours); coffee cruises (morning, AU$39 with refreshments); whale watching extensions beyond harbour (May-November, AU$79-109, 2.5 hours). 4) Adventure options - Sydney Harbour Jet Boats offer 30-minute thrill rides with spins and high-speed maneuvers (AU$69-85); speedboat rentals available with license (AU$300+ for half-day). 5) Private charters - smaller vessels for 2-20 people from operators like Sydney Harbour Exclusive and EastSail (AU$500-1500 for 2-4 hours). 6) Unique experiences - Tribal Warrior Aboriginal cultural cruises (AU$79); Karisma sailing yachts offering hands-on sailing experience (AU$129). 7) Ferry alternatives - regular public Manly ferries (AU$7.76 each way with Opal card) or Watsons Bay ferries cover similar routes as tourist cruises at lower cost. Most cruises depart from Circular Quay, King Street Wharf (Darling Harbour), or Casino Wharf; online booking typically offers 10-15% discounts versus walk-up rates.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best beach destinations in Sydney?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Sydney's best beaches: 1) Bondi Beach - iconic 1km stretch with excellent facilities, surf school, ocean pool, and vibrant atmosphere; accessible via 333 bus from Circular Quay (30 minutes); busy on weekends but spacious enough to accommodate crowds. 2) Manly Beach - family-friendly northern beach with protected swimming areas, wide promenade, and snorkeling sites; reached via scenic 30-minute ferry from Circular Quay; more relaxed vibe than Bondi. 3) Coogee Beach - smaller, calmer beach with protected swimming and children's play areas; connected to Bondi via scenic 6km coastal walkway; accessible via 374 bus. 4) Bronte Beach - family option with natural rock pool, picnic areas, and excellent swimming in protected cove; popular with locals; near Bondi but less crowded. 5) Balmoral Beach - harbor beach on North Shore with calm waters, shark nets, and upscale dining options; ideal for families with small children; accessible via 245 bus. 6) Palm Beach - exclusive northern beaches location (famous as "Summer Bay" from Home and Away); worth the 1-hour bus journey (L90) for pristine sand and lighthouse walk; less crowded weekdays. 7) Freshwater Beach - birthplace of Australian surfing with consistent waves and surf school; located between Manly and Curl Curl. Beach safety: always swim between yellow and red flags indicating patrolled areas; morning visits (before 11am) offer fewer crowds and lower UV exposure; most beaches have public facilities including showers, changing rooms, and nearby cafés.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How do I transfer between terminals at Sydney Airport?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Sydney Airport terminal transfers: 1) International (T1) to Domestic (T2/T3) - options include: a) T-Bus shuttle service operating every 10-15 minutes between 6am-9pm (AU$7.20, cash only, journey time 10 minutes); b) Train requiring only 2 minutes between International and Domestic stations (AU$6.70 plus AU$15.13 station access fee = AU$21.83 total with Opal card); c) Qantas/Virgin transfer buses for passengers connecting between international and domestic flights on same airline (free, requires boarding pass); d) Taxi taking 5-10 minutes depending on traffic (AU$20-30). 2) Between Domestic terminals (T2/T3) - walking path takes approximately 5 minutes through covered walkway; no shuttle required and no additional cost. 3) Minimum connection times: International to Domestic - 90 minutes recommended (Immigration, baggage claim, and customs clearance required); Domestic to International - 60 minutes recommended; Domestic to Domestic (different terminals) - 30 minutes. 4) Transportation logistics: T-Bus pickup locations outside T1 (bay 12) and between T2/T3 (bay 3); train requires following "T" signs to stations. 5) After-hours transfers (9pm-6am): only taxi or rideshare available when T-Bus not operating. 6) For passengers with onward boarding passes and checked baggage transfers arranged, airline connections service may be available (check with airline). Allow extra time during morning (6-9am) and afternoon (4-7pm) peak periods when roads around airport experience heavier traffic.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

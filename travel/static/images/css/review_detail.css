@@ -1,0 +1,50 @@
+body {
+    background-color: #f8f9fa; /* Light background for the page */
+}
+.review-content {
+    white-space: pre-wrap; /* Preserve line breaks and spaces */
+    word-wrap: break-word;
+    background-color: #f1f3f5; /* Slightly different background for content */
+}
+.breadcrumb-item a {
+    text-decoration: none;
+}
+.card-header .badge {
+    font-size: 0.9em;
+}
+.mt-4 { margin-top: 1.5rem !important; }
+.mb-4 { margin-bottom: 1.5rem !important; }
+.img-fluid {
+     max-width: 100%;
+     height: auto;
+}
+.text-warning {
+    color: #ffc107 !important;
+}
+/* Style for the edit history list */
+.edit-history-list {
+    list-style-type: none;
+    padding-left: 0;
+}
+.edit-history-list li {
+    background-color: #ffffff;
+    border: 1px solid #dee2e6;
+    padding: 10px 15px;
+    margin-bottom: 8px;
+    border-radius: 0.25rem;
+    font-size: 0.9em;
+    color: #495057;
+}
+.edit-history-list li .editor-name {
+    font-weight: 600;
+    color: #0d6efd; /* Bootstrap primary color */
+}
+.edit-history-list li .timestamp {
+    color: #6c757d; /* Bootstrap secondary color */
+    margin-left: 10px;
+    font-size: 0.85em;
+}
+/* Ensure history section has some top margin */
+.edit-history-section {
+    margin-top: 2rem; 
+}

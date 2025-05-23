@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+      <!-- Banner section with proper closing -->
+      <div class="destination-banner">
+        <div class="banner-container">
+          <img src="{% static 'images/navagio-beach-panorama.jpg' %}" alt="Navagio Beach with shipwreck and turquoise waters surrounded by white cliffs" class="banner-image">
+          <div class="banner-overlay"></div>
+          <div class="destination-overlay-text">
+            <h1 class="destination-title">Navagio Beach</h1>
+            <p class="destination-description">Experience Greece's iconic shipwreck cove, where dramatic white cliffs embrace crystal-clear turquoise waters and pristine sands.</p>
+            <div class="destination-meta">
+              <!-- Meta content here -->
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+
+    <!-- About Navagio Beach Section -->
+<section class="about-destination">
+  <div class="about-container">
+      <h2 class="section-title">About Navagio Beach</h2>
+      
+      <p class="about-text">Navagio Beach, also known as Shipwreck Beach, is one of Greece's most iconic and photographed landscapes. Located on the northwest coast of Zakynthos island, this stunning cove is characterized by its dramatic white limestone cliffs that cradle a pristine stretch of white sand and crystal-clear turquoise waters. The beach gained its name from the shipwreck of the Panagiotis, a vessel allegedly used for smuggling cigarettes that ran aground in 1980 and now serves as the beach's signature landmark. Accessible only by boat, the beach's isolated nature and breathtaking beauty have made it a bucket-list destination for travelers worldwide, appearing on countless postcards and travel magazines as the quintessential Greek island paradise.</p>
+      
+      <div class="info-tiles">
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-sun-line"></i>
+              </div>
+              <div class="info-title">Mediterranean Climate</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-translate"></i>
+              </div>
+              <div class="info-title">Greek</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-money-euro-circle-line"></i>
+              </div>
+              <div class="info-title">Euro (€)</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-time-fill"></i>
+              </div>
+              <div class="info-title">EET (UTC+2)</div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Top Attractions Section -->
+<section class="top-destinations">
+  <div class="destinations-container">
+      <h2 class="section-title">Top Experiences</h2>
+      
+      <div class="destinations-grid">
+          <div class="destination-card">
+              <img src="{% static 'images/navagio-boat-tour.jpg' %}" alt="Boat Tours" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Boat Tours</h3>
+                  <p class="destination-description">Join a guided boat tour from ports like Porto Vromi or Agios Nikolaos for the full Navagio experience.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/navagio-viewpoint.jpg' %}" alt="Viewing Platform" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Navagio Viewpoint</h3>
+                  <p class="destination-description">Visit the famous cliffside viewing platform for breathtaking panoramic photos of the beach from above.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/blue-caves.jpg' %}" alt="Blue Caves" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Blue Caves</h3>
+                  <p class="destination-description">Combine your Navagio visit with the nearby Blue Caves, known for their stunning azure water reflections.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/shipwreck-exploration.jpg' %}" alt="Shipwreck Exploration" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Shipwreck Exploration</h3>
+                  <p class="destination-description">Get up close to the famous Panagiotis shipwreck and learn about its mysterious smuggling history.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Travel Tips Section -->
+<section class="travel-tips">
+  <div class="tips-container">
+      <div class="tips-header">
+          <h2 class="section-title">Travel Tips</h2>
+          <p class="tips-subtitle">Essential information for your Navagio Beach adventure</p>
+      </div>
+      
+      <div class="tips-content-container">
+          <div class="tips-list">
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Best Time to Visit</h3>
+                      <p class="tip-description">Visit from May to June or September to early October for pleasant weather and fewer crowds. If visiting during peak season (July-August), book early morning boat tours before 10am to avoid midday congestion.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-ship-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Transportation</h3>
+                      <p class="tip-description">The beach is only accessible by boat. Tours depart from Porto Vromi, Agios Nikolaos, and Zakynthos Town, ranging from €20-40 per person. For the viewpoint, rent a car or join an organized island tour from Zakynthos Town.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-camera-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Photography Tips</h3>
+                      <p class="tip-description">For the iconic viewpoint shots, arrive in the morning when the sun illuminates the beach. From the water level, the beach is best photographed before 5pm when it falls into shadow. Use a polarizing filter to enhance the blue waters.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Important Notes</h3>
+                      <p class="tip-description">There are no facilities on the beach (no restrooms, food vendors, or shade). Bring water, snacks, sun protection, and water shoes. Stay away from the base of the cliffs due to rockfall risks, and respect the area by taking your trash with you.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+      <h2 class="section-title">Navagio Beach FAQs</h2>
+      <p class="faq-intro">The most common questions about visiting Navagio Beach, answered.</p>
+      
+      <div class="faq-list">
+          <!-- FAQ Item 1 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>How do I get to Navagio Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Navagio Beach is only accessible by boat. The most common departure points are Porto Vromi, Agios Nikolaos, Zakynthos Town, and Skinari. Organized boat tours typically take 2-3 hours and include stops at the Blue Caves. Prices range from €20-40 per person depending on departure point and tour inclusions. Private boat charters are also available for around €300-500 for a half-day, offering flexibility with timing and avoiding the crowds. Most tours depart between 9:00am-2:00pm, but earlier tours (before 10:00am) or later tours (after 3:00pm) are recommended to avoid peak crowds. Note that the famous viewpoint overlooking the beach can be reached by car or tour bus; it's located near the village of Volimes, about a 40-minute drive from Zakynthos Town.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 2 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>When is the best time to visit?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>The best time to visit Navagio Beach is during the shoulder seasons of May-June or September-early October when the weather is warm (70-85°F/21-29°C), the sea is comfortable for swimming, and tourist crowds are significantly reduced. High season (July-August) brings intense heat, the largest crowds, and highest prices—if visiting during this period, book early morning boats (before 10am) or late afternoon tours (after 3pm) to avoid the midday congestion when 15+ tour boats can be present simultaneously. The beach is typically in shadow after 5pm, making morning generally better for photography and swimming in sunlight. The beach is not accessible during winter months (November-April) when rough seas make boat trips unsafe and most tour operators close. For the iconic viewpoint above the beach, morning offers the best lighting for photography, while sunset creates dramatic silhouettes.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 3 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What should I bring to Navagio Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Essential items for Navagio Beach: 1) Water shoes/sandals as the beach has coarse sand with some pebbles; 2) Sunscreen (SPF 30+ recommended) as there's minimal shade; 3) Cash for boat tickets and small purchases (no ATMs or card facilities at the beach); 4) Bottled water as none is available for purchase on the beach; 5) Snacks/light food for longer stays; 6) Beach towel (not typically provided on boat tours); 7) Waterproof phone case/dry bag to protect electronics during boat transfers; 8) Snorkeling gear to explore the clear waters (some tours provide this); 9) Hat and sunglasses for sun protection; 10) Camera for capturing the iconic views. Note that there are no facilities on the beach itself—no restrooms, changing areas, shops, or food vendors. Most boat tours spend 45-60 minutes at the beach, which is typically sufficient given the lack of amenities. For the viewpoint visit, comfortable walking shoes are recommended as the path to the viewing platform involves some walking on uneven terrain.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 4 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Are there any safety concerns at Navagio Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Safety considerations for Navagio Beach: 1) Cliff safety at the viewpoint is critical—stay behind safety barriers and never attempt to climb over fences for photos as fatal accidents have occurred from cliff collapses and falls; 2) A significant rockfall occurred in September 2018, reducing the accessible beach area—follow guide instructions about safe areas; 3) The sea around Navagio can have strong currents, particularly near the cave entrances—stay within designated swimming areas; 4) No lifeguards are present on the beach—swim at your own risk and supervise children at all times; 5) The boat journey can be rough in windy conditions—those prone to seasickness should take medication before departure; 6) Sun exposure is intense with minimal shade—use sun protection and stay hydrated to prevent heat-related illness; 7) Medical facilities are limited on Zakynthos—bring any necessary medications; 8) Tour boats can be crowded during high season—be cautious when boarding and disembarking; 9) The shipwreck has sharp edges and unstable components—do not climb on it despite seeing others do so; 10) Weather conditions can change rapidly—tours may be canceled with little notice if sea conditions become unsafe.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 5 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What's the history of the shipwreck?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>The Navagio shipwreck has a fascinating history mixing documented facts with local legend. The vessel, named Panagiotis, was a 157-foot commercial freighter built in Scotland in 1937. On October 2, 1980, during stormy weather, the ship ran aground in the secluded cove now known as Navagio (Shipwreck) Beach. According to official records, the vessel was carrying a legal cargo of timber from Turkey to Italy when it experienced mechanical failure and severe weather. However, local legend—now embraced as part of the beach's mystique—claims the Panagiotis was smuggling contraband cigarettes, alcohol, and possibly other items when it was pursued by the Greek Navy before running aground. The crew allegedly abandoned the ship, and locals later salvaged much of the cargo. Whether truth or embellishment, this smuggler's tale has become inseparable from the beach's identity. The Greek government decided to leave the wreck in place, inadvertently creating one of Greece's most photographed landmarks. Over decades, sea and weather exposure have deteriorated the vessel significantly from its original form, but it remains an iconic feature that transformed what was once called "Agios Georgios Beach" into the world-famous attraction it is today.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 6 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>How do I get to the Navagio Beach viewpoint?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>The Navagio Beach viewpoint is accessible by road, unlike the beach itself. Located on the cliffs approximately 600 feet (180 meters) above the beach, the viewpoint provides the iconic photography angle seen in brochures and social media. To reach it, rent a car in Zakynthos Town (€30-50/day) or join an organized island tour (€25-40/person). From Zakynthos Town, drive north for approximately 32 km (40 minutes) toward Volimes; the route is well-signed but requires navigating narrow mountain roads. Free parking is available near the viewing platforms. Two main viewpoints exist: the official platform with safety railings, and a less formal area further north offering different angles. Both require a short walk from the parking areas. Note that strong winds are common at the exposed location, the area lacks shade, and facilities are limited to a few small vendor stands and a cafe near the parking lot. For the best experience, visit in the morning (9-11am) when the sun illuminates the beach and before the arrival of tour buses (typically after 11am). During peak season (July-August), expect 15-20 minute waits for prime photo spots at the official viewing platform.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 7 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Is Navagio Beach suitable for children?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Navagio Beach can be suitable for children with proper planning and supervision, but presents several challenges parents should consider: 1) The boat journey takes 30-60 minutes each way, potentially difficult for very young children prone to motion sickness; 2) Boarding/disembarking typically requires wading through knee-deep water from boats anchored offshore; 3) There are no facilities on the beach—no restrooms, changing areas, food vendors, or medical services; 4) Limited shade makes sun protection essential; 5) The coarse sand/pebble beach surface can be uncomfortable for young feet without water shoes; 6) Some areas of the beach have been restricted due to potential rockfall from the cliffs. Despite these challenges, many families successfully visit with children who enjoy the boat adventure, swimming in the clear, relatively shallow waters near the shore, and exploring the shipwreck from a safe distance. For the viewpoint visit, exercise extreme caution with children as the cliff edges beyond protective barriers present serious dangers. Several operators offer "family-friendly" boat tours with shorter journey times, child-friendly storytelling about the shipwreck's "pirate" history, and appropriate safety equipment. Children usually pay reduced rates (typically 50% of adult price for ages 3-12, under 3 often free) on organized tours.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 8 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What other attractions are near Navagio Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Attractions near Navagio Beach include: 1) Blue Caves - Sea caves with stunning blue water illumination due to light refraction, located at the northern tip of the island and often included in Navagio boat tours; 2) Skinari Lighthouse - Historic 1897 stone lighthouse near the Blue Caves with panoramic views of the Ionian Sea; 3) Porto Limnionas - Beautiful turquoise cove with excellent snorkeling in a dramatic canyon setting, located 12km south of the Navagio viewpoint; 4) Mikro Nisi Beach - Secluded beach accessible by short trail, offering a less crowded alternative; 5) Anafonitria Monastery - 15th-century monastery just 5km from the viewpoint where the patron saint of the island, St. Dionisios, once lived; 6) Traditional Villages - Volimes and Exo Hora showcase authentic Greek island life with local crafts, honey production, and traditional architecture; 7) Askos Stone Park - Wildlife sanctuary and botanical garden showcasing the island's natural heritage; 8) Xigia Sulfur Beach - Natural spa beach with sulfur springs flowing into the sea, known for skin-healing properties; 9) Alykes Salt Flats - Historic salt production area with wildlife viewing opportunities. Most of these attractions can be combined with a Navagio viewpoint visit in a single day with a rental car, or through organized full-island tours (€40-60) that include multiple stops.</p>
+              </div>
+          </details>
+      </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

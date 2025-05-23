@@ -1,0 +1,524 @@
+.featured-section {
+    position: relative;  /* Enables absolute positioning for the background image */
+    padding: 4rem 2%;
+    min-height: 20vh;
+    max-width: 100%;
+    overflow: hidden;
+    margin-top: 1200px;
+}
+
+.featured-background {
+    position: absolute; /* Spans the entire container */
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;  /* Keeps the image proportionate */
+    z-index: 0;         /* Places the image behind the content */
+    opacity: 0.5;       /* Makes the background image a bit transparent */
+}
+
+.featured-content {
+    position: relative; /* Stacks above the background image */
+    z-index: 1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    max-width: 1400px;  
+    margin: 0 auto;
+    width: 95vw;
+}
+
+.featured-text {
+    flex: 0 0 28%;
+    max-width: 490px;
+    padding-right: 5rem;
+}
+  
+.featured-text h1 {
+    font-size: 3.2rem;
+    font-weight: 800;
+    color: #131C35;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+}
+  
+.featured-text .highlight {
+    color: #FF6B00;
+}
+  
+.featured-text p {
+    font-size: 1.1rem;
+    color: #4A5568;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+}
+  
+.featured-buttons {
+    display: flex;
+    gap: 1rem;
+}
+  
+.btn {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.8rem 1.5rem;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    text-decoration: none;
+}
+  
+.btn-primary {
+    background-color: #FF6B00;
+    color: white;
+}
+  
+.btn-primary:hover {
+    background-color: #E55F00;
+}
+  
+.btn-outline {
+    border: 2px solid #FF6B00;
+    color: #FF6B00;
+    background-color: transparent;
+}
+  
+.btn-outline:hover {
+    background-color: #FFF0E6;
+}
+
+/* Destination Cards - Staggered Layout */
+.destinations-cards {
+    flex: 0 0 60%;  
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    grid-template-rows: auto; 
+    gap: 1rem;  
+    position: relative;
+}
+  
+.destinations-cards > div {
+    position: relative;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+    max-width: 300px;  
+    width: 100%; 
+}
+  
+.destinations-cards > div:hover {
+    transform: translateY(-5px);
+}
+
+.card-paris, .card-marrakech, .card-kyoto, .card-bali {
+    position: relative;
+    width: 100%; 
+    top: auto;
+    left: auto;
+    right: auto;
+    bottom: auto;
+    z-index: 1;
+}
+  
+.destinations-cards > div img {
+    width: 100%;
+    height: 190px; 
+    object-fit: cover;
+}
+  
+.card-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    background-color: white;
+}
+  
+.location {
+    font-weight: 600;
+    color: #2D3748;
+    font-size: 0.9rem;
+}
+  
+.rating {
+    display: flex;
+    align-items: center;
+    gap: 0.25rem;
+}
+  
+.rating i {
+    color: #FFB319;
+}
+  
+.rating span {
+    color: #FF6B00;
+    font-weight: 600;
+}
+
+/* Responsive adjustments for the featured section */
+@media (max-width: 1200px) {
+    .destinations-cards {
+        height: 450px; 
+    }
+    
+    .card-paris, .card-marrakech, .card-kyoto, .card-bali {
+        width: 270px;
+    }
+}
+  
+@media (max-width: 992px) {
+    .featured-content {
+        flex-direction: column;
+    }
+    
+    .featured-text {
+        flex: 0 0 100%;
+        max-width: 100%;
+        text-align: center;
+        padding-right: 0;
+        margin-bottom: 3rem;
+    }
+    
+    .featured-buttons {
+        justify-content: center;
+    }
+    
+    .destinations-cards {
+        flex: 0 0 100%;
+        height: 500px;
+        width: 100%;
+        margin: 0 auto;
+        max-width: 650px;
+    }
+}
+  
+@media (max-width: 768px) {
+    .featured-text h1 {
+        font-size: 2.5rem;
+    }
+    
+    .destinations-cards {
+        height: auto;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+    
+    .destinations-cards > div {
+        width: 100%;
+    }
+}
+  
+@media (max-width: 576px) {
+    .featured-buttons {
+        flex-direction: column;
+    }
+    
+    .destinations-cards {
+        grid-template-columns: 1fr;
+    }
+}
+
+
+.review-section {
+    position: relative;
+    min-height: 40vh; 
+    padding: 4rem 2%;
+    max-width: 100%;
+    margin: 0 auto;
+    overflow: hidden; /* Hide any overflow from absolute positioning */
+  }
+  
+  /* Background Image in HTML */
+  .review-background {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover; /* Keep the aspect ratio, fill container */
+    z-index: 0;       /* Behind all other content */
+    opacity: 0.5;     /* Adjust transparency  */
+  }
+  
+  /* Content Above the Background */
+  .review-content {
+    position: relative;
+    z-index: 1;
+    max-width: 1200px; /* Constrain the width if I desire */
+    margin: 0 auto;
+  }
+  
+  /* Header Above the Form */
+  .review-header {
+    text-align: center;
+    margin-bottom: 1rem;
+  }
+  
+  .review-header h2 {
+    font-size: 1.8rem;
+    margin-bottom: 0.5rem;
+    color: #131C35;
+  }
+  
+  .review-header p {
+    font-size: 1rem;
+    color: #4A5568;
+  }
+  
+  /* White Card for the Form */
+  .review-form-card {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    padding: 2rem;
+    margin: 0 auto 2rem auto;
+    max-width: 800px;
+  }
+  
+  /* Form Groups */
+  .review-form .form-group {
+    margin-bottom: 1.5rem;
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .review-form .form-group label {
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #444;
+  }
+  
+  .review-form .form-group input,
+  .review-form .form-group textarea {
+    border: 1px solid #ced4da;
+    border-radius: 0.5rem;
+    padding: 0.75rem;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+  }
+  
+  .review-form .form-group input:focus,
+  .review-form .form-group textarea:focus {
+    border-color: #ff6b00;
+    outline: none;
+  }
+  
+  .review-form .form-group textarea {
+    min-height: 100px;
+    resize: vertical;
+  }
+  
+  .rating-stars {
+    display: flex;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+  }
+  
+  .rating-stars input {
+    display: none;
+  }
+  
+  .rating-stars label {
+    font-size: 30px;
+    color: #ccc;
+    cursor: pointer;
+    margin-right: 5px;
+    transition: color 0.2s;
+  }
+  
+  .rating-stars label:before {
+    content: '★';
+  }
+  
+  .rating-stars input:checked + label,
+  .rating-stars label:hover,
+  .rating-stars label:hover ~ label,
+  .rating-stars input:checked ~ label {
+    color: gold;
+  }
+  
+  /* Override browser's default color for checked radio buttons */
+  .rating-stars input:checked + label:before {
+    color: gold;
+  }
+  
+  /* Photo Upload */
+  .photo-upload {
+    border: 2px dashed #ced4da;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    text-align: center;
+    color: #6c757d;
+    font-size: 0.95rem;
+  }
+  
+  /* Submit Button */
+  .btn-submit {
+    background-color: #ff6b00;
+    color: #fff;
+    border: none;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    cursor: pointer;
+    display: inline-block;
+    margin-top: 1rem;
+    transition: background-color 0.3s;
+  }
+  
+  .btn-submit:hover {
+    background-color: #e55f00;
+  }
+  
+  /* Terms Text */
+  .terms-text {
+    font-size: 0.875rem;
+    color: #6c757d;
+    margin-top: 1rem;
+    text-align: center;
+  }
+  
+  .terms-text a {
+    color: #ff6b00;
+    text-decoration: none;
+  }
+  
+  .terms-text a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Tips Container */
+  .tips-box {
+    background: #fff;
+    border-radius: 1rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding: 1.5rem;
+    gap: 1rem;
+    flex-wrap: wrap; 
+    max-width: 800px;
+    margin: 0 auto;
+  }
+  
+  /* Individual Tip */
+  .tip {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    max-width: 200px;
+    text-align: left;
+  }
+  
+  .tip i {
+    font-size: 1.6rem;
+    color: #ff6b00;
+  }
+  
+  .tip-content h3 {
+    font-size: 1rem;
+    margin-bottom: 0.25rem;
+    color: #131C35;
+  }
+  
+  .tip-content p {
+    font-size: 0.9rem;
+    color: #4A5568;
+  }
+  
+  /* Responsive Adjustments */
+  @media (max-width: 768px) {
+    .review-section {
+      padding: 2rem 1rem;
+    }
+  
+    .review-header h2 {
+      font-size: 1.5rem;
+    }
+  
+    .tips-box {
+      flex-direction: column;
+      text-align: center;
+    }
+  
+    .tip {
+      max-width: 100%;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+  
+  .success-message {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 40px;
+    text-align: center;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+.success-icon {
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 50%;
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+    margin: 0 auto 20px;
+}
+
+.success-message h3 {
+    color: #333;
+    font-size: 24px;
+    margin-bottom: 15px;
+}
+
+.success-message p {
+    color: #666;
+    margin-bottom: 30px;
+    line-height: 1.5;
+}
+
+.success-actions {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.success-actions .btn {
+    padding: 10px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.success-actions .btn:first-child {
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+}
+
+.success-actions .btn:first-child:hover {
+    background-color: #3e8e41;
+}
+
+.success-actions .btn-outline {
+    background-color: transparent;
+    color: #4CAF50;
+    border: 1px solid #4CAF50;
+}
+
+.success-actions .btn-outline:hover {
+    background-color: #f0fff0;
+}

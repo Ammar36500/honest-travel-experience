@@ -1,0 +1,600 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/paris.jpg' %}" alt="Eiffel Tower and Paris skyline" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Paris</h1>
+              <p class="destination-description">Discover the City of Light with its iconic architecture, world-class museums, charming neighborhoods, and renowned culinary scene.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Paris Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Paris</h2>
+            
+            <p class="about-text">Paris, the capital of France, is one of the world's most visited cities, known for its stunning architecture, art museums, fashion, and gastronomy. Situated on the Seine River, the city is divided into 20 arrondissements (districts), each with its own character and charm. With a history spanning over 2,000 years, Paris grew from a small Celtic settlement called Lutetia to become an influential center for art, culture, and ideas. The city underwent major redesign during the 19th century under Baron Haussmann, creating the wide boulevards and uniform buildings that characterize much of Paris today. Home to approximately 2.1 million residents within the city proper and over 12 million in the greater metropolitan area, Paris continues to be a global hub for fashion, cuisine, art, and culture. The city hosts numerous international events and serves as headquarters for many international organizations, including UNESCO.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Oceanic Climate</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">French</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">Euro (€)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">CET (UTC+1)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/Eiffel Tower.jpg' %}" alt="Eiffel Tower" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Eiffel Tower</h3>
+                  <p class="destination-description">Paris's iconic symbol, offering panoramic views of the city from its three observation levels and sparkling light shows in the evening.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Louvre Museum.jpg' %}" alt="Louvre Museum" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Louvre Museum</h3>
+                  <p class="destination-description">The world's largest art museum, housing over 38,000 objects including the Mona Lisa, Venus de Milo, and Winged Victory of Samothrace.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Notre-Dame Cathedral.jpg' %}" alt="Notre-Dame Cathedral" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Notre-Dame Cathedral</h3>
+                  <p class="destination-description">Medieval Catholic cathedral on the Île de la Cité, known for its French Gothic architecture, stained glass, and flying buttresses.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Montmartre.jpg' %}" alt="Montmartre and Sacré-Cœur" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Montmartre</h3>
+                  <p class="destination-description">Bohemian hilltop district crowned by the white-domed Sacré-Cœur Basilica, with winding streets, artists' studios, and spectacular city views.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Parisian adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">The ideal times to visit Paris are spring (April to June) and fall (September to November) when the weather is mild and the crowds are smaller than in summer. Spring brings blooming gardens and pleasant temperatures between 11-20°C, perfect for outdoor cafés and park visits. Fall offers beautiful foliage, cultural events, and harvest-inspired cuisine. Summer (July-August) is peak tourist season with temperatures around 15-25°C, longer daylight hours, but also larger crowds and some local businesses closed for vacation. Winter (December-February) is the low season with temperatures ranging from 2-8°C, occasional rain or light snow, but features beautiful holiday decorations, fewer tourists, and lower hotel rates. Consider planning around major events like Paris Fashion Week or the French Open, which can affect accommodation availability.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Paris has an excellent public transportation system. The Métro is the fastest way to get around with 16 lines covering most of the city. RER trains connect central Paris with suburbs and major sites like Disneyland Paris and Versailles. Buses offer more scenic routes with views of the city. For convenience, purchase a Navigo Découverte card or Paris Visite pass for unlimited travel. Taxis and ride-sharing services are available but can be slow during rush hour. Bicycles are popular with the Vélib' bike-sharing program offering stations throughout the city. Many attractions are close together, making walking an excellent option for exploring neighborhoods. When arriving from Charles de Gaulle or Orly airports, consider the RER B train or dedicated airport buses for the best combination of speed and value.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Parisian cuisine offers everything from Michelin-starred restaurants to cozy neighborhood bistros. For breakfast, enjoy a croissant or pain au chocolat with café au lait at a local boulangerie. Traditional bistro dishes include steak-frites, coq au vin, beef bourguignon, and French onion soup. Visit cheese shops for a selection of over 400 varieties of French cheeses. Street food options include crêpes, both sweet and savory. Pastries and desserts are art forms in Paris—try macarons, éclairs, and Paris-Brest at renowned pâtisseries. For the full experience, visit a traditional brasserie with its lively atmosphere and classic menu. Wine is integral to French dining; even simple restaurants offer quality selections. Fixed-price menus (prix fixe or formule) offer good value. Lunch is typically served from 12-2pm and dinner from 7:30-10pm, with many kitchens closed between service times.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-emotion-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Cultural Etiquette</h3>
+                    <p class="tip-description">Always greet shopkeepers, restaurant staff, and other service personnel with "Bonjour" (or "Bonsoir" in the evening) when entering establishments. Learning a few basic French phrases is appreciated, even if your pronunciation isn't perfect. Parisians typically dress more formally than tourists—avoid athletic wear and opt for smart-casual attire when dining out. Speaking quietly in public spaces, especially on public transportation, is considered respectful. Tipping is not obligatory as service is included in prices, but rounding up the bill or leaving a few euros for good service is appreciated. When dining, keep hands visible on the table, not in your lap. Wait to be seated at restaurants rather than seating yourself. Photography may be restricted in some museums and churches—always check for signs. The French appreciate directness but also politeness; saying "please" (s'il vous plaît) and "thank you" (merci) goes a long way.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Paris travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the public transportation options in Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Paris public transportation options: 1) Metro - 16 lines covering most tourist areas; runs 5:30am-1:15am (2:15am weekends); single ticket €2.10, book of 10 (carnet) €16.90. 2) RER - express train network connecting suburbs and airport; uses same tickets as metro within central Paris (zones 1-2). 3) Buses - extensive network with 64 routes; same tickets as metro; useful for scenic travel between attractions. 4) Trams - primarily serve outer districts; same ticketing system. 5) Navigo Découverte pass - weekly (Monday-Sunday) unlimited travel card for €30 plus €5 for the card itself; requires photo. 6) Paris Visite pass - tourist travel card for 1-5 days (€14-€70 depending on zones/duration) with some attraction discounts. 7) Velib' bike share - 15,000 bicycles at 1,400 stations; €5/day or €15/week pass plus usage fees. Single tickets are valid for one journey including connections (metro-to-metro or bus-to-bus, not metro-to-bus) within 90 minutes. Validate tickets in machines before boarding trains or upon entering buses. Transport apps: RATP (official) or Citymapper for navigation.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best hotel options in Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Paris hotel recommendations by area: 1) Le Marais (4th) - Hotel Duo, Hôtel Jeanne d'Arc, or Roi de Sicile for trendy neighborhood with shops, restaurants, and central location; €150-300/night. 2) Saint-Germain-des-Prés (6th) - Hotel Left Bank, Hotel des Marronniers, or Hotel d'Aubusson for classic Paris charm near cafés and Luxembourg Gardens; €180-400/night. 3) Eiffel Tower area (7th) - Hotel Le Walt, Hotel Muguet, or Hôtel La Comtesse for iconic views and upscale residential atmosphere; €160-350/night. 4) Montmartre (18th) - Hotel des Arts, Maison Lepic, or Terrass Hotel for bohemian atmosphere and panoramic views; €120-250/night. 5) Opéra/Grands Boulevards (9th) - Hotel Chopin, Hôtel 34B, or Adèle & Jules for shopping and theaters; €140-280/night. 6) Canal Saint-Martin (10th) - Le Citizen, Hotel Providence, or Hotel du Nord for hip, less touristy neighborhood; €120-230/night. Budget accommodations (€80-150): Generator Paris, Ibis Paris Bastille, The People Hostel. Book 3-6 months ahead for high season (April-October). Most Paris hotels occupy historic buildings with smaller rooms than international standards; request upper floors for better light and potentially Eiffel Tower views.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended day trips from Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Recommended Paris day trips: 1) Versailles - majestic royal palace and gardens; 30 minutes by RER C train; €20 entrance (plus gardens €10 on fountain show days); book skip-the-line tickets in advance; closed Mondays. 2) Giverny - Monet's house and gardens with famous water lilies; 45 minutes by train from Saint-Lazare to Vernon plus shuttle bus; €11 entrance; open April-November. 3) Champagne region (Reims/Epernay) - champagne house tours and Gothic cathedral; 45 minutes by TGV train; book cellar tours in advance (Moët & Chandon, Veuve Clicquot, Taittinger from €25). 4) Fontainebleau - historic château and forest; 40 minutes by train from Gare de Lyon; €13 entrance; less crowded alternative to Versailles. 5) Chantilly - castle, art collection, and renowned equestrian center; 25 minutes by train from Gare du Nord; €17 entrance. 6) Disneyland Paris - two theme parks; 35 minutes by RER A train; €56-82 single park tickets, cheaper online in advance. 7) Loire Valley châteaux - guided tours available (€150-200) to Chambord and Chenonceau; independent travel requires early start (1-2 hour train journey). Best organized day trips: Versailles, Giverny, and Champagne region have plentiful tour options if you prefer guided experiences (€60-150).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended restaurants in Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Recommended Paris restaurants: 1) Classic French bistros - Bistrot Paul Bert (11th), Le Comptoir du Relais (6th), Chez Georges (2nd), and Allard (6th) offer traditional dishes like steak frites and coq au vin; €30-50 per person. 2) Modern French - Septime (11th), Frenchie (2nd), and Virtus (12th) feature contemporary takes on French cuisine; €40-80 per person; reserve weeks/months ahead. 3) Budget options - Bouillon Chartier (multiple locations), Les Philosophes (4th), and L'As du Fallafel (4th) provide quality meals under €20. 4) Splurge experiences - Le Jules Verne (Eiffel Tower), Le Cinq (Four Seasons), and Epicure (Bristol) offer fine dining from €150-300+ per person. 5) Local favorites - Au Petit Tonneau (7th), Chez Janou (3rd), and La Fontaine de Mars (7th) provide authentic Parisian atmosphere. 6) Street food - Rue des Rosiers (Jewish quarter), Rue Mouffetard market street, and Marché d'Aligre for casual eats and picnic supplies. For best value, order the fixed-price "menu" (often lunch) rather than à la carte. Most restaurants require reservations, easily made online through LaFourchette.com or TheFork app. Lunch service typically 12-2pm; dinner from 7:30-10pm; many restaurants closed Sundays and/or Mondays.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How can I purchase tickets for Paris attractions?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Paris attraction ticket options: 1) Eiffel Tower - official website (tour-eiffel.fr) offers timed tickets 60 days in advance (€18-28 depending on level/access); book 2-3 months ahead for high season visits. 2) Louvre - online tickets (€17) provide timed entry and avoid long ticket lines; free first Saturday evening monthly; closed Tuesdays. 3) Musée d'Orsay - online tickets (€16) with timed entry; reduced rate after 4:45pm (€12); closed Mondays. 4) Notre-Dame Cathedral - currently closed for restoration; forecourt viewable without tickets. 5) Sainte-Chapelle and Conciergerie - joint ticket available online (€15); morning visits recommended to experience stained glass in optimal light. 6) Catacombs - strictly limited capacity requires advance purchase (€29 online vs. €14 at door) to avoid 2+ hour waits. 7) Museum passes - Paris Museum Pass (€52/2 days, €66/4 days, €78/6 days) covers 50+ museums/monuments with skip-the-line access (except Eiffel Tower); available at participating museums or tourist offices. 8) Seine River cruises - multiple companies offer 1-hour sightseeing cruises (€15-20); Bateaux Mouches and Vedettes du Pont Neuf are popular options. Digital tickets on smartphones accepted at most attractions. Consider mid-week and early morning/evening visits to major sites to avoid peak crowds.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the lounge options at CDG airport?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Charles de Gaulle (CDG) airport lounge options: 1) Terminal 1: Star Alliance Lounge (for Star Alliance Gold members and business class passengers) and Icare Lounge (accepts Priority Pass, €45 for walk-ins) offer food, drinks, WiFi, and shower facilities. 2) Terminal 2A: Air France Lounge (SkyTeam passengers) and YotelAir Paris (bookable by hour from €59, not technically a lounge but offers private rooms). 3) Terminal 2C: Star Alliance Lounge features buffet dining and comfortable workspaces. 4) Terminal 2D: Salon Air France for SkyTeam passengers. 5) Terminal 2E: Hall K, L, and M each house premium Air France lounges for long-haul business/first class; Hall L contains the exceptional La Première Lounge for first class passengers. 6) Terminal 2F: Air France Business Lounge for short/medium-haul flights. 7) Terminal 3: No dedicated lounges available. Access methods include: airline status/premium tickets, Priority Pass membership, Lounge Pass/DragonPass programs, or walk-up payment (€30-50 depending on lounge). Most lounges open 6am-10pm with basic buffet food, alcoholic/non-alcoholic beverages, WiFi, newspapers, and seating; premium lounges add restaurant dining, spa services, and superior amenities. Check terminal transfer times if connecting flights operate from different terminals (can require 30-60 minutes).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are family-friendly accommodation options in Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Family-friendly Paris accommodations: 1) Apartment rentals - platforms like Airbnb, VRBO, and Paris Perfect offer multi-bedroom options with kitchens; most economical for families of 4+; typically €150-300/night depending on location and size; Marais, Saint-Germain, and 7th arrondissement provide central locations. 2) Family-oriented hotels - Novotel Paris Les Halles, Residence Henri IV, and Hotel la Bourdonnais offer dedicated family rooms or connecting options; €180-300/night; many include kitchenettes. 3) Aparthotels - Citadines, Adagio, and Staycity combine hotel services with apartment amenities; €150-250/night; ideal for longer stays with weekly rates. 4) Budget options - Ibis Styles, MIJE hostels (private family rooms available), and Generator Paris accommodate families for €100-180/night. 5) Luxury family stays - Le Bristol, Four Seasons George V, and Peninsula Paris offer dedicated children's programs, welcome amenities for kids, and babysitting services; €500+/night. Consider accommodations near Luxembourg Gardens, Jardin des Plantes, or Tuileries for easy access to play areas. Request specific arrangements when booking: baby equipment (cribs, high chairs), refrigerators for storing milk/snacks, and confirmation of elevator access as many historic buildings have limited or no elevators. Book 4-6 months ahead for family rooms, which are limited in many Paris hotels.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Where can I purchase a Navigo Découverte pass in Paris?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Navigo Découverte pass purchase locations: 1) Metro/RER station ticket offices (not all stations have staffed windows; larger stations like Gare du Nord, Châtelet, Saint-Lazare, and Montparnasse are most reliable). 2) RATP information centers at major stations including Gare de Lyon, Charles de Gaulle Airport Terminal 2, and Les Halles. 3) Some tobacconists (Tabac shops with the brown/red "tabac" signs) sell and recharge Navigo cards. The pass costs €5 for the reloadable card itself plus the weekly fare (€30 for all zones 1-5 including airports) or monthly fare (€90). Requirements: small ID photo (3.5 x 4.1 cm) needed for the card; many stations have photo booths (€5 for 4 photos) or bring one with you. You must write your name on the card and attach the photo. Weekly passes (Navigo Semaine) run Monday-Sunday regardless of purchase day; monthly passes (Navigo Mois) are valid for calendar months. When purchasing, specify "toutes zones" (all zones) if you need airport access (zones 1-5) or just central Paris (zones 1-2) if not. Recharging for subsequent weeks can be done at any ticket vending machine. Alternative for short stays: Paris Visite tourist pass (1-5 days) or carnets (books of 10 individual tickets) require no photo and are more flexible for shorter visits.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+    <script src="{% static 'images/javascript/java.js' %}"></script>
+    <script src="{% static 'images/javascript/Profile.js' %}"></script>
+  </body>
+</html>

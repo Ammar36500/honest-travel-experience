@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Budget.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="budget-hero">
+        <div class="budget-container">
+          <img src="{% static 'images/budget-travel.jpg' %}" alt="Travel planning with map, passport and budget" class="budget-image">
+          <div class="budget-overlay"></div>
+          <div class="budget-overlay-text">
+            <h1 class="budget-title">Best Budget Travel Tips</h1>
+            <p class="budget-description">Smart strategies to explore more while spending less. Discover how to make the most of your travel budget without sacrificing amazing experiences.</p>
+          </div>
+        </div>
+      </div>
+
+    <!-- Budget Travel Strategies Section -->
+<section class="budget-strategies">
+    <div class="strategies-container">
+      <h2 class="section-title">Budget Travel Strategies</h2>
+      
+      <div class="strategies-grid">
+        <!-- Strategy 1: Accommodation -->
+        <div class="strategy-card">
+          <div class="strategy-icon">
+            <i class="ri-hotel-line"></i>
+          </div>
+          <div class="strategy-content">
+            <h3 class="strategy-title">Accommodation Savings</h3>
+            <ul class="strategy-list">
+              <li>Book hostels with shared kitchens to save on food costs</li>
+              <li>Use home-sharing platforms for weekly discounts</li>
+              <li>Consider homestays for cultural immersion at lower prices</li>
+              <li>Look for budget hotels just outside city centers</li>
+            </ul>
+            <p class="strategy-savings">Potential savings: 30-60% of accommodation budget</p>
+          </div>
+        </div>
+        
+        <!-- Strategy 2: Transportation -->
+        <div class="strategy-card">
+          <div class="strategy-icon">
+            <i class="ri-flight-takeoff-line"></i>
+          </div>
+          <div class="strategy-content">
+            <h3 class="strategy-title">Transportation Hacks</h3>
+            <ul class="strategy-list">
+              <li>Use flight comparison tools and set price alerts</li>
+              <li>Travel during shoulder seasons for better rates</li>
+              <li>Purchase local transit passes for multiple days</li>
+              <li>Consider overnight trains to save on accommodation</li>
+            </ul>
+            <p class="strategy-savings">Potential savings: 20-40% of transportation costs</p>
+          </div>
+        </div>
+        
+        <!-- Strategy 3: Food & Dining -->
+        <div class="strategy-card">
+          <div class="strategy-icon">
+            <i class="ri-restaurant-line"></i>
+          </div>
+          <div class="strategy-content">
+            <h3 class="strategy-title">Food & Dining Tips</h3>
+            <ul class="strategy-list">
+              <li>Eat street food from busy, popular vendors</li>
+              <li>Shop at local markets and prepare simple meals</li>
+              <li>Take advantage of lunch specials instead of dinner</li>
+              <li>Bring a reusable water bottle to avoid buying drinks</li>
+            </ul>
+            <p class="strategy-savings">Potential savings: 40-70% of food expenses</p>
+          </div>
+        </div>
+        
+        <!-- Strategy 4: Activities -->
+        <div class="strategy-card">
+          <div class="strategy-icon">
+            <i class="ri-landscape-line"></i>
+          </div>
+          <div class="strategy-content">
+            <h3 class="strategy-title">Free & Low-Cost Activities</h3>
+            <ul class="strategy-list">
+              <li>Research free museum days and city attractions</li>
+              <li>Join free walking tours (with optional tips)</li>
+              <li>Explore parks, hiking trails, and public spaces</li>
+              <li>Look for community events and festivals</li>
+            </ul>
+            <p class="strategy-savings">Potential savings: 50-80% on activities</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Budget Travel Resources Section -->
+<section class="travel-resources">
+    <div class="resources-container">
+      <h2 class="section-title">Essential Budget Travel Resources</h2>
+      <p class="resources-intro">These tools, apps, and websites will help you plan, book, and enjoy budget-friendly travel experiences around the world.</p>
+      
+      <div class="resources-grid">
+        <!-- Resource Category 1: Apps & Tools -->
+        <div class="resource-category">
+          <h3 class="category-title">
+            <i class="ri-smartphone-line"></i>
+            Helpful Apps & Tools
+          </h3>
+          <ul class="resource-list">
+            <li>
+              <span class="resource-name">Trail Wallet</span>
+              <p class="resource-description">Easy-to-use expense tracker specifically designed for travelers.</p>
+            </li>
+            <li>
+              <span class="resource-name">Skyscanner</span>
+              <p class="resource-description">Find the cheapest flights by comparing prices across multiple airlines.</p>
+            </li>
+            <li>
+              <span class="resource-name">Hostelworld</span>
+              <p class="resource-description">Search and book affordable hostels with verified reviews from real travelers.</p>
+            </li>
+            <li>
+              <span class="resource-name">Google Maps Offline</span>
+              <p class="resource-description">Download maps for offline use to avoid roaming charges while navigating.</p>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Resource Category 2: Planning Resources -->
+        <div class="resource-category">
+          <h3 class="category-title">
+            <i class="ri-calendar-check-line"></i>
+            Planning Resources
+          </h3>
+          <ul class="resource-list">
+            <li>
+              <span class="resource-name">Budget Planning Worksheet</span>
+              <p class="resource-description">Our custom spreadsheet to help you plan and track all your travel expenses.</p>
+              <a href="#" class="resource-link">Download Template</a>
+            </li>
+            <li>
+              <span class="resource-name">Price Comparison Calendar</span>
+              <p class="resource-description">Find the cheapest months to visit popular destinations worldwide.</p>
+            </li>
+            <li>
+              <span class="resource-name">Destination Cost Guide</span>
+              <p class="resource-description">Average daily costs for food, accommodation, and activities in 100+ countries.</p>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Resource Category 3: Money-Saving Websites -->
+        <div class="resource-category">
+          <h3 class="category-title">
+            <i class="ri-global-line"></i>
+            Money-Saving Websites
+          </h3>
+          <ul class="resource-list">
+            <li>
+              <span class="resource-name">Workaway</span>
+              <p class="resource-description">Find volunteering opportunities in exchange for free accommodation and meals.</p>
+            </li>
+            <li>
+              <span class="resource-name">Secret Flying</span>
+              <p class="resource-description">Discover error fares and exceptionally cheap flight deals around the world.</p>
+            </li>
+            <li>
+              <span class="resource-name">Rome2Rio</span>
+              <p class="resource-description">Compare transportation options between destinations to find the most affordable route.</p>
+            </li>
+            <li>
+              <span class="resource-name">Too Good To Go</span>
+              <p class="resource-description">App for finding discounted surplus food from restaurants and cafes while traveling.</p>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Resource Category 4: Community Tips -->
+        <div class="resource-category">
+          <h3 class="category-title">
+            <i class="ri-user-voice-line"></i>
+            Community Tips
+          </h3>
+          <div class="community-tips">
+            <div class="community-tip">
+              <p class="tip-quote">"I saved over $1,200 on my European trip by using night trains for transportation between cities. You avoid hotel costs and wake up in a new destination!"</p>
+              <p class="tip-author">- Sarah, 28, backpacked through 6 countries</p>
+            </div>
+            <div class="community-tip">
+              <p class="tip-quote">"Always withdraw local currency from ATMs instead of using exchange services. I compared rates and saved about 8% on exchange fees throughout my Asia trip."</p>
+              <p class="tip-author">- Michael, 34, digital nomad</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>   

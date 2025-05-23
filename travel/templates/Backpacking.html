@@ -1,0 +1,351 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/essentials.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="hero-banner">
+        <div class="banner-container">
+          <img src="{% static 'images/backpacking-header.jpg' %}" alt="Backpacking gear in forest setting" class="banner-image">
+          <div class="banner-overlay"></div>
+          <div class="hero-overlay-text">
+            <div class="hero-meta">
+              <span><i class="ri-time-line"></i> 15 min read</span>
+              <span><i class="ri-user-line"></i> By Sarah Anderson</span>
+              <span><i class="ri-calendar-line"></i> March 20, 2025</span>
+            </div>
+            <h1 class="hero-title">Essential Gear Guide for Backpacking Adventures</h1>
+            <p class="hero-description">Master the art of packing with our comprehensive guide to essential backpacking gear. From choosing the right backpack to selecting crucial safety equipment.</p>
+          </div>
+        </div>
+      </div>
+
+        <!-- Core Essentials Section - Horizontal Row Layout -->
+<section class="core-essentials">
+    <div class="essentials-container">
+      <h2 class="section-title">Core Essentials</h2>
+      
+      <div class="essentials-row">
+        <!-- Item 1: Backpack Selection -->
+        <div class="essential-card">
+          <img src="{% static 'images/backpack-selection.jpg' %}" alt="Various backpacks for hiking and camping" class="essential-image">
+          <div class="essential-info">
+            <h3 class="essential-name">Backpack Selection</h3>
+            <p class="essential-description">Choose a 45-65L backpack with proper fit and weight distribution. Look for water-resistant materials and multiple compartments.</p>
+          </div>
+        </div>
+        
+        <!-- Item 2: Sleep System -->
+        <div class="essential-card">
+          <img src="{% static 'images/sleep-system.jpg' %}" alt="Sleeping bag and pad setup" class="essential-image">
+          <div class="essential-info">
+            <h3 class="essential-name">Sleep System</h3>
+            <p class="essential-description">Invest in a quality sleeping bag rated for your climate and a lightweight sleeping pad for comfort and insulation.</p>
+          </div>
+        </div>
+        
+        <!-- Item 3: Water Filtration -->
+        <div class="essential-card">
+          <img src="{% static 'images/water-filtration.jpg' %}" alt="Portable water filter for backpacking" class="essential-image">
+          <div class="essential-info">
+            <h3 class="essential-name">Water Filtration</h3>
+            <p class="essential-description">Pack a reliable water filter or purification system to safely drink from natural sources. Consider weight, flow rate, and filter longevity.</p>
+          </div>
+        </div>
+        
+        <!-- Item 4: Navigation Tools -->
+        <div class="essential-card">
+          <img src="{% static 'images/navigation tools.jpg' %}" alt="Map, compass and GPS device" class="essential-image">
+          <div class="essential-info">
+            <h3 class="essential-name">Navigation Tools</h3>
+            <p class="essential-description">Carry a topographic map, compass, and optional GPS device. Always bring backup paper maps even when using electronic navigation.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Top Gear Recommendations Section -->
+<section class="top-gear">
+    <div class="gear-container">
+      <h2 class="gear-title">Top Gear Recommendations</h2>
+      
+      <div class="gear-cards">
+        <!-- Product 1 -->
+        <div class="gear-card">
+          <div class="gear-icon">
+            <i class="ri-compass-3-line"></i>
+          </div>
+          <h3 class="gear-name">Osprey Atmos AG 65</h3>
+          <div class="gear-rating">
+            <span class="stars">
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-half-line"></i>
+            </span>
+            <span class="rating-text">4.5/5</span>
+          </div>
+          <p class="gear-description">Premium backpack with anti-gravity suspension system</p>
+          <p class="gear-price">$280</p>
+        </div>
+        
+        <!-- Product 2 -->
+        <div class="gear-card">
+          <div class="gear-icon">
+            <i class="ri-home-line"></i>
+          </div>
+          <h3 class="gear-name">MSR Hubba Hubba NX</h3>
+          <div class="gear-rating">
+            <span class="stars">
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+            </span>
+            <span class="rating-text">5/5</span>
+          </div>
+          <p class="gear-description">Ultralight 2-person backpacking tent</p>
+          <p class="gear-price">$449.95</p>
+        </div>
+        
+        <!-- Product 3 -->
+        <div class="gear-card">
+          <div class="gear-icon">
+            <i class="ri-fire-line"></i>
+          </div>
+          <h3 class="gear-name">Jetboil Flash Cooking System</h3>
+          <div class="gear-rating">
+            <span class="stars">
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-fill"></i>
+              <i class="ri-star-line"></i>
+            </span>
+            <span class="rating-text">4/5</span>
+          </div>
+          <p class="gear-description">Fast-boiling integrated cooking system</p>
+          <p class="gear-price">$114.95</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="expert-tips">
+    <div class="tips-container">
+      <h2 class="tips-title">Expert Tips & Insights</h2>
+      
+      <!-- Expert Quote Card -->
+      <div class="expert-card">
+        <div class="expert-info">
+          <img src="{% static 'images/expert-emily.jpg' %}" alt="Emily Thompson" class="expert-image">
+          <div class="expert-details">
+            <h3 class="expert-name">Emily Thompson</h3>
+            <p class="expert-role">Professional Guide & Gear Expert</p>
+          </div>
+        </div>
+        <p class="expert-quote">"When choosing gear, focus on the big three: backpack, shelter, and sleep system. These items make up the bulk of your pack weight and are crucial for comfort and safety."</p>
+      </div>
+      
+      <!-- Tips Grid -->
+      <div class="tips-grid">
+        <!-- Weight Distribution Tips -->
+        <div class="tips-box">
+          <h3 class="tips-heading">Weight Distribution Tips</h3>
+          <ul class="tips-list">
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Pack heaviest items close to your back</span>
+            </li>
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Keep frequently used items accessible</span>
+            </li>
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Balance weight between sides</span>
+            </li>
+          </ul>
+        </div>
+        
+        <!-- Maintenance Guidelines -->
+        <div class="tips-box">
+          <h3 class="tips-heading">Maintenance Guidelines</h3>
+          <ul class="tips-list">
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Clean gear after each trip</span>
+            </li>
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Store in dry, cool place</span>
+            </li>
+            <li>
+              <span class="tip-icon"><i class="ri-checkbox-circle-line"></i></span>
+              <span class="tip-text">Regular waterproofing treatment</span>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

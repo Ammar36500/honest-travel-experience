@@ -1,0 +1,585 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Travel Reviews</title>
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Destination.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+  
+    <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+    <body>
+        <div class="Destination-container">
+            <div class="hero-section">
+              <img src="{% static 'images/Discover.jpg' %}" alt="Hero background" class="hero-background">
+              <div class="hero-content">
+                <h1 class="hero-title">Discover Your Next Adventure</h1>
+                <p class="hero-subtitle">Explore authentic reviews and travel guides from real travelers around the world</p>
+                <div class="stats-container">
+                  <div class="stat-item">
+                    <h2 class="stat-number">1M+</h2>
+                    <p class="stat-label">Travelers</p>
+                  </div>
+                  <div class="stat-item">
+                    <h2 class="stat-number">150+</h2>
+                    <p class="stat-label">Countries</p>
+                  </div>
+                  <div class="stat-item">
+                    <h2 class="stat-number">500K+</h2>
+                    <p class="stat-label">Reviews</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <div class="destinations-grid">
+                <!-- Greece -->
+            <!-- Greece -->
+            <div class="destination-card">
+              <a href="{% url 'greece' %}">
+                <div class="destination-image">
+                  <img src="{% static 'images/Greece.jpg' %}" alt="Greece" class="dest-img">
+                  <div class="destination-overlay">
+                    <h2 class="destination-name">Greece</h2>
+                    <div class="destination-rating">
+                      <i class="fas fa-star"></i>
+                      <span>4.8</span>
+                    </div>
+                  </div>
+                </div>
+              </a>
+            </div>
+                
+                <!-- Japan -->
+                <div class="destination-card">
+                  <a href="{% url 'Japan' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/japan2.jpg' %}" alt="Japan" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Japan</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Italy -->
+                <div class="destination-card">
+                  <a href="{% url 'Italy' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/italy.avif' %}" alt="Italy" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Italy</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Peru -->
+                <div class="destination-card">
+                  <a href="{% url 'Peru' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/peru.jpg' %}" alt="Peru" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Peru</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- China -->
+                <div class="destination-card">
+                  <a href="{% url 'China' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/china.jpg' %}" alt="China" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">China</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.6</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Australia -->
+                <div class="destination-card">
+                  <a href="{% url 'Australia' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/australia.jpg' %}" alt="Australia" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Australia</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Iceland -->
+                <div class="destination-card">
+                  <a href="{% url 'Iceland' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/iceland.jpg' %}" alt="Iceland" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Iceland</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.9</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- India -->
+                <div class="destination-card">
+                  <a href="{% url 'India' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/india.jpg' %}" alt="India" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">India</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.6</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Egypt -->
+                <div class="destination-card">
+                  <a href="{% url 'Egypt' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/egypt.jpg' %}" alt="Egypt" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Egypt</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.7</span>
+                            </div>
+                        </div>
+                    </div>
+                  </a>
+                </div>
+                
+                <!-- Brazil -->
+                <div class="destination-card">
+                  <a href="{% url 'Brazil' %}">
+                    <div class="destination-image">
+                        <img src="{% static 'images/brazil.jpg' %}" alt="Brazil" class="dest-img">
+                        <div class="destination-overlay">
+                            <h2 class="destination-name">Brazil</h2>
+                            <div class="destination-rating">
+                                <i class="fas fa-star"></i>
+                                <span>4.8</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+              </a>
+            </div>
+        </div>
+
+        <!-- Travel Experiences Section -->
+<section class="travel-experiences">
+  <div class="experiences-outer-container">
+    <h2 class="section-title">Popular Travel Guides</h2>
+    
+    <div class="experiences-grid">
+      <!-- First Experience -->
+      <div class="experience-item">
+        <img src="{% static 'images/Backpacking.jpg' %}" alt="Adventure Travel">
+        <h3>Essential Backpacking Guide</h3>
+        <p>Complete guide to packing light and smart for your adventures.</p>
+        <a href="{% url 'Backpacking' %}" class="read-more">Read More →</a>
+      </div>
+    
+      <!-- Second Experience -->
+      <div class="experience-item">
+        <img src="{% static 'images/StreetFood.jpg' %}" alt="Cultural Immersion">
+        <h3>Street Food Adventures</h3>
+        <p>Discover the best local cuisines and where to find them.</p>
+        <a href="{% url 'FoodAdventure' %}" class="read-more">Read More →</a>
+      </div>
+    
+      <!-- Third Experience -->
+      <div class="experience-item">
+        <img src="{% static 'images/Budget.jpg' %}" alt="Relaxation Retreats">
+        <h3>Budget Travel Tips</h3>
+        <p>Expert advice on traveling the world on a budget.</p>
+        <a href="{% url 'TravelBudget' %}" class="read-more">Read More →</a>
+      </div>
+      
+      <!-- Fourth Experience (New) -->
+      <div class="experience-item">
+        <img src="{% static 'images/Photography.jpg' %}" alt="Travel Photography">
+        <h3>Travel Photography Guide</h3>
+        <p>Tips and techniques for capturing stunning travel memories.</p>
+        <a href="{% url 'PhotoGraphyGuide' %}" class="read-more">Read More →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+  <!-- Travel Tips Section -->
+<section class="travel-tips">
+    <h2 class="section-title">Travel Tips</h2>
+    <div class="tips-outer-container">
+    <div class="tips-container">
+      <!-- First Row -->
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-flight-takeoff-line"></i>
+        </div>
+        <h3>Flight Booking</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Book flights 3-4 months in advance for best deals</li>
+          <li><i class="ri-checkbox-circle-line"></i> Use incognito mode when searching for flights</li>
+          <li><i class="ri-checkbox-circle-line"></i> Consider flexible dates for better prices</li>
+        </ul>
+      </div>
+      
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-hotel-line"></i>
+        </div>
+        <h3>Accommodation</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Read recent reviews before booking</li>
+          <li><i class="ri-checkbox-circle-line"></i> Check the location on maps</li>
+          <li><i class="ri-checkbox-circle-line"></i> Compare prices across multiple platforms</li>
+        </ul>
+      </div>
+      
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-money-dollar-circle-line"></i>
+        </div>
+        <h3>Money Saving</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Use local transportation instead of taxis</li>
+          <li><i class="ri-checkbox-circle-line"></i> Cook some meals instead of eating out</li>
+          <li><i class="ri-checkbox-circle-line"></i> Visit free attractions and museums</li>
+        </ul>
+      </div>
+      
+      <!-- Second Row -->
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-map-pin-line"></i>
+        </div>
+        <h3>Navigation</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Download offline maps before your trip</li>
+          <li><i class="ri-checkbox-circle-line"></i> Learn basic local phrases</li>
+          <li><i class="ri-checkbox-circle-line"></i> Keep your hotel's business card</li>
+        </ul>
+      </div>
+      
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-shield-check-line"></i>
+        </div>
+        <h3>Safety Tips</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Keep important documents backed up</li>
+          <li><i class="ri-checkbox-circle-line"></i> Get travel insurance</li>
+          <li><i class="ri-checkbox-circle-line"></i> Stay aware of your surroundings</li>
+        </ul>
+      </div>
+      
+      <div class="tip-card">
+        <div class="tip-icon">
+          <i class="ri-camera-line"></i>
+        </div>
+        <h3>Photography</h3>
+        <ul class="tip-list">
+          <li><i class="ri-checkbox-circle-line"></i> Research photo spots beforehand</li>
+          <li><i class="ri-checkbox-circle-line"></i> Shoot during golden hours</li>
+          <li><i class="ri-checkbox-circle-line"></i> Back up your photos regularly</li>
+        </ul>
+      </div>
+    </div>
+    </div>
+  </section>
+
+
+ <!-- Compact Things to Do Section -->
+<section class="things-to-do">
+  <div class="things-to-do-container">
+    <h2 class="section-title">Things to Do</h2>
+    <p class="section-subtitle">Discover unforgettable experiences from around the world</p>
+    
+    <div class="activities-grid">
+      <!-- Activity 1 -->
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/hiking.jpg' %}" alt="Hiking">
+          <div class="activity-category">Adventure</div>
+        </div>
+        <div class="activity-content">
+          <h3>Hiking & Trekking</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.8</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Multiple Locations</span>
+          </div>
+          <p>Explore breathtaking trails and scenic routes around the world, from beginner-friendly paths to challenging mountain treks.</p>
+          <a href="#" class="activity-link">Explore Trails <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+      
+      <!-- Activity 2 -->
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/food-tour.jpg' %}" alt="Food Tour">
+          <div class="activity-category">Culinary</div>
+        </div>
+        <div class="activity-content">
+          <h3>Food Tours</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.9</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Multiple Locations</span>
+          </div>
+          <p>Taste authentic local cuisine with expert guides who will introduce you to hidden gems and traditional flavors.</p>
+          <a href="#" class="activity-link">Find Food Tours <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+      
+      <!-- Activity 3 -->
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/scuba.jpg' %}" alt="Scuba Diving">
+          <div class="activity-category">Water</div>
+        </div>
+        <div class="activity-content">
+          <h3>Scuba Diving</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.7</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Tropical Destinations</span>
+          </div>
+          <p>Dive into crystal clear waters and discover vibrant coral reefs, marine life, and underwater wonders.</p>
+          <a href="#" class="activity-link">Find Dive Spots <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+      
+      <!-- Activity 4 -->
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/museum.jpg' %}" alt="Museum Tour">
+          <div class="activity-category">Cultural</div>
+        </div>
+        <div class="activity-content">
+          <h3>Museum Tours</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.6</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Major Cities</span>
+          </div>
+          <p>Explore world-class museums and cultural sites with knowledgeable guides who bring history and art to life.</p>
+          <a href="#" class="activity-link">Discover Museums <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+      
+      <!-- Additional activities for the expanded grid -->
+      <!-- Activity 5 -->
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/safari.jpg' %}" alt="Safari">
+          <div class="activity-category">Wildlife</div>
+        </div>
+        <div class="activity-content">
+          <h3>Wildlife Safaris</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.9</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Africa & Asia</span>
+          </div>
+          <p>Embark on unforgettable safari adventures to witness majestic wildlife in their natural habitats.</p>
+          <a href="#" class="activity-link">Find Safaris <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+
+
+      <div class="activity-card">
+        <div class="activity-image">
+          <img src="{% static 'images/city-tour.jpg' %}" alt="City Tour">
+          <div class="activity-category">Urban</div>
+        </div>
+        <div class="activity-content">
+          <h3>City Tours</h3>
+          <div class="activity-meta">
+            <span class="activity-rating"><i class="ri-star-fill"></i> 4.7</span>
+            <span class="activity-location"><i class="ri-map-pin-line"></i> Global Cities</span>
+          </div>
+          <p>Discover the highlights and hidden corners of the world's most fascinating cities with expert local guides.</p>
+          <a href="#" class="activity-link">Find City Tours <i class="ri-arrow-right-line"></i></a>
+        </div>
+      </div>
+
+    
+  <script src="{% static 'images/javascript/java.js' %}"></script>
+  <script src="{% static 'images/javascript/Profile.js' %}"></script>
+</body>
+</html>

@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Maya Bay - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+      <!-- Banner section with proper closing -->
+      <div class="destination-banner">
+        <div class="banner-container">
+          <img src="{% static 'images/maya-bay-panorama.jpg' %}" alt="Maya Bay's stunning turquoise waters surrounded by limestone cliffs with white sand beaches" class="banner-image">
+          <div class="banner-overlay"></div>
+          <div class="destination-overlay-text">
+            <h1 class="destination-title">Maya Bay</h1>
+            <p class="destination-description">Experience Thailand's treasured paradise, where emerald waters meet pristine white sands, cradled by dramatic limestone cliffs in the Phi Phi Islands.</p>
+            <div class="destination-meta">
+              <!-- Meta content here -->
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+
+    <!-- About Maya Bay Section -->
+<section class="about-destination">
+  <div class="about-container">
+      <h2 class="section-title">About Maya Bay</h2>
+      
+      <p class="about-text">Maya Bay is a stunning natural wonder located on the uninhabited Phi Phi Leh island in Thailand's Krabi Province. Made internationally famous by the 2000 film "The Beach" starring Leonardo DiCaprio, this tropical paradise is characterized by its horseshoe-shaped bay, crystal-clear turquoise waters, vibrant coral reefs, and towering limestone cliffs that create a secluded natural amphitheater. The bay's pristine white sand beach is bordered by lush tropical vegetation, creating a postcard-perfect setting that draws visitors from around the world. After suffering from overtourism, Maya Bay was closed for environmental rehabilitation from 2018 to 2022. It has since reopened with strict visitor regulations to preserve its delicate ecosystem, including limited daily visitors, no swimming in certain areas, and no anchoring of boats in the bay. This careful conservation approach aims to ensure that this natural treasure can be enjoyed by future generations while protecting its unique marine and coastal environment.</p>
+      
+      <div class="info-tiles">
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-sun-line"></i>
+              </div>
+              <div class="info-title">Tropical Climate</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-translate"></i>
+              </div>
+              <div class="info-title">Thai</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+              </div>
+              <div class="info-title">Thai Baht (฿)</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-time-fill"></i>
+              </div>
+              <div class="info-title">ICT (UTC+7)</div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Top Attractions Section -->
+<section class="top-destinations">
+  <div class="destinations-container">
+      <h2 class="section-title">Top Experiences</h2>
+      
+      <div class="destinations-grid">
+          <div class="destination-card">
+              <img src="{% static 'images/maya-bay-boat-tour.jpg' %}" alt="Maya Bay Boat Tour" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Boat Tours</h3>
+                  <p class="destination-description">Take a guided tour from Phi Phi Don, Phuket, or Krabi to experience Maya Bay and neighboring attractions in the Phi Phi Islands.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/maya-bay-snorkeling.jpg' %}" alt="Snorkeling in Maya Bay" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Snorkeling</h3>
+                  <p class="destination-description">Explore the bay's vibrant coral gardens and diverse marine life in designated snorkeling zones around the bay.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/phi-phi-viewpoint.jpg' %}" alt="Phi Phi Viewpoint" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Phi Phi Viewpoint</h3>
+                  <p class="destination-description">While on Phi Phi Don, hike to the iconic viewpoint for panoramic views of the islands, including the direction of Maya Bay.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/maya-bay-sunset.jpg' %}" alt="Maya Bay Sunset Tour" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Sunset Experiences</h3>
+                  <p class="destination-description">Witness spectacular sunset views near Maya Bay on evening boat tours that showcase the dramatic limestone landscape.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Travel Tips Section -->
+<section class="travel-tips">
+  <div class="tips-container">
+      <div class="tips-header">
+          <h2 class="section-title">Travel Tips</h2>
+          <p class="tips-subtitle">Essential information for your Maya Bay adventure</p>
+      </div>
+      
+      <div class="tips-content-container">
+          <div class="tips-list">
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Best Time to Visit</h3>
+                      <p class="tip-description">Visit during the dry season from November to April for calm seas and clear skies. During peak season (December-February), book tours well in advance and arrive early. The bay is typically closed during monsoon season (May/June-October) for ecological recovery.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-ship-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Transportation</h3>
+                      <p class="tip-description">Maya Bay is only accessible by boat. Join organized tours from Phuket (2-hour speedboat), Krabi (1.5-hour speedboat), or Phi Phi Don (30-minutes). Tour prices range from ฿1,000-3,500 depending on departure point and tour inclusions. Note that all visitors must now pay a 400 baht (about $12 USD) national park fee.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-leaf-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Conservation Rules</h3>
+                      <p class="tip-description">Following its reopening in 2022, strict conservation rules apply: 375 visitors allowed per hour (reservations recommended), no swimming in the bay itself (only in designated areas), no anchoring in the bay, and visitors must follow the designated walkway. Tours are limited to 1 hour on the beach.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Important Notes</h3>
+                      <p class="tip-description">Bring biodegradable sunscreen (chemical sunscreens are discouraged), water, snacks, sun protection, and a waterproof bag for valuables. There are limited toilet facilities at the entrance walkway. Pack out all trash, as there are minimal waste facilities to preserve the natural environment.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+      <h2 class="section-title">Maya Bay FAQs</h2>
+      <p class="faq-intro">The most common questions about visiting Maya Bay, answered.</p>
+      
+      <div class="faq-list">
+          <!-- FAQ Item 1 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>How do I get to Maya Bay?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Maya Bay is only accessible by boat as it's located on the uninhabited island of Phi Phi Leh. The most common departure points are: 1) Phi Phi Don island (30-minute longtail boat ride or 15-minute speedboat ride), 2) Phuket (1.5-2 hour speedboat journey), and 3) Krabi mainland (1.5-hour speedboat journey). Most visitors book organized tours that include Maya Bay as part of a "Phi Phi Islands Tour" package, typically ranging from ฿1,000-3,500 per person depending on departure point, boat type, and included stops. Since the 2022 reopening, all boats must dock at a floating platform at the back of the island, and visitors walk along a designated boardwalk through the jungle to reach the beach. Independent visits by chartered longtail boats are possible from Phi Phi Don, but these operators must also follow the new regulations including advance booking of time slots. All visitors must pay the National Park entrance fee (400 baht for foreign adults, 200 baht for foreign children) in addition to their transportation costs.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 2 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>When is the best time to visit?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>The best time to visit Maya Bay is during Thailand's dry season, from November through April, when seas are generally calm and skies are clear. Peak tourist season runs from December through February, offering the most reliable weather but also the largest crowds—advance booking is essential during this period. For the best balance of good weather and fewer crowds, consider visiting in November or March/April. The bay typically closes annually during parts of the monsoon season (usually June-September/October) for ecological recovery and because rough seas make boat journeys dangerous. Even during the open season, the bay operates with restricted hours (currently 7:00am-6:00pm) and visitor numbers. Morning visits (7:00-9:00am) generally offer the most tranquil experience with better lighting for photography. Special sunrise tours are occasionally permitted by the National Park authorities, offering a uniquely peaceful experience but requiring booking well in advance. Water visibility for snorkeling is best during the dry season, particularly January-April when calm seas result in less sediment disturbance.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 3 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What should I bring to Maya Bay?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Essential items for Maya Bay: 1) Reef-safe/biodegradable sunscreen—conventional sunscreens are discouraged as they damage coral; 2) Water shoes for navigating occasionally rocky areas and protecting feet from coral; 3) Reusable water bottle (filled before departure) as no vendors operate on the beach; 4) Quick-dry towel; 5) Waterproof bag or case for electronics during the boat journey and beach visit; 6) Thai Baht in cash for national park fees (400 baht per adult foreign visitor) and any additional expenses; 7) Sun protection including hat, sunglasses, and lightweight cover-up; 8) Personal snorkeling gear if you prefer your own (though most tours provide basic equipment); 9) Motion sickness medication if you're prone to seasickness, especially for the longer journeys from Phuket or Krabi; 10) Camera (preferably waterproof) to capture the iconic scenery. Following the bay's reopening, facilities remain limited—there are basic toilet facilities at the entrance walkway but no food vendors, shops, or lodging on Phi Phi Leh island. All garbage must be taken with you when leaving, so a small bag for collecting your trash is also recommended. Most organized tours provide lunch, often on nearby Phi Phi Don island after visiting Maya Bay.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 4 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Are there any safety concerns at Maya Bay?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Safety considerations for Maya Bay: 1) Boat safety is paramount—always follow crew instructions, wear provided life jackets during transit, and use caution when boarding/disembarking as sea conditions can be unpredictable; 2) Swimming is now restricted to designated areas outside the bay itself to protect the recovering coral reef ecosystem—always observe these boundaries; 3) Strong currents can occur in the waters around Phi Phi Leh, particularly during seasonal transitions—remain vigilant and avoid swimming alone; 4) The limestone formations are beautiful but can be sharp—watch your step on rocks and wear appropriate footwear; 5) Sun exposure is intense in this tropical environment—use high SPF sunscreen, wear protective clothing, and stay hydrated to prevent heat-related illness; 6) Medical facilities are limited, with the nearest hospital on the mainland—bring personal medications and a basic first-aid kit; 7) The wooden walkway leading to the beach can be slippery when wet—use caution, especially during rainy conditions; 8) Wildlife encounters, including monkeys and marine life, should be observed from a distance—never feed or approach animals; 9) During monsoon season (May/June-October), rough seas can make journeys dangerous, which is partly why the bay closes during this period; 10) Thailand has strict penalties for damaging natural resources in national parks—never break coral, remove shells/sand, or disturb wildlife. Park rangers are now stationed at Maya Bay to enforce conservation rules and ensure visitor safety.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 5 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What's the history of Maya Bay and "The Beach" movie?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Maya Bay's rise to international fame is inextricably linked to "The Beach," the 2000 film adaptation of Alex Garland's 1996 novel starring Leonardo DiCaprio. Before this cinematic exposure, the bay was primarily known to local Thai people and adventurous travelers exploring the Phi Phi Islands. In 1998-1999, 20th Century Fox chose Maya Bay as the primary filming location for the movie's fictional perfect beach paradise. The production was controversial from the start—filmmakers reportedly modified the natural landscape by widening the beach, removing native plants, and adding non-native coconut palms to create their vision of tropical perfection. Environmental groups filed lawsuits against the production company for these alterations. While "The Beach" received mixed reviews upon release, its stunning visuals showcasing Maya Bay's crystal waters and dramatic limestone cliffs captured the imagination of viewers worldwide. In the years following the film's release, tourism to Maya Bay exploded from dozens of visitors per day to thousands. By 2018, the bay was receiving up to 5,000 daily visitors, causing severe damage to the coral reefs (estimated 80% destruction) through boat anchors, sunscreen chemicals, and physical contact. This overtourism crisis led Thai authorities to close the bay completely in June 2018 for ecological rehabilitation. During the closure period, significant coral restoration projects were implemented, and a new visitor management system was developed. When Maya Bay reopened in January 2022, it did so with strict limitations—no boats in the bay itself, visitor caps (currently 375 people per hour), designated pathways, and no swimming in the main bay. The "The Beach" legacy continues to drive tourism to Maya Bay, though today's experience is carefully managed to balance visitor access with environmental preservation.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 6 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Is Maya Bay suitable for children?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Maya Bay can be suitable for children with proper planning and expectations, but presents several considerations for families: 1) The boat journey varies in difficulty—the trip from Phi Phi Don (30 minutes) is manageable for most children, while longer journeys from Phuket or Krabi (1.5-2 hours) may be challenging for young children or those prone to motion sickness; 2) Since the 2022 reopening, visitors must use a floating dock and walk approximately 300 meters along a wooden boardwalk through jungle terrain to reach the beach—most school-age children can handle this walk easily, but it may be difficult with strollers or for very young children; 3) Swimming restrictions now prohibit entering the water at the main beach—families should book tours that include stops at designated snorkeling areas if water activities are important; 4) Facilities are limited—there are basic restrooms at the entrance area but no food vendors, shops, or medical facilities on the island; 5) Sun exposure is intense—children need thorough sun protection including reef-safe sunscreen, hats, and rashguards; 6) Visit duration is now limited to one hour on the beach—a relatively short time that may actually work well for children's attention spans. Family-friendly tour options include "Phi Phi Islands Family Tours" from major tourist areas, which typically use larger, more stable boats, provide child-sized life jackets, include guides experienced with children, and offer multiple stops with varying activities. These tours usually cost 1,500-2,500 baht for adults with discounts for children (often half-price for ages 4-11, free for under 4). For the best experience with children, morning tours typically offer calmer seas, and the shoulder seasons (November or March/April) provide good weather with fewer crowds.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 7 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What conservation efforts are in place at Maya Bay?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Maya Bay has become a model for sustainable tourism recovery following its closure from 2018-2022. Current conservation measures include: 1) Strict visitor limits—currently 375 people per hour during operating hours (7:00am-6:00pm), with advance booking required; 2) Seasonal closure—the bay typically closes during monsoon months to allow additional recovery time; 3) No anchoring policy—boats must dock at a floating platform behind the island rather than entering the bay itself; 4) Swimming restrictions—swimming is prohibited in the main bay to protect recovering coral, with designated swimming/snorkeling areas in adjacent waters; 5) Blacktip reef shark nursery—a protected area has been established in the shallow waters where dozens of juvenile sharks have returned; 6) Walkway system—all visitors must use a designated wooden boardwalk to access the beach, preventing erosion and protecting vegetation; 7) Coral restoration—ongoing projects have transplanted thousands of coral fragments onto damaged reef areas using innovative techniques; 8) Maya Bay Conservation Levy (400 baht)—included in the national park fee to fund ongoing restoration work; 9) Educational briefings—all visitors receive information about the fragile ecosystem and appropriate behavior; 10) Marine biologist presence—researchers continuously monitor reef health, water quality, and marine life recovery. These efforts have shown remarkable success—coral cover has increased by approximately 30% since 2018, water quality has improved significantly, and wildlife including blacktip reef sharks, rays, and numerous fish species have returned to the bay in encouraging numbers. Park authorities continue to adjust management practices based on scientific monitoring, balancing ecological recovery with sustainable tourism access. Visitors are encouraged to become part of the conservation solution by following all guidelines, using only reef-safe sunscreen, never touching marine life, and reporting any concerning activities to park rangers.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 8 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What other attractions are near Maya Bay?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Attractions near Maya Bay include: 1) Phi Phi Leh Lagoon—a stunning emerald lagoon on the same island as Maya Bay, surrounded by towering limestone cliffs and accessible only by small boats through a narrow passage; 2) Viking Cave—a large limestone cave on the eastern side of Phi Phi Leh known for ancient wall paintings and as a source of edible bird's nests; 3) Loh Samah Bay—a picturesque bay on the back side of Maya Bay offering excellent snorkeling opportunities with a small beach; 4) Monkey Beach—located on neighboring Phi Phi Don island, home to troops of macaques that approach visitors (observe from a safe distance); 5) Bamboo Island—a pristine, less-visited island north of Phi Phi with powder-white beaches and clear waters for snorkeling; 6) Tonsai Bay—the main village area on Phi Phi Don with restaurants, accommodations, and nightlife; 7) Phi Phi Viewpoint—a steep 20-30 minute hike on Phi Phi Don offering panoramic views of the twin bays and surrounding islands; 8) Long Beach—a quieter beach on Phi Phi Don with good snorkeling and more relaxed atmosphere than the main beaches; 9) Pileh Lagoon—a striking emerald lagoon on Phi Phi Leh surrounded by limestone walls, often included in island tours; 10) Shark Point—a popular snorkeling spot where blacktip reef sharks are commonly sighted in shallow waters. Most organized tours combine Maya Bay with 3-5 other attractions as part of a full-day Phi Phi Islands experience. For visitors staying on Phi Phi Don, private longtail boat charters (2,000-3,000 baht for a half-day) allow for a more customized itinerary to these nearby attractions.</p>
+              </div>
+          </details>
+      </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

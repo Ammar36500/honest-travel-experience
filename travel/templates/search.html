@@ -1,0 +1,76 @@
+<!-- search_results.html -->
+<h1>Search Results for: {{ query }}</h1>
+
+{% if results %}
+    <ul>
+    {% for place in results %}
+        <li>
+            {{ place.name }}
+            <!-- Check known destinations and link to their pages -->
+            {% if place.name|lower == 'japan' %}
+                (<a href="{% url 'Japan' %}">Open Japan Page</a>)
+            {% elif place.name|lower == 'california' %}
+                (<a href="{% url 'California' %}">Open California Page</a>)
+            {% elif place.name|lower == 'greece' %}
+                (<a href="{% url 'greece' %}">Open Greece Page</a>)
+            {% elif place.name|lower == 'switzerland' %}
+                (<a href="{% url 'switzerland' %}">Open Switzerland Page</a>)
+            {% elif place.name|lower == 'new zealand' %}
+                (<a href="{% url 'New Zealand' %}">Open New Zealand Page</a>)
+            {% elif place.name|lower == 'london' %}
+                (<a href="{% url 'London' %}">Open London Page</a>)
+            {% elif place.name|lower == 'tokyo' %}
+                (<a href="{% url 'Tokyo' %}">Open Tokyo Page</a>)
+            {% elif place.name|lower == 'rome' %}
+                (<a href="{% url 'Rome' %}">Open Rome Page</a>)
+            {% elif place.name|lower == 'new york' %}
+                (<a href="{% url 'New York' %}">Open New York Page</a>)
+            {% elif place.name|lower == 'sydney' %}
+                (<a href="{% url 'Sydney' %}">Open Sydney Page</a>)
+            {% elif place.name|lower == 'italy' %}
+                (<a href="{% url 'italy' %}">Open Italy Page</a>)
+            {% elif place.name|lower == 'peru' %}
+                (<a href="{% url 'Peru' %}">Open Peru Page</a>)
+            {% elif place.name|lower == 'china' %}
+                (<a href="{% url 'China' %}">Open China Page</a>)
+            {% elif place.name|lower == 'australia' %}
+                (<a href="{% url 'Australia' %}">Open Australia Page</a>)
+            {% elif place.name|lower == 'iceland' %}
+                (<a href="{% url 'Iceland' %}">Open Iceland Page</a>)
+            {% elif place.name|lower == 'india' %}
+                (<a href="{% url 'India' %}">Open India Page</a>)
+                {% elif place.name|lower == 'egypt' %}
+                (<a href="{% url 'Egypt' %}">Open Egypt Page</a>)
+            {% elif place.name|lower == 'brazil' %}
+                (<a href="{% url 'Brazil' %}">Open Brazil Page</a>)
+            {% elif place.name|lower == 'paris' %}
+                (<a href="{% url 'Paris' %}">Open Paris Page</a>)
+            {% elif place.name|lower == 'morrocco' %}
+                (<a href="{% url 'Morocco' %}">Open Morrocco Page</a>)
+            {% elif place.name|lower == 'indonesia' %}
+                (<a href="{% url 'Indonesia' %}">Open Indonesia Page</a>)
+            {% elif place.name|lower == 'mumbai' %}
+                (<a href="{% url 'Mumbai' %}">Open Mumbai Page</a>)
+            {% elif place.name|lower == 'navagio beach' %}
+                (<a href="{% url 'Navagio_Beach' %}">Open Navagio Beach Page</a>)
+            {% elif place.name|lower == 'maya bay' %}
+                (<a href="{% url 'Maya_Bay' %}">Open Maya Bay Page</a>)
+            {% elif place.name|lower == 'seven mile beach' %}
+                (<a href="{% url 'Seven_Mile_Beach' %}">Open Seven Mile Beach Page</a>)
+            {% elif place.name|lower == 'matira beach' %}
+                (<a href="{% url 'Matira_Beach' %}">Open Matira Beach Page</a>)
+            {% elif place.name|lower == 'great barrier reef' %}
+                (<a href="{% url 'Great_Barrier_Reef' %}">Open Great Barrier Reef Page</a>)
+            {% elif place.name|lower == 'sydney opera house' %}
+                (<a href="{% url 'Sydney_Opera_House' %}">Open Sydney Opera House Page</a>)
+            {% elif place.name|lower == 'uluru' %}
+                (<a href="{% url 'Uluru' %}">Open Uluru Page</a>)
+            {% elif place.name|lower == 'Twelve Apostles' %}
+                (<a href="{% url 'Twelve_Apostles' %}">Open Twelve Apostles Page</a>)
+            {% endif %}
+        </li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No results found.</p>
+{% endif %}

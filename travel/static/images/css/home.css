@@ -1,0 +1,1026 @@
+.content-container {
+    position: relative;
+    z-index: 1;
+}
+
+.search-container {
+    text-align: center;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    width: 100%;
+    position: absolute; 
+    top: 75px; 
+    left: 50%;
+    transform: translateX(-50%); 
+    z-index: 10;
+
+  }
+  
+  .search-title {
+    font-size: 52px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    color: #333;
+  }
+  
+  .search-bar {
+    display: flex;
+    align-items: center;
+    max-width: 800px;
+    margin: 0 auto;
+    background-color: white;
+    border-radius: 50px;
+    padding: 8px 15px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    position: relative;
+  }
+  
+  .search-icon {
+    font-size: 24px;
+    color: #666;
+    margin-right: 10px;
+    margin-left: 10px;
+  }
+  
+  .search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 15px 10px;
+    font-size: 16px;
+    background: transparent;
+  }
+  
+  .search-button {
+    background-color: #ff6c04;
+    color: #000;
+    font-weight: bold;
+    border: none;
+    border-radius: 40px;
+    padding: 15px 30px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  
+  .search-button:hover {
+    background-color: #ef940b;
+  }
+
+  * Dropdown Styles */
+.search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    margin-top: 5px;
+    display: none;
+    overflow: hidden;
+}
+
+.search-input:focus + .search-dropdown,
+.search-dropdown:hover {
+    display: block;
+}
+
+.dropdown-section {
+    padding: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.dropdown-section:last-child {
+    border-bottom: none;
+}
+
+.section-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.icon-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    background-color: #f5f5f5;
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+.dropdown-section h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0;
+    color: #333;
+}
+
+.destination-item {
+    display: flex;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    transition: background-color 0.2s;
+    text-decoration: none;
+    color: inherit;
+}
+
+.destination-item:hover {
+    background-color: #f5f5f5;
+}
+
+.destination-item img {
+    width: 70px;
+    height: 70px;
+    object-fit: cover;
+    border-radius: 8px;
+    margin-right: 15px;
+}
+
+.destination-info h4 {
+    margin: 0 0 5px 0;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.destination-info p {
+    margin: 0;
+    font-size: 12px;
+    color: #666;
+}
+
+.sponsored-item {
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.sponsored-item .destination-info p {
+    color: #999;
+    font-size: 11px;
+}
+
+/* Ensure the page layout remains stable */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+/* Slideshow Container */
+.slideshow-container {
+    width: 100%;
+    max-width: 1400px;
+    position: absolute; 
+    top: 300px; 
+    left: 50%;
+    transform: translateX(-50%); 
+    overflow: hidden;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    z-index: 10; 
+}
+
+
+.mySlides {
+    display: none;
+    width: 100%;
+}
+
+
+.mySlides img {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+    border-radius: 15px;
+}
+
+
+.prev, .next {
+    cursor: pointer;
+    position: absolute;
+    top: 50%;
+    padding: 12px;
+    color: white;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+
+.next {
+    right: 10px;
+}
+
+.prev {
+    left: 10px;
+}
+
+/* Hover Effect on Arrows */
+.prev:hover, .next:hover {
+    background: rgba(0, 0, 0, 0.8);
+}
+
+/* Caption Text on Each Image */
+.text {
+    position: absolute;
+    bottom: 350px;
+    left: 50%;
+    transform: translateX(-50%);
+    color: white;
+    font-size: 48px;
+    font-weight: bold;
+    text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.6);
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-family: "Permanent Marker", cursive;
+}
+
+/* Number Text (1/3 etc) */
+.numbertext {
+    position: absolute;
+    top: 5px;
+    left: 10px;
+    color: #f2f2f2;
+    font-size: 14px;
+}
+
+/* Dots Indicator */
+.dot {
+    cursor: pointer;
+    height: 12px;
+    width: 12px;
+    margin: 5px;
+    background-color: #bbb;
+    border-radius: 50%;
+    display: inline-block;
+    transition: background-color 0.3s;
+}
+
+.active, .dot:hover {
+    background-color: #717171;
+}
+
+/* Animation for Slide Transitions */
+@keyframes fade {
+    from { opacity: 0.4 }
+    to { opacity: 1 }
+}
+
+/* Travel Text Overlay */
+.travel-text-overlay {
+    position: absolute;
+    top: 55%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    color: white;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 80%;
+}
+
+.travel-text-overlay p {
+    font-size: 16px;
+    margin-top: 70px;
+}
+
+/* Explore Button */
+.explore-btn {
+    background-color: #ff6c04;
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    font-size: 16px;
+    font-weight: bold;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 30px;
+}
+
+.explore-btn:hover {
+    background-color: #d46618;
+    transform: scale(1.05);
+}
+
+/* Remove Extra Spacing */
+.slideshow-container + br {
+    display: none;
+}
+
+/* Popular Destinations Section */
+.popular-destinations {
+    position: absolute;
+    top: 1000px;
+    left: 0;
+    width: 100%;
+    text-align: center;
+    z-index: 5;
+    padding: 0 20px;
+}
+
+/* Section Title */
+.section-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+/* Carousel Navigation Arrows */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.9);
+    border: 1px solid #ddd;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.carousel-arrow:hover {
+    background-color: #fff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.carousel-arrow i {
+    font-size: 24px;
+    color: #333;
+}
+
+.carousel-prev {
+    left: -20px;
+}
+
+.carousel-next {
+    right: -20px;
+}
+
+/* Fix for destinations carousel container to allow arrows to be properly positioned */
+.destinations-carousel-container {
+    position: relative;
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    padding: 0 25px; /* Added some padding to make space for the arrows */
+}
+
+/* Make sure carousel has proper overflow and padding */
+.destinations-carousel {
+    width: 100%;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    scrollbar-width: none; /* For Firefox */
+    -ms-overflow-style: none; /* For Internet Explorer and Edge */
+    padding: 20px 0;
+    will-change: scroll-position; /* for smoother scrolling */
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.destinations-carousel::-webkit-scrollbar {
+    display: none;
+}
+
+/* Destinations Row */
+.destinations-row {
+    display: flex;
+    gap: 20px;
+    min-width: max-content;
+}
+
+/* Individual Destination Styling */
+.destination {
+    position: relative;
+    overflow: hidden;
+    border-radius: 10px;
+    width: 300px;
+    flex-shrink: 0;
+}
+
+/* Image Styling */
+.destination img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+    transition: transform 0.4s ease-in-out;
+}
+
+/* Zoom Effect on Hover */
+.destination:hover img {
+    transform: scale(1.1);
+}
+
+/* Text Overlay */
+.overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    text-align: center;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 10px 0;
+    transition: opacity 0.4s ease-in-out;
+    opacity: 0;
+}
+
+/* Show overlay on hover */
+.destination:hover .overlay {
+    opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .carousel-arrow {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .carousel-arrow i {
+        font-size: 18px;
+    }
+    
+    .destination {
+        width: 220px;
+    }
+    
+    .destination img {
+        height: 180px;
+    }
+}
+
+
+/* Seaside Destinations Section Styles */
+.seaside-destinations {
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    position: relative;
+    margin-top: -500px; 
+    top: 4200px;
+}
+
+/* Section headings */
+.seaside-destinations .section-title {
+    font-size: 28px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #000;
+    text-align: center;
+}
+
+.seaside-destinations .section-subtitle {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+}
+
+/* Carousel container */
+.seaside-destinations .seaside-carousel {
+    display: flex;
+    gap: 20px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    padding-bottom: 15px;
+    -ms-overflow-style: none;  /* Hide scrollbar for IE and Edge */
+    scrollbar-width: none;  /* Hide scrollbar for Firefox */
+    position: relative;
+}
+
+.seaside-destinations .seaside-carousel::-webkit-scrollbar {
+    display: none;  /* Hide scrollbar for Chrome, Safari and Opera */
+}
+
+/* Card styles */
+.seaside-destinations .seaside-card {
+    flex: 0 0 auto;
+    width: 300px;
+    height: 330px;
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.3s ease;
+}
+
+.seaside-destinations .seaside-card:hover {
+    transform: translateY(-5px);
+}
+
+.seaside-destinations .seaside-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    background-color: #f0f0f0; /* Add a background color while image loads */
+}
+
+.seaside-destinations .seaside-card:hover .seaside-image {
+    transform: scale(1.05);
+}
+
+/* Overlay text */
+.seaside-destinations .seaside-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 20px;
+    background: linear-gradient(to top, rgba(0,0,0,0.8), rgba(0,0,0,0));
+    color: white;
+}
+
+.seaside-destinations .region-name {
+    font-size: 32px;
+    font-weight: bold;
+    margin: 0;
+    text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+}
+
+/* Navigation button */
+.seaside-destinations .seaside-next-btn {
+    position: absolute;
+    right: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: white;
+    border: none;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 24px;
+    z-index: 10;
+}
+
+.seaside-destinations .seaside-next-btn i {
+    color: #333;
+}
+
+.seaside-destinations .seaside-next-btn:hover {
+    background-color: #f0f0f0;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .seaside-destinations .seaside-card {
+        width: 250px;
+        height: 280px;
+    }
+    
+    .seaside-destinations .region-name {
+        font-size: 28px;
+    }
+}
+
+@media (max-width: 576px) {
+    .seaside-destinations .section-title {
+        font-size: 24px;
+    }
+    
+    .seaside-destinations .section-subtitle {
+        font-size: 16px;
+    }
+    
+    .seaside-destinations .seaside-card {
+        width: 200px;
+        height: 240px;
+    }
+    
+    .seaside-destinations .region-name {
+        font-size: 24px;
+    }
+}
+
+/* Newsletter Section */
+.newsletter-section {
+    position: relative;
+    width: 100vw; 
+    height: 150px; 
+    padding: 80px 20px; 
+    background: rgba(0, 0, 0, 0.4); /* Semi-transparent black */
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin-top: 4200px;
+}
+
+/* Background Image Overlay */
+.newsletter-section::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url("https://media.wildernessadventures.com/wp-content/uploads/2024/06/13234910/HomeHero4.png") no-repeat center center;
+    background-size: cover;
+    opacity: 0.2; 
+    z-index: -1;
+}
+
+/* Newsletter Text Styling */
+.newsletter-content {
+    color: white; 
+    max-width: 900px;
+    margin: auto;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 1; /* Keep text above background */
+}
+
+
+/* Input Field */
+.newsletter-input {
+    width: 60%;
+    padding: 15px;
+    border: none;
+    border-radius: 5px;
+    outline: none;
+}
+
+/* Subscribe Button */
+.subscribe-btn {
+    background-color: #ff4d4d;
+    color: white;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: bold;
+    margin-left: 10px;
+}
+
+.subscribe-btn:hover {
+    background-color: red;
+}
+
+/* Features Section */
+.features-section {
+    text-align: center;
+    padding: 80px 0;
+    background-color: #f9f9f9; /* Light background */
+}
+
+/* Features Container */
+.features-container {
+    display: flex;
+    justify-content: center;
+    gap: 50px;
+    max-width: 1200px;
+    margin: auto;
+}
+
+/* Individual Feature Box */
+.feature {
+    text-align: center;
+    width: 300px;
+}
+
+/* Feature Icons */
+.feature-icon {
+    font-size: 50px;
+    color: #ff4d4d; /* Red color */
+    margin-bottom: 15px;
+}
+
+/* Feature Title */
+.feature h3 {
+    font-size: 20px;
+    color: #1a2639;
+    margin-bottom: 10px;
+}
+
+/* Feature Description */
+.feature p {
+    font-size: 14px;
+    color: #666;
+    line-height: 1.6;
+}
+
+
+.latest-reviews {
+    margin: 80px auto; 
+    padding: 40px 40px;
+}
+
+.latest-reviews h2 {
+    font-size: 24px;
+    font-weight: bold;
+    color: #333;
+    margin-top: 0px;
+    margin-left: 620px;
+}
+
+.reviews-grid {
+    display: flex;
+    flex-wrap: wrap; /* Allow items to wrap to new rows */
+    gap: 20px;
+    justify-content: center; /* Center items horizontally */
+}
+
+.review-item {
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 16px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    text-align: left;
+    transition: box-shadow 0.3s ease, transform 0.2s ease;
+    flex: 1 1 250px; /* Flexible sizing with minimum 250px */
+    max-width: 300px; /* Maximum width for larger screens */
+}
+
+.review-item:hover {
+    box-shadow: 0 8px 12px rgba(0, 0, 0, 0.2);
+    transform: translateY(-5px);
+}
+
+.review-item h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.review-item p {
+    font-size: 0.9em;
+    margin: 5px 0;
+    color: #555;
+}
+
+.review-actions {
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.review-actions button {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9em;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.review-actions .thumbs-up,
+.review-actions .thumbs-down {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.review-actions .flag-review {
+    background-color: #f9d1d1;
+    color: #d9534f;
+}
+
+.thumbs-up:hover {
+    background-color: #e0f7e9;
+    color: #28a745;
+}
+
+.thumbs-down:hover {
+    background-color: #fbe6e6;
+    color: #dc3545;
+}
+
+.flag-review:hover {
+    background-color: #ffeeba;
+    color: #ffc107;
+}
+
+.icon {
+    font-size: 18px;
+}
+
+
+.rating {
+    display: flex;
+    margin-bottom: 10px;
+}
+
+.rating i {
+    color: gold;
+    margin-right: 3px;
+}
+
+.review-images {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin: 15px 0;
+}
+
+.review-image {
+    max-width: 150px;
+    height: auto;
+    border-radius: 4px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+/* Responsive Adjustments */
+@media screen and (max-width: 768px) {
+    .reviews-grid {
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); /* Adjust for smaller screens */
+    }
+}
+
+/* Chat Widget Styles */
+.chat-widget {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000;
+    font-family: inherit;
+}
+
+.chat-toggle {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+}
+
+.chat-toggle:hover {
+    background-color: #34495e;
+    transform: translateY(-2px);
+}
+
+.chat-toggle i {
+    font-size: 20px;
+}
+
+.chat-container {
+    position: fixed;
+    bottom: 80px;
+    right: 20px;
+    width: 350px;
+    height: 500px;
+    background-color: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 25px rgba(0, 0, 0, 0.2);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transition: all 0.3s ease;
+}
+
+.chat-container.hidden {
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+}
+
+.chat-header {
+    background-color: #2c3e50;
+    color: white;
+    padding: 12px 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.chat-header h3 {
+    margin: 0;
+    font-size: 16px;
+}
+
+.close-chat {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.chat-messages {
+    flex: 1;
+    padding: 15px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.message {
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    line-height: 1.4;
+}
+
+.user-message {
+    background-color: #0c84da;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+}
+
+.assistant-message {
+    background-color: #0c0c0c;
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+}
+
+.chat-input-area {
+    display: flex;
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+.chat-input-area button {
+    background-color: #2c3e50;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    margin-left: 10px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.chat-input-area button i {
+    font-size: 18px;
+}
+
+/* Suggested Responses Styling */
+.suggested-responses {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    max-width: 100%;
+    overflow-x: auto;
+    background-color: #f5f5f5;
+    border-top: 1px solid #e0e0e0;
+}
+
+.suggested-responses.hidden {
+    display: none;
+}
+
+.suggested-response-button {
+    background-color: #ffffff;
+    border: 1px solid #4a90e2;
+    border-radius: 20px;
+    color: #4a90e2;
+    padding: 6px 12px;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    white-space: nowrap;
+    max-width: 200px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin: 2px;
+}
+
+.suggested-response-button:hover {
+    background-color: #4a90e2;
+    color: white;
+}
+
+.suggested-response-button:active {
+    background-color: #3a80d2;
+    color: white;
+}

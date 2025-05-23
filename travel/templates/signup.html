@@ -1,0 +1,134 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign Up - Travel Review</title>
+    <link rel="stylesheet" href="{% static 'images/css/signup.css' %}">
+</head>
+<body>
+    <div class="forest-bg"></div>
+    <div class="light"></div>
+    <div class="tree tree-1"></div>
+    <div class="tree tree-2"></div>
+    <div class="tree tree-3"></div>
+    <div class="tree tree-4"></div>
+    <div class="bird bird-1"></div>
+    <div class="bird bird-2"></div>
+    <div class="bird bird-3"></div>
+    
+    <div class="auth-container">
+        <h1>Sign up</h1>
+        <div id="errorContainer" class="error-message" style="display: none;"></div>
+        
+        <form id="signupForm" method="post" data-signup-url="{% url 'register' %}">
+            {% csrf_token %}
+            
+            <div class="input-group">
+                <input type="text" name="username" placeholder="Username" required>
+            </div>
+            <div class="input-group">
+                <input type="text" name="full_name" placeholder="Full Name" required>
+            </div>
+            <div class="input-group">
+                <input type="email" name="email" placeholder="Email Address" required>
+            </div>
+            <div class="input-group">
+                <input type="password" name="password" placeholder="Password" required>
+            </div>
+
+            <div class="input-group terms-group"> {# Optional: Add a class for styling #}
+                <input type="checkbox" 
+                       name="terms_accepted" 
+                       id="id_terms_accepted" 
+                       required 
+                       style="width: auto; margin-right: 10px;"> {# Basic styling - adjust as needed #}
+                <label for="id_terms_accepted" style="display: inline;"> {# Style label for proper alignment #}
+                    I agree to the <a href="{% url 'terms_page' %}" target="_blank">Terms of Service and User Agreement</a>
+                </label>
+                {# Add a placeholder for potential Django form errors if needed, though your JS handles errors separately #}
+                {# <span class="error-message">{{ form.terms_accepted.errors }}</span> #}
+            </div>
+            <button type="submit" class="auth-btn">Sign up</button>
+        </form>
+        <div class="alt-link">
+            Already have an account? <a href="{% url 'logon' %}">Login</a>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const signupForm = document.getElementById('signupForm');
+        const errorContainer = document.getElementById('errorContainer');
+        
+        // Add direct navigation for the login link
+        document.querySelector('.alt-link a').addEventListener('click', function(e) {
+            e.preventDefault();
+            window.location.href = this.getAttribute('href');
+        });
+        
+        signupForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const formData = new FormData(signupForm);
+            const signupUrl = signupForm.getAttribute('data-signup-url');
+
+            // Clear previous errors
+            errorContainer.textContent = '';
+            errorContainer.style.display = 'none';
+
+            // Basic client-side check for the checkbox (optional, as server-side is key)
+            const termsCheckbox = document.getElementById('id_terms_accepted');
+            if (!termsCheckbox.checked) {
+                errorContainer.textContent = 'You must agree to the Terms of Service and User Agreement.';
+                errorContainer.style.display = 'block';
+                return; // Stop submission if not checked
+            }
+            
+            fetch(signupUrl, {
+                method: 'POST',
+                body: formData, // FormData should include terms_accepted=on if checked
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                    // Note: No 'Content-Type' header needed when sending FormData
+                }
+            })
+            .then(response => {
+                 if (!response.ok) {
+                    // Handle non-JSON error responses or server errors
+                    return response.text().then(text => { 
+                        throw new Error(text || `Server responded with status ${response.status}`) 
+                    });
+                 }
+                 return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    // Redirect on success
+                    window.location.href = data.redirect_url || "{% url 'logon' %}"; // Use Django url tag for default
+                } else {
+                    // Show error(s) - improved error handling
+                    let errorMessage = 'An error occurred during registration.';
+                    if (data.error) {
+                        if (typeof data.error === 'object') {
+                            // Handle structured errors (like form.errors.as_json())
+                            errorMessage = Object.values(data.error).flat().join(' '); // Basic joining of errors
+                        } else {
+                            errorMessage = data.error; // Handle simple string error
+                        }
+                    }
+                    errorContainer.textContent = errorMessage;
+                    errorContainer.style.display = 'block';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                errorContainer.textContent = error.message || 'An unexpected error occurred. Please check console or try again.';
+                errorContainer.style.display = 'block';
+            });
+        });
+    });
+    </script>
+</body>
+</html>

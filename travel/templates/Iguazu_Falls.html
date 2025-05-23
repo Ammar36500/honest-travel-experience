@@ -1,0 +1,591 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Iguazu Falls - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/iguazu-falls.jpg' %}" alt="Iguazu Falls panoramic view" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Iguazu Falls</h1>
+              <p class="destination-description">Experience one of the world's most spectacular natural wonders, where 275 cascades span nearly 3km across the Argentina-Brazil border, surrounded by lush subtropical rainforest.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Iguazu Falls Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Iguazu Falls</h2>
+            
+            <p class="about-text">Iguazu Falls (also spelled Iguassu or Iguaçu) stands as one of the planet's most awe-inspiring natural spectacles, formed by the Iguazu River as it plunges over the edge of the Paraná Plateau. Located at the border between Argentina (Puerto Iguazú) and Brazil (Foz do Iguaçu), the falls consist of approximately 275 individual cascades extending across 2.7 kilometers (1.7 miles), making them significantly wider than Victoria Falls and nearly twice as wide as Niagara Falls. The most dramatic section, a U-shaped chasm called the Devil's Throat (Garganta del Diablo), drops water 80 meters (262 feet) into a permanent cloud of mist. The falls result from a geological fault created approximately 130 million years ago, with erosion continuing to reshape the cascades. The surrounding protected areas, Iguazú National Park in Argentina and Iguaçu National Park in Brazil, both UNESCO World Heritage Sites, preserve over 2,000 plant species and rich wildlife including toucans, giant anteaters, howler monkeys, jaguars, and caiman. The name "Iguazu" derives from the indigenous Guarani words "y" (water) and "guasu" (big), aptly meaning "big water." Local legend holds that a deity planned to marry a beautiful woman named Naipí, who fled with her mortal lover Tarobá in a canoe. In a rage, the deity sliced the river, creating the waterfalls and condemning the lovers to an eternal fall. Beyond their natural importance, the falls power major hydroelectric plants including Itaipu Dam, one of the world's largest. The combination of thundering waters, lush rainforest, and diverse wildlife makes Iguazu Falls an unparalleled destination that impresses even the most seasoned travelers.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-map-pin-line"></i>
+                </div>
+                <div class="info-title">Argentina & Brazil Border</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-drop-line"></i>
+                </div>
+                <div class="info-title">275 Individual Cascades</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-award-line"></i>
+                </div>
+                <div class="info-title">UNESCO World Heritage</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-plant-line"></i>
+                </div>
+                <div class="info-title">Subtropical Rainforest</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Attractions Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Experiences</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/devils-throat.jpg' %}" alt="Devil's Throat cascade" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Devil's Throat</h3>
+                  <p class="destination-description">Experience the most powerful section of Iguazu Falls on the Argentinian side, where 14 cascades converge into a U-shaped chasm, creating a thunderous spectacle visible from viewing platforms.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/brazilian-panorama.jpg' %}" alt="Panoramic view from Brazilian side" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Brazilian Panoramas</h3>
+                  <p class="destination-description">Enjoy unbeatable panoramic views of the entire waterfall system from the Brazilian side, with a walkway providing increasingly spectacular vistas culminating in a viewing platform near Devil's Throat.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/boat-adventure.jpg' %}" alt="Boat ride under the falls" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Boat Adventures</h3>
+                  <p class="destination-description">Take an exhilarating boat ride that brings you thrillingly close to the cascades, guaranteed to leave you drenched but with unforgettable up-close perspectives of the falls' power.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/jungle-trails.jpg' %}" alt="Jungle trail in Iguazu National Park" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Jungle Trails</h3>
+                  <p class="destination-description">Explore the surrounding subtropical rainforest on well-maintained trails, spotting colorful birds, butterflies, coatis, and occasionally monkeys while learning about the unique ecosystem.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section (Condensed) -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for visiting Iguazu Falls</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Iguazu Falls can be visited year-round, but each season offers different advantages. March to April and August to September represent ideal windows with pleasant temperatures (15-25°C/59-77°F), moderate water flow, and fewer crowds. During these shoulder seasons, trails are less crowded and accommodation prices lower. The rainy season (December-February) delivers the falls at their most powerful with impressive water volume, though some trails may close when water levels are extremely high. These summer months also bring hot, humid conditions (25-32°C/77-90°F) and larger crowds, particularly during South American holidays. The dry season (May-July) offers cooler temperatures (12-23°C/54-73°F) and greater likelihood of sunshine, though the falls may have less dramatic water volume. For photography, early morning provides the best lighting on the Brazilian side, while afternoon light favors the Argentinian side. Weekdays are considerably less crowded than weekends when domestic tourists visit. Plan to spend one full day exploring the more extensive Argentinian side and at least a half-day on the Brazilian side for complete appreciation of the falls.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-route-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Getting There & Crossing Borders</h3>
+                    <p class="tip-description">Most visitors arrive via the two gateway cities: Puerto Iguazú (Argentina) and Foz do Iguaçu (Brazil). Both have airports with regular connections to their respective country's major cities. The Brazilian side (IGU) generally offers more international flights and better connections. Getting between the two sides is straightforward—regular buses run between the town centers and directly between the two national parks. The border crossing is relatively simple, taking about 45-60 minutes each way including transportation. Most nationalities can enter both countries without pre-arranged visas, but verify requirements for your passport. When planning your visit, consider flying into one country and departing from the other to avoid backtracking. For the Argentinian side, public buses depart regularly from Puerto Iguazú's terminal to the park entrance (30 minutes). On the Brazilian side, buses from Foz do Iguaçu reach the national park in about 40 minutes. Taxis and organized tours provide more convenient but pricier alternatives. A third option exists from Paraguay—Ciudad del Este connects to Foz do Iguaçu via the Friendship Bridge, though this crossing can be more time-consuming with stricter controls. Regardless of your entry point, allow sufficient time for border procedures if visiting both sides, and carry your passport at all times.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-compass-3-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Argentina vs. Brazil: Which Side?</h3>
+                    <p class="tip-description">The falls span both Argentina and Brazil, with each side offering distinct experiences that ideally complement each other. The Argentinian side (containing 80% of the falls) provides a more immersive experience with extensive walkways and trails that allow visitors to get remarkably close to numerous cascades. It requires a full day to explore properly, offering intimate encounters through several circuits: the Lower Circuit (Circuito Inferior) with close-up views from below, the Upper Circuit (Circuito Superior) with top-down perspectives, and the Devil's Throat walkway leading to the most powerful section. The Brazilian side offers the best panoramic views, allowing visitors to appreciate the falls' scale and grandeur. It can be explored in half a day, with a linear walkway providing increasingly spectacular vistas culminating in a viewing platform extending over the water near Devil's Throat. If time allows, visiting both sides provides the complete experience—start with the Brazilian overview, then explore the Argentinian side in depth. If limited to one, choose based on your preferences: Argentina for closer engagement with multiple falls and longer hiking options, Brazil for the best overall views and photography opportunities. Most visitors with sufficient time agree that the ideal approach is spending one day on the Argentinian side and a half-day on the Brazilian side, with the sequence depending on your arrival point.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Practical Information</h3>
+                    <p class="tip-description">Prepare for your visit with these practical considerations. Weather-appropriate clothing should include lightweight, quick-dry items, rain protection (year-round), comfortable walking shoes with good traction, and sun protection. You'll almost certainly get wet, particularly on lower trails and boat excursions—waterproof bags for electronics and a change of clothes are advisable. Park entrance fees (2023 prices) are approximately $35 USD for the Argentinian side and $25 USD for the Brazilian side, with both parks accepting credit cards. Both sides offer optional boat adventures bringing you close to (and sometimes under) the cascades—these cost $80-100 USD and provide thrilling perspectives worth the expense for most visitors. If visiting both sides, Puerto Iguazú (Argentina) generally offers better value accommodation, while Foz do Iguaçu (Brazil) provides more dining and entertainment options. Wildlife encounters are common, particularly with coatis—these raccoon-like animals appear cute but can be aggressive around food, so maintain distance and never feed them. Bird watching is excellent, especially early morning, with over 400 species in the parks. The parks open approximately 8:00-17:00 daily, with facilities including restaurants, restrooms, and visitor centers. ATMs are available in both gateway towns but limited within parks, so bring sufficient cash. While guided tours provide valuable context and convenience, independent exploration is straightforward with clear signage in multiple languages.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+    <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Iguazu Falls FAQ</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How many days should I spend at Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Most visitors find that 2-3 days provides an optimal Iguazu Falls experience. This allows one full day (6-7 hours) exploring the more extensive Argentinian side with its multiple circuits and close-up experiences, and a half-day (3-4 hours) on the Brazilian side for panoramic views. A third day provides flexibility for weather changes, additional activities like boat rides or helicopter flights, or simply absorbing the experience at a more relaxed pace. If extremely limited on time, prioritize based on your interests: nature immersion and multiple perspectives favor the Argentinian side, while the best single viewpoint and shorter visit favor the Brazilian side. For photographers, additional time allows capturing the falls in various lighting conditions. When planning, factor in border crossing time (approximately one hour each way) if staying on one side while visiting both parks. One night on each side minimizes border crossings and allows early morning park access before day-trippers arrive. Those interested in the surrounding area might extend their stay to visit Itaipu Dam, bird parks, or nearby rainforest attractions. Travelers report that rushing through both sides in a single day, while possible, significantly diminishes the experience of this natural wonder that deserves unhurried appreciation.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Is the boat ride worth doing?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>The boat rides at Iguazu Falls consistently rank among visitors' most memorable experiences, offering thrilling close encounters with the cascades. Available on both sides but most popular from the Argentinian park (Gran Aventura or Nautical Adventure), these 12-25 minute boat excursions bring you remarkably close to the falls, culminating in an exhilarating run directly into smaller cascades that guarantees a thorough soaking. Priced at $80-100 USD, the experience includes a truck ride through rainforest sections of the park in Argentina, and provides perspectives impossible to gain from the walkways. For most visitors, the unique, immersive experience justifies the cost, offering not just spectacular views but a visceral feel for the falls' raw power. Prepare to get completely drenched—waterproof protection for cameras is essential, and many operators provide dry bags. Quick-dry clothing and a change of clothes/shoes are highly recommended. Those with back problems, mobility issues, or who prefer to avoid getting wet should consider the gentler option on the Brazilian side, which approaches the falls without going directly under them. Advance booking is recommended during high season (December-February), though same-day tickets are usually available earlier in the day. For value, the Argentine Gran Aventura offers a more comprehensive experience with both jungle and river components. Many travelers recommend scheduling the boat ride toward the end of your visit after exploring walkways, providing a different perspective after seeing the falls from conventional viewpoints.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Where should I stay when visiting Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Accommodation options cluster around three main areas, each with distinct advantages. Puerto Iguazú (Argentina) offers a relaxed atmosphere with a range of accommodations from budget hostels ($15-30 USD) to mid-range hotels ($60-120 USD) and luxury options like Loi Suites Iguazú ($200-400 USD). The town has pleasant restaurants, an ecological reserve, and easy access to the Argentinian park. Foz do Iguaçu (Brazil) provides more urban amenities with shopping centers, diverse dining, and nightlife options. Accommodation ranges from economic options ($25-70 USD) to upscale hotels like Bourbon Cataratas ($150-250 USD), with generally better value than equivalent properties in Argentina. The Brazilian town offers better transportation connections but is further from the Brazilian park entrance. For those seeking a premium experience, two hotels operate within the national parks: the iconic Belmond Hotel das Cataratas on the Brazilian side, offering exclusive falls access before and after park hours ($350-600 USD), and the Gran Meliá Iguazú on the Argentinian side with some rooms featuring direct waterfall views ($250-500 USD). These in-park options provide unparalleled convenience but come with premium pricing. For visitors planning to see both sides, Puerto Iguazú generally offers better overall value with a more relaxed atmosphere, though those arriving and departing via Brazilian connections might prefer Foz do Iguaçu. Budget travelers should consider Puerto Iguazú's hostels or Foz do Iguaçu's pousadas, while families often prefer the Brazilian side's all-inclusive resorts with pool facilities.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What wildlife can I see at Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>The protected rainforest surrounding Iguazu Falls harbors rich wildlife, with several species commonly encountered during visits. The most frequently seen mammals are coatis (raccoon relatives) that roam in groups throughout both parks—adorably photogenic but remember they're wild animals that can bite if approached or fed. Capuchin and howler monkeys are often spotted in tree canopies, particularly in quieter areas away from the main falls. Remarkable birdlife includes the distinctive great dusky swift that nests behind the waterfalls, toucans with their colorful bills, various colorful parrot and macaw species, and the graceful plush-crested jay. Around water areas, look for caiman (small crocodilians) basking on riverbanks, especially on boat excursions. The parks also host giant anteaters, tapirs, and jaguars, though these remain rarely seen. For optimal wildlife viewing, visit early morning when animals are most active and crowds smallest; bring binoculars for spotting canopy dwellers. The Macuco Trail on the Argentinian side offers excellent wildlife opportunities away from the falls' crowds. Bird enthusiasts should consider visiting Parque das Aves (Bird Park) near the Brazilian entrance, featuring rehabilitated birds in large aviaries including toucans and macaws. While the parks' primary appeal remains the spectacular waterfalls, the supporting ecosystem's wildlife adds another dimension to the experience, particularly for nature enthusiasts willing to slow down and observe their surroundings.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What other attractions are near Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>While the falls rightfully dominate visitors' attention, several worthwhile attractions lie nearby. On the Brazilian side, the Parque das Aves (Bird Park) showcases hundreds of bird species in walkthrough aviaries, including toucans, macaws, and flamingos. Located near the national park entrance, it makes an excellent half-day addition to your itinerary. The massive Itaipu Dam, one of the world's largest hydroelectric facilities, offers fascinating tours explaining its construction and operation, with panoramic viewpoints and even technical tours inside the facility. In Foz do Iguaçu, the Buddhist Temple (Templo Budista) provides a serene cultural counterpoint to natural attractions. The Marco das Três Fronteiras viewpoint marks the tripoint where Argentina, Brazil, and Paraguay meet at the confluence of the Iguazu and Paraná rivers. On the Argentinian side, the Güirá Oga wildlife rescue center rehabilitates injured rainforest animals and offers educational tours. The Wanda Mines showcase impressive amethyst and quartz formations with opportunities to purchase local gemstones. The small Jesuit Ruins of San Ignacio Miní, though requiring a longer excursion (3-4 hours from Puerto Iguazú), provide historical context as a UNESCO World Heritage site. Adventure activities around both towns include zip-lining, rappelling, and jungle trekking. For a complete regional experience, consider visiting Ciudad del Este in Paraguay for its massive shopping district featuring electronics and luxury goods at competitive prices, though prepare for a chaotic border crossing. Most of these attractions can be incorporated into a 3-4 day Iguazu itinerary, providing diversity beyond the falls themselves.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What should I pack for Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Packing smartly enhances your Iguazu experience, with several essentials recommended. Lightweight, quick-dry clothing is crucial as you'll likely get wet from spray or rain—synthetic fabrics or athletic wear work well, with shorts/pants that convert between lengths offering versatility. Include a light raincoat or poncho and consider water shoes or sandals with good traction for wet walkways, plus comfortable hiking shoes for longer trails. Sun protection is essential: wide-brimmed hats, sunglasses, and high-SPF sunscreen (waterproof recommended). Insect repellent with DEET helps ward off mosquitoes, particularly important in summer months and jungle trails. For electronics, waterproof cases or dry bags protect cameras and phones from inevitable spray. Some visitors bring a small microfiber towel for drying off after particularly wet sections. If planning boat excursions, a complete change of clothes including underwear and footwear is necessary—you will get thoroughly soaked. Cash in local currencies (Argentine pesos and Brazilian reais) is useful for smaller purchases, though major credit cards are widely accepted. Both Argentina and Brazil use different electrical outlets, so bring appropriate adapters if charging devices. A small daypack with raincover carries your essentials while keeping hands free for photography and railings. During summer (December-February), lightweight clothing with UV protection works best, while winter months (June-August) can require light layers including a fleece or light jacket, especially for morning visits. The parks cover extensive areas with considerable walking, so pack minimally while ensuring all essentials are covered.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Do I need a visa to visit both sides of Iguazu Falls?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Visa requirements for visiting both sides of Iguazu Falls vary significantly depending on your nationality. Citizens of the United States, Canada, Australia, and New Zealand currently need no visa for either Argentina or Brazil for visits under 90 days, making border crossings straightforward with just your passport. European Union citizens similarly enjoy visa-free access to both countries. However, entry requirements change periodically, so verify current policies before traveling. For nationalities requiring visas, both Argentina and Brazil increasingly offer electronic visa options that can be arranged online before travel, significantly simplifying the process. When crossing between countries, all visitors must clear immigration and customs at border checkpoints, presenting their passport regardless of visa status. The actual border crossing between Puerto Iguazú and Foz do Iguaçu typically takes 30-60 minutes depending on traffic and time of day. Some hotels and tour operators offer assistance with border crossings as part of their services. Ensure your passport has at least six months' validity beyond your planned departure date, as this is a standard requirement for both countries. If you require a visa for either country, confirm whether single or multiple-entry permissions are needed, particularly if you'll be crossing borders multiple times. The Argentinian side sometimes offers special border-crossing arrangements for day visitors, though these can change without notice. For up-to-date visa information, consult official consulate websites or reputable visa services rather than relying solely on travel forums where information may be outdated.</p>
+        </div>
+      </details>
+    </div>
+</div>
+</section>
+
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+<div class="reviews-container">
+  <h2 class="section-title">Reviews from {{ country_name }}</h2>
+  
+  <!-- Metrics Section (Similar to the image) -->
+  <div class="standalone-metrics">
+    <div class="metrics-header">
+      <div class="overall-score-container">
+        <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+        <div class="overall-stars">
+          {% with overall_rating=review_metrics.avg_rating %}
+            {% for i in "12345" %}
+              {% if forloop.counter <= overall_rating %}
+                <span class="star-full"></span>
+              {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                <span class="star-half"></span>
+              {% else %}
+                <span class="star-empty"></span>
+              {% endif %}
+            {% endfor %}
+          {% endwith %}
+        </div>
+        <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+        <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+      </div>
+    </div>
+    
+    <div class="metrics-bars">
+      <div class="metric-row">
+        <span class="metric-label">Excellent</span>
+        <div class="metric-bar-container">
+          <div class="metric-bar excellent-bar"></div>
+        </div>
+        <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+      </div>
+      
+      <div class="metric-row">
+        <span class="metric-label">Very good</span>
+        <div class="metric-bar-container">
+          <div class="metric-bar very-good-bar"></div>
+        </div>
+        <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+      </div>
+      
+      <div class="metric-row">
+        <span class="metric-label">Average</span>
+        <div class="metric-bar-container">
+          <div class="metric-bar average-bar"></div>
+        </div>
+        <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+      </div>
+      
+      <div class="metric-row">
+        <span class="metric-label">Poor</span>
+        <div class="metric-bar-container">
+          <div class="metric-bar poor-bar"></div>
+        </div>
+        <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+      </div>
+      
+      <div class="metric-row">
+        <span class="metric-label">Terrible</span>
+        <div class="metric-bar-container">
+          <div class="metric-bar terrible-bar"></div>
+        </div>
+        <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+      </div>
+    </div>
+  
+  <!-- Review Filters -->
+  <div class="reviews-filters">
+    <form method="GET" action="" class="filter-form">
+      <div class="filter-group">
+        <label for="rating-filter">Filter by rating:</label>
+        <select id="rating-filter" name="rating" onchange="this.form.submit()">
+          <option value="">All ratings</option>
+          <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+          <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+          <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+          <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+          <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+        </select>
+      </div>
+      
+      <div class="filter-group">
+        <label for="date-filter">Filter by date:</label>
+        <select id="date-filter" name="date_from" onchange="this.form.submit()">
+          <option value="">All time</option>
+          <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+          <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+          <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+          <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+          <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+        </select>
+      </div>
+      
+      {% if current_rating_filter or current_date_filter %}
+        <div class="filter-group">
+          <a href="?" class="clear-filters">Clear filters</a>
+        </div>
+      {% endif %}
+    </form>
+  </div>
+  
+  
+  <div class="reviews-carousel-wrapper">
+    <div class="reviews-carousel">
+      {% if country_reviews %}
+        {% for review in country_reviews %}
+          <div class="review-card">
+            <div class="review-header">
+              <h3 class="review-title">{{ review.title }}</h3>
+              <p class="review-location">{{ review.place.name }}</p>
+              
+              <!-- Star Rating Display -->
+              <div class="rating">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= review.rating %}
+                    <i class="ri-star-fill"></i>
+                  {% else %}
+                    <i class="ri-star-line"></i>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            </div>
+            
+            <div class="review-content">
+              <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+              
+              <!-- Review Images (show only first image in carousel) -->
+              {% if review.images.all|length > 0 %}
+                <div class="review-image-container">
+                  <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                  {% if review.images.all|length > 1 %}
+                    <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                  {% endif %}
+                </div>
+              {% endif %}
+            </div>
+            
+            <div class="review-footer">
+              <div class="reviewer-info">
+                <div class="reviewer-avatar">
+                  {% if review.user.profile_picture %}
+                    <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                  {% else %}
+                    <i class="ri-user-fill"></i>
+                  {% endif %}
+                </div>
+                <div class="reviewer-details">
+                  <p class="reviewer-name">{{ review.user.username }}</p>
+                  <p class="review-count">{{ review.user.review_count }} reviews</p>
+                </div>
+              </div>
+              
+              <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+              
+              {% if not is_moderator %}
+                <div class="review-actions">
+                  <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                    <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                  </button>
+                  <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                    <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                  </button>
+                  <button class="action-btn flag-review" data-id="{{ review.id }}">
+                    <i class="ri-flag-line"></i>
+                  </button>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="no-reviews">
+          <i class="ri-file-list-3-line"></i>
+          <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+          <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+        </div>
+      {% endif %}
+    </div>
+    
+    <!-- Navigation arrows for the carousel -->
+    {% if country_reviews %}
+      <div class="carousel-controls">
+        <button class="carousel-control prev">
+          <i class="ri-arrow-left-s-line"></i>
+        </button>
+        <button class="carousel-control next">
+          <i class="ri-arrow-right-s-line"></i>
+        </button>
+      </div>
+    {% endif %}
+  </div>
+</div>
+</section>
+    
+    <script src="{% static 'images/javascript/java.js' %}"></script>
+    <script src="{% static 'images/javascript/Profile.js' %}"></script>
+  </body>
+</html>

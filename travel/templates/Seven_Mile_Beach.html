@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Seven Mile Beach - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+      <!-- Banner section with proper closing -->
+      <div class="destination-banner">
+        <div class="banner-container">
+          <img src="{% static 'images/seven-mile-beach-panorama.jpg' %}" alt="Seven Mile Beach with crystal clear turquoise waters, white sand, and palm trees along the shore" class="banner-image">
+          <div class="banner-overlay"></div>
+          <div class="destination-overlay-text">
+            <h1 class="destination-title">Seven Mile Beach</h1>
+            <p class="destination-description">Experience the Cayman Islands' crown jewel, where powdery white sands meet translucent turquoise waters along a stunning coral sand crescent that actually spans 5.5 miles of uninterrupted paradise.</p>
+            <div class="destination-meta">
+              <!-- Meta content here -->
+            </div>
+          </div>
+        </div>
+      </div>
+     </div>
+
+    <!-- About Seven Mile Beach Section -->
+<section class="about-destination">
+  <div class="about-container">
+      <h2 class="section-title">About Seven Mile Beach</h2>
+      
+      <p class="about-text">Seven Mile Beach is the crown jewel of Grand Cayman and consistently ranks among the Caribbean's most beautiful beaches. Despite its name, this stunning stretch of coral sand actually measures about 5.5 miles (8.9 km) long, curving along the western edge of Grand Cayman from George Town to Long Point. What makes this beach extraordinary is its combination of powdery white sand, crystal-clear turquoise waters, and the absence of rocks, seaweed, or pollution. The entire shoreline is public property up to the high-water mark, ensuring unobstructed access for all, even though many luxury resorts, condominiums, and restaurants line the coast. The gentle slope of the beach creates ideal conditions for swimming, with calm waters that rarely experience dangerous currents. Seven Mile Beach serves as the heart of the Cayman Islands' tourism, offering world-class accommodations, dining, and water activities while remaining remarkably clean and safe compared to many other Caribbean destinations. With its perfect blend of natural beauty and accessibility, it continues to captivate visitors as one of the world's truly spectacular beaches.</p>
+      
+      <div class="info-tiles">
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-sun-line"></i>
+              </div>
+              <div class="info-title">Tropical Climate</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-translate"></i>
+              </div>
+              <div class="info-title">English</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+              </div>
+              <div class="info-title">Cayman Islands Dollar (KYD)</div>
+          </div>
+          
+          <div class="info-tile">
+              <div class="icon">
+                  <i class="ri-time-fill"></i>
+              </div>
+              <div class="info-title">EST (UTC-5)</div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Top Attractions Section -->
+<section class="top-destinations">
+  <div class="destinations-container">
+      <h2 class="section-title">Top Experiences</h2>
+      
+      <div class="destinations-grid">
+          <div class="destination-card">
+              <img src="{% static 'images/seven-mile-beach-snorkeling.jpg' %}" alt="Snorkeling at Cemetery Reef" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Snorkeling</h3>
+                  <p class="destination-description">Explore the vibrant coral gardens at Cemetery Reef and Governor's Reef, accessible directly from shore with abundant marine life in shallow water.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/stingray-city.jpg' %}" alt="Visitors interacting with stingrays at Stingray City" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Stingray City</h3>
+                  <p class="destination-description">Take a short boat trip to interact with friendly southern stingrays in waist-deep water at this world-famous natural sandbar attraction.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/seven-mile-beach-sunset.jpg' %}" alt="Stunning sunset over Seven Mile Beach" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Sunset Watching</h3>
+                  <p class="destination-description">Experience the breathtaking sunsets that paint the sky in brilliant hues of orange, pink, and purple as the sun sinks into the Caribbean Sea.</p>
+              </div>
+          </div>
+          
+          <div class="destination-card">
+              <img src="{% static 'images/camana-bay.jpg' %}" alt="Camana Bay waterfront development" class="destination-image">
+              <div class="destination-info">
+                  <h3 class="destination-name">Camana Bay</h3>
+                  <p class="destination-description">Visit this upscale waterfront town center for shopping, dining, and entertainment, connected to Seven Mile Beach by a walking path.</p>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Travel Tips Section -->
+<section class="travel-tips">
+  <div class="tips-container">
+      <div class="tips-header">
+          <h2 class="section-title">Travel Tips</h2>
+          <p class="tips-subtitle">Essential information for your Seven Mile Beach adventure</p>
+      </div>
+      
+      <div class="tips-content-container">
+          <div class="tips-list">
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Best Time to Visit</h3>
+                      <p class="tip-description">The prime season is from December to April when temperatures hover between 75-85°F (24-29°C) with minimal rainfall and lower humidity. May to November brings warmer temperatures, higher humidity, and occasional brief showers, but also fewer crowds and better rates. Hurricane season runs from June to November, with September and October presenting the highest risk.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-taxi-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Transportation</h3>
+                      <p class="tip-description">Taxis from Owen Roberts International Airport to Seven Mile Beach hotels cost approximately CI$20-35 (US$25-45) depending on your exact destination. Public buses (locally called "mini-buses") run along West Bay Road for just CI$2-3 per journey. Car rentals are available but remember driving is on the left side. Many visitors stay within walking distance of restaurants and attractions, making rental cars unnecessary for short stays.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-money-dollar-circle-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Currency & Costs</h3>
+                      <p class="tip-description">The Cayman Islands Dollar (KYD) is fixed at CI$1 = US$1.25, but US dollars are widely accepted everywhere. Credit cards are commonly used, but carry some cash for small purchases. The Cayman Islands is one of the more expensive Caribbean destinations—budget travelers should expect to spend at least US$200/day, while luxury experiences can easily exceed US$500/day per person.</p>
+                  </div>
+              </div>
+              
+              <div class="tip-item">
+                  <div class="tip-icon">
+                      <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                      <h3 class="tip-title">Important Notes</h3>
+                      <p class="tip-description">All beaches in the Cayman Islands, including Seven Mile Beach, are public property up to the high-water mark, so you can walk the entire length regardless of which hotel or property you're staying at. Apply reef-safe sunscreen to protect the marine environment. Tap water is safe to drink throughout Grand Cayman. Tipping practices follow American standards (15-20% for restaurants and taxis). The island has exceptionally low crime rates, making it one of the safest destinations in the Caribbean.</p>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+</section>
+
+<!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+      <h2 class="section-title">Seven Mile Beach FAQs</h2>
+      <p class="faq-intro">The most common questions about visiting Seven Mile Beach, answered.</p>
+      
+      <div class="faq-list">
+          <!-- FAQ Item 1 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Is Seven Mile Beach really seven miles long?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Despite its name, Seven Mile Beach actually measures approximately 5.5 miles (8.9 kilometers) in length. The discrepancy likely arose from historical estimates before precise modern measurements were available, and the name has remained despite the more accurate measurements. The beach stretches from George Town harbor in the south to the edge of West Bay in the north, forming a long, gradually curving crescent of coral sand. The name "Seven Mile Beach" has such strong recognition value in tourism marketing that there's been no serious attempt to rename it to the more accurate "Five and a Half Mile Beach." Interestingly, this isn't unusual in the Caribbean—Jamaica's famous Seven Mile Beach in Negril actually measures closer to four miles. Regardless of its true length, Seven Mile Beach provides plenty of space for visitors to spread out, with different sections offering varying atmospheres from lively resort areas to quieter, more secluded stretches.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 2 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Where are the best spots for snorkeling along Seven Mile Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Seven Mile Beach offers several excellent shore-accessible snorkeling spots: 1) Cemetery Reef - Located near the public cemetery at the northern end of the beach, this is widely considered the best shore snorkeling on Seven Mile Beach. The reef begins just 30-40 yards offshore and features coral formations, tropical fish, and occasional sea turtles. Look for the small parking area and beach access path near the cemetery. 2) Governor's Reef - Found offshore from the Governor's House around the middle of Seven Mile Beach, this reef is slightly deeper but still accessible for confident swimmers. Access is via public beach access points near The Westin or Governor's House. 3) Marriott/Royal Palms area - The waters offshore from these properties offer scattered coral formations with schools of fish. Less developed than a true reef but easily accessible and suitable for beginners. 4) Public Beach area - While not as vibrant as Cemetery Reef, the waters off Public Beach feature some small coral formations and fish life, ideal for first-time snorkelers. For the best experience, snorkel during mornings when the sea is typically calmest and visibility is best (often exceeding 50 feet). Bring your own equipment or rent from beach vendors and resorts (approximate cost US$10-15 per day). Wearing a flotation vest is recommended for less experienced swimmers, and always snorkel with a buddy. More ambitious snorkelers should consider boat trips to Cheeseburger Reef near George Town or the more distant Coral Gardens and Stingray City Sandbar.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 3 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What is the best way to get around Seven Mile Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Getting around Seven Mile Beach offers several convenient options: 1) Walking - The entire beach is public property up to the high-water mark, making it perfect for long beach walks. Many restaurants, shops, and resorts are within walking distance if you're staying on the beach. 2) Public Buses - Locally called "mini-buses," these vans run along West Bay Road (parallel to the beach) from George Town to West Bay. They're identified by number plates starting with "P" and cost only CI$2-3 (US$2.50-3.75) per journey. Simply stand anywhere along the road and wave one down, then tell the driver when you want to stop. 3) Taxis - Readily available but relatively expensive, with fares from one end of Seven Mile Beach to the other costing US$15-20. Hotels can arrange taxis, or you can call one directly. Fares should be confirmed before departure as not all taxis use meters. 4) Rental Cars - Numerous agencies offer rentals from approximately US$40-60 per day, with major companies at the airport and local companies offering competitive rates. Remember that driving is on the left side of the road. 5) Bicycles and Scooters - Available for rent at various locations along Seven Mile Beach, offering a fun way to explore in good weather. Bicycles cost approximately US$20-30 per day. 6) Water Taxi - Some services operate between hotels and restaurants, particularly for dinner reservations at waterfront establishments. Many visitors find they don't need vehicle transportation for their entire stay. A popular approach is to use taxis for airport transfers, then rely on walking, buses, or occasional taxis for specific excursions away from your base.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 4 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Where are the public access points to Seven Mile Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>While all of Seven Mile Beach is legally accessible up to the high-water mark, reaching it through private properties can be challenging. Fortunately, numerous public access points exist: 1) Public Beach - The largest public area with parking, restrooms, showers, cabanas, and a children's playground, located near the northern end. 2) Governor's Beach - Adjacent to the Governor's House with ample parking, shade trees, and picnic tables. 3) Cemetery Beach - Near the West Bay Cemetery with limited parking but excellent snorkeling. 4) Dart Park/Royal Palms - Recently developed beach access with facilities, located near Royal Palms Beach Club. 5) West Bay Public Beach - At the northernmost end with parking and basic facilities. Other official beach access paths are marked with blue signs reading "Public Beach Access" at approximately half-mile intervals along West Bay Road. Most provide a simple pathway between properties with no facilities. For visitors not staying on the beach, Public Beach and Governor's Beach offer the most amenities, including restrooms and showers. If using smaller access points, bring everything you need for the day. When accessing the beach through hotel properties, be respectful by not using their loungers, umbrellas, or facilities unless you're a guest. Most beachfront restaurants welcome non-guests who purchase food or drinks, offering another alternative for beach access with amenities.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 5 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What are the best restaurants along Seven Mile Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Seven Mile Beach offers diverse dining options across all price points: For beachfront casual dining, Calico Jack's offers reasonably priced seafood, burgers, and drinks with toes-in-the-sand ambiance. Royal Palms Beach Club provides midrange beach dining with international cuisine and impressive sunset views. Coconut Joe's serves affordable breakfast and Caribbean-inspired fare with a casual patio setting. For upscale experiences, Agua Restaurant & Lounge delivers outstanding seafood and Italian influences with local ingredients and an excellent wine list. Blue by Eric Ripert at The Ritz-Carlton presents Michelin-star quality seafood in the island's most prestigious restaurant (reservations essential, dinner entrees US$42-60). Morgan's Seafood Restaurant offers waterfront dining in a historic setting with locally caught seafood and Caribbean flavors. For local specialties, Sunshine Grill serves award-winning fish tacos and casual fare with a Caribbean twist at reasonable prices. The Cracked Conch provides upscale dining featuring conch prepared multiple ways alongside other seafood with dramatic oceanfront views. Casual budget-friendly options include Chicken! Chicken! offering affordable Caymanian-style wood-roasted chicken, and Cimboco with diverse breakfast, pizza, and Caribbean-inspired dishes at moderate prices. Most restaurants welcome casual attire, though the highest-end establishments request "elegant resort wear" (collared shirts for men, no beachwear). Reservations are strongly recommended for fine dining establishments, especially during high season (December-April). Many restaurants add a 15-18% service charge automatically, so check your bill before adding additional gratuity.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 6 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>When is hurricane season and should I be concerned?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Hurricane season in the Cayman Islands officially runs from June 1 to November 30, with the highest risk period being mid-August through October. The Cayman Islands experience direct hurricane impacts less frequently than many Caribbean destinations due to their western Caribbean location, but they remain vulnerable to these storms. Grand Cayman has a sophisticated hurricane response system, with modern building codes requiring hurricane-resistant construction for newer buildings. The island's tourism infrastructure is well-prepared for evacuations when necessary. When considering travel during hurricane season, keep these factors in mind: 1) The probability of a major hurricane affecting Grand Cayman during any specific week is statistically low. 2) Early warning systems typically provide 3-5 days notice of potential hurricane threats. 3) Travel insurance covering hurricane disruptions is highly recommended during this season. 4) Many hotels and airlines offer hurricane guarantees providing rebooking options if your trip is affected. 5) The off-season benefits include significantly lower rates (often 30-40% less than high season), fewer crowds, and warm water temperatures ideal for swimming and snorkeling. September and October present the highest statistical risk and highest humidity, while June, July, and November offer better risk-to-reward ratios with lower prices and good weather most of the time. If you're booking during hurricane season, consider travel insurance with specific hurricane coverage and flexibility in your schedule in case adjustments become necessary.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 7 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>Is Seven Mile Beach family-friendly?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Seven Mile Beach is exceptionally family-friendly, making it an ideal Caribbean destination for travelers with children: 1) Beach conditions are perfect for families with calm, clear water, gradual entry, and typically no dangerous currents or significant waves. 2) Public Beach offers a children's playground, picnic facilities, bathrooms, and showers. 3) Most major resorts feature kids' clubs and family programs, with The Ritz-Carlton and Kimpton Seafire offering particularly extensive children's activities. 4) Family-oriented accommodations range from luxury resorts with multi-bedroom suites to condominium rentals with kitchens and separate bedrooms. 5) The island boasts an extremely low crime rate, making it one of the safest Caribbean destinations. 6) Restaurant options include many family-friendly establishments with children's menus. 7) Activities suitable for various ages include Stingray City (interactive but gentle), Cayman Turtle Centre (educational and hands-on), and Camana Bay (splash pad and outdoor play areas). 8) The snorkeling at Cemetery Reef is accessible enough for school-age children accompanied by adults. 9) Older children and teens enjoy water sports like paddleboarding, kayaking, and banana boat rides available along the beach. 10) The Cayman Islands' excellent infrastructure provides reliable medical facilities, clean tap water, and modern conveniences that reduce travel stress for parents. For the most family-friendly beach sections, Public Beach and Governor's Beach offer the best facilities, while the water tends to be calmest in the central and southern sections of Seven Mile Beach. Families should note that while Seven Mile Beach itself doesn't have strong currents, children should always be supervised near water.</p>
+              </div>
+          </details>
+          
+          <!-- FAQ Item 8 -->
+          <details class="faq-item">
+              <summary class="faq-question">
+                  <h3>What water sports and activities are available on Seven Mile Beach?</h3>
+              </summary>
+              <div class="faq-answer">
+                  <p>Seven Mile Beach offers a comprehensive range of water sports and activities: 1) Snorkeling - Equipment rentals are widely available (US$10-15/day) with Cemetery Reef and Governor's Reef accessible from shore. 2) Scuba Diving - Numerous dive operators offer certification courses and daily two-tank boat dives to Grand Cayman's 365+ dive sites (from US$120 for two-tank dives). 3) Parasailing - Soar 300+ feet above the crystal-clear waters for panoramic views (US$85-110 per flight). 4) Jet Ski/Waverunner rentals - Available from beach vendors for 30-minute guided tours or hourly rentals (US$80-100/hour). 5) Paddleboarding - Calm waters make this perfect for beginners with rentals available along the beach (US$25-35/hour). 6) Kayaking - Clear-bottom and traditional kayaks for exploring the shoreline (US$25-35/hour). 7) Banana Boat rides - Fun, bouncy towed inflatables accommodating multiple riders (US$25-30 per person). 8) Kite Surfing - Lessons and equipment rentals available when conditions permit, typically along the southern sections (lessons from US$150). 9) Sailing - Hobie Cat rentals and small sailboat excursions from several operators (from US$50/hour for small craft). 10) Sunset cruises - Numerous operators offer evening sailings with drinks and snacks (US$60-100 per person). 11) Fishing charters - Deep sea and reef fishing trips departing from nearby marinas (half-day trips from US$450 for up to 4 people). 12) Stingray City/Sandbar trips - Must-do excursions to interact with wild stingrays (US$50-75 per person). Most water sports can be arranged through hotel activities desks or directly with beach vendors. Red Flag Beach Warning system indicates when water activities are unsafe due to weather conditions. For the best deals, consider booking water sports packages that combine multiple activities, and always verify if operators are licensed by the Cayman Islands Department of Tourism, which ensures proper safety standards.</p>
+              </div>
+          </details>
+      </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

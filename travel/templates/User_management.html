@@ -1,0 +1,346 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Travel Review Admin</title>
+    <link rel="stylesheet" href="{% static 'images/css/user_management.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <a href="{% url 'home' %}">HTR ADMIN</a>
+            </div>
+            <nav>
+                <a href="{% url 'moderator_dashboard' %}" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    Dashboard
+                </a>
+                <a href="{% url 'User_management' %}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="{% url 'moderator_reviews' %}" class="nav-item active">
+                    <i class="fas fa-star"></i>
+                    Reviews
+                </a>
+                <a href="{% url 'Analytics' %}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+                <a href="{% url 'Settings' %}" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search users...">
+                </div>
+                <div class="user-menu">
+                    <div class="notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">1</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+                        <span>{{ user.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>User Management</h1>
+                <p>Manage your platform users and monitor user activity</p>
+            </div>
+
+            <div class="user-management-dashboard">
+                <!-- User Stats Cards -->
+                <div class="stats-grid">
+    <div class="stat-card">
+        <span class="vs-text">vs last week</span>
+        <div class="stat-icon icon-green">
+            <i class="fas fa-users"></i>
+        </div>
+        <div class="stat-value">{{ user_stats.total_users.value|intcomma }}</div>
+        <div class="stat-label">Total Users</div>
+        <div class="stat-change {% if user_stats.total_users.is_positive %}positive{% else %}negative{% endif %}">
+            <i class="fas fa-arrow-{% if user_stats.total_users.is_positive %}up{% else %}down{% endif %}"></i>
+            {{ user_stats.total_users.change|floatformat:1 }}%
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="vs-text">vs last week</span>
+        <div class="stat-icon icon-blue">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <div class="stat-value">{{ user_stats.new_users.value|intcomma }}</div>
+        <div class="stat-label">New Users</div>
+        <div class="stat-change {% if user_stats.new_users.is_positive %}positive{% else %}negative{% endif %}">
+            <i class="fas fa-arrow-{% if user_stats.new_users.is_positive %}up{% else %}down{% endif %}"></i>
+            {{ user_stats.new_users.change|floatformat:1 }}%
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="vs-text">vs last week</span>
+        <div class="stat-icon icon-yellow">
+            <i class="fas fa-user-clock"></i>
+        </div>
+        <div class="stat-value">{{ user_stats.active_users.value|intcomma }}</div>
+        <div class="stat-label">Active Users</div>
+        <div class="stat-change {% if user_stats.active_users.is_positive %}positive{% else %}negative{% endif %}">
+            <i class="fas fa-arrow-{% if user_stats.active_users.is_positive %}up{% else %}down{% endif %}"></i>
+            {{ user_stats.active_users.change|floatformat:1 }}%
+        </div>
+    </div>
+    
+    <div class="stat-card">
+        <span class="vs-text">vs last week</span>
+        <div class="stat-icon icon-red">
+            <i class="fas fa-user-slash"></i>
+        </div>
+        <div class="stat-value">{{ user_stats.flagged_users.value|intcomma }}</div>
+        <div class="stat-label">Flagged Users</div>
+        <div class="stat-change {% if user_stats.flagged_users.is_positive %}positive{% else %}negative{% endif %}">
+            <i class="fas fa-arrow-{% if user_stats.flagged_users.is_positive %}up{% else %}down{% endif %}"></i>
+            {{ user_stats.flagged_users.change|floatformat:1 }}%
+        </div>
+    </div>
+</div>
+
+            <!-- User Demographics -->
+            <div class="charts-grid">
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">User Demographics</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="userDemographicsChart"></canvas>
+                    </div>
+                </div>
+                
+                <div class="chart-card">
+                    <div class="chart-header">
+                        <div class="chart-title">User Activity</div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="userActivityChart"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Contribution Diversity -->
+            <div class="diversity-monitoring">
+                <div class="diversity-title">
+                    <i class="fas fa-globe"></i>
+                    Contribution Diversity
+                </div>
+                
+                <div class="diversity-grid">
+                    <div class="diversity-card">
+                        <div class="diversity-header">
+                            <h3>Review Language Distribution</h3>
+                        </div>
+                        <div class="diversity-content">
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>English</span>
+                                    <span>65%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 65%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>Spanish</span>
+                                    <span>12%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 12%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>French</span>
+                                    <span>8%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 8%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>German</span>
+                                    <span>6%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 6%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>Other</span>
+                                    <span>9%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 9%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="diversity-card">
+                        <div class="diversity-header">
+                            <h3>Geographic Distribution</h3>
+                        </div>
+                        <div class="diversity-content">
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>North America</span>
+                                    <span>42%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 42%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>Europe</span>
+                                    <span>28%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 28%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>Asia</span>
+                                    <span>15%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 15%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>South America</span>
+                                    <span>8%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 8%"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="progress-item">
+                                <div class="progress-label">
+                                    <span>Other</span>
+                                    <span>7%</span>
+                                </div>
+                                <div class="progress-bar-container">
+                                    <div class="progress-bar" style="width: 7%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="diversity-insight">
+                    <div class="insight-icon">
+                        <i class="fas fa-lightbulb"></i>
+                    </div>
+                    <div class="insight-text">
+                        <p><strong>Insight:</strong> Consider reaching out to underrepresented regions to increase review diversity. Reviews from Asia and South America receive 18% higher approval ratings despite making up only 23% of contributions.</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- User Management Table -->
+<div class="content-card">
+    <div class="card-header">
+        <div class="card-title">User Management</div>
+        <div class="card-actions">
+            <div class="filter-dropdown">
+                <button class="filter-btn">
+                    <i class="fas fa-filter"></i>
+                    Filter
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="table-responsive">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>
+                        <div class="checkbox-wrapper">
+                            <input type="checkbox" id="select-all">
+                            <label for="select-all"></label>
+                        </div>
+                    </th>
+                    <th>USER</th>
+                    <th>LOCATION</th>
+                    <th>REVIEWS</th>
+                    <th>LANGUAGE</th>
+                    <th>STATUS</th>
+                    <th>JOINED</th>
+                    <th>ACTIONS</th>
+                </tr>
+            </thead>
+            <tbody>
+                <!-- User data will be loaded dynamically via JavaScript -->
+                <tr>
+                    <td colspan="8" class="loading-data">
+                        <div class="loading-spinner"></div>
+                        <p>Loading user data...</p>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <div class="table-footer">
+        <div class="showing-entries">
+            Loading entries...
+        </div>
+        <div class="pagination">
+            <!-- Pagination will be populated dynamically -->
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-left"></i>
+            </button>
+            <button class="pagination-btn active">1</button>
+            <button class="pagination-btn" disabled>
+                <i class="fas fa-chevron-right"></i>
+            </button>
+        </div>
+    </div>
+</div>
+
+<script src="{% static 'images/javascript/user_management.js' %}"></script>
+</body>
+</html>

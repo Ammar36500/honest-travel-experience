@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/japan3.jpg' %}" alt="Mount Fuji with cherry blossoms in Japan" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Japan</h1>
+              <p class="destination-description">Experience the perfect blend of ancient traditions and cutting-edge modernity in the Land of the Rising Sun.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Japan Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Japan</h2>
+            
+            <p class="about-text">Japan is an island nation in East Asia known for its unique blend of ancient traditions and cutting-edge technology. Home to 126 million people, this archipelago consists of four main islands and thousands of smaller ones. Japan boasts a rich cultural heritage spanning thousands of years, from Shinto shrines and Buddhist temples to samurai castles and traditional arts. The country is equally famous for its modern marvels, including bullet trains, innovative electronics, and distinctive pop culture. Japan's spectacular natural beauty ranges from snow-capped Mount Fuji to subtropical beaches, with four distinct seasons highlighted by cherry blossoms in spring and vibrant autumn foliage. Japanese cuisine, recognized as a UNESCO Intangible Cultural Heritage, offers diverse regional specialties beyond just sushi and ramen.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Four Distinct Seasons</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">Japanese</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">Japanese Yen (¥)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">JST (UTC+9)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/Tokyo.jpg' %}" alt="Tokyo cityscape with Tokyo Tower" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Tokyo</h3>
+                  <p class="destination-description">Japan's vibrant capital featuring a blend of ultramodern skyscrapers and historic temples.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Kyoto.jpg' %}" alt="Traditional temple in Kyoto with cherry blossoms" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Kyoto</h3>
+                  <p class="destination-description">Former imperial capital with over 1,600 Buddhist temples, 400 Shinto shrines, and 17 UNESCO World Heritage sites.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Mount Fuji.jpg' %}" alt="Mount Fuji" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Mount Fuji</h3>
+                  <p class="destination-description">Japan's highest mountain and iconic symbol, offering stunning views and hiking opportunities.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Hiroshima.jpg' %}" alt="Hiroshima Peace Memorial" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Hiroshima</h3>
+                  <p class="destination-description">City of peace with the moving Peace Memorial Park and Museum, commemorating the 1945 atomic bombing.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Japanese adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Spring (March-May) for cherry blossoms and autumn (September-November) for colorful foliage are ideal. Summer (June-August) can be hot and humid, while winter (December-February) offers excellent skiing in northern regions.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">The Japan Rail Pass offers unlimited travel on JR trains and is cost-effective for tourists. Major cities have excellent subway systems. Consider a prepaid IC card (Suica or Pasmo) for convenient travel on public transportation.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Try regional specialties beyond sushi and ramen, such as Osaka's takoyaki, Hiroshima's okonomiyaki, and Hokkaido's fresh seafood. Don't miss kaiseki (traditional multi-course dining), izakaya (Japanese pubs), and street food at local markets.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-emotion-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Etiquette</h3>
+                    <p class="tip-description">Remove shoes when entering homes, ryokans, and some restaurants. Bow when greeting people. Avoid tipping as it's not customary. Be mindful of noise levels in public spaces and always carry a small towel for drying hands, as many public restrooms don't provide paper towels.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Japan travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the benefits of using a Japan Rail Pass?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>The Japan Rail Pass offers unlimited travel on JR trains, buses, and ferries, making it cost-effective for tourists planning to visit multiple cities. It's especially valuable for long-distance trips on the Shinkansen (bullet train). The pass is available in 7, 14, or 21-day options and must be purchased before arriving in Japan. It provides convenience with no need to buy individual tickets for each journey, saving both time and money for travelers.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended day trips in Japan?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>From Tokyo, consider visiting Kamakura to see the Great Buddha, Nikko for its UNESCO World Heritage shrines, or Hakone for hot springs and Mount Fuji views. From Kyoto, Nara offers ancient temples and friendly deer, while Arashiyama features bamboo groves and monkey parks. From Osaka, visit Himeji Castle (Japan's finest feudal castle) or take a day trip to Kobe for its famous beef and sake breweries.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the train travel options between Osaka and Kyoto?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>The JR Special Rapid Service is the most convenient option, taking about 30 minutes and costing around ¥560. The Shinkansen (bullet train) is fastest at 15 minutes but costs ¥1,420. For budget travelers, the Hankyu Line takes 45 minutes and costs only ¥400. The Keihan Line is also affordable at ¥410 and takes about 50 minutes, dropping you off at convenient eastern Kyoto locations. All options are covered by the Japan Rail Pass except the Hankyu and Keihan lines.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the transportation options across Japan?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Japan offers an extensive and efficient transportation network. The Shinkansen (bullet train) connects major cities with high-speed service. Local JR trains serve smaller destinations. Subway systems in major cities like Tokyo and Osaka are comprehensive. Buses reach areas not serviced by trains. IC cards like Suica and PASMO offer convenient cashless payments for various transportation. Taxis are widely available but expensive. For remote areas, rental cars are an option, though an international driving permit is required.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How can I purchase tickets for the Ghibli Museum in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Ghibli Museum tickets must be purchased in advance as they're not available at the door. For international visitors, the easiest method is buying through an authorized travel agency or the JTB website in your country. Alternatively, if you're already in Japan, tickets can be purchased at Lawson convenience stores using their Loppi ticket machines (Japanese language skills helpful). Tickets go on sale on the 10th of each month for the following month and sell out quickly, so plan ahead. The museum is closed on Tuesdays and admission times are fixed.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the options for purchasing a JR Pass in Japan?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>JR Passes can be purchased online through the official JR Pass website or through authorized travel agencies before traveling to Japan. You'll receive an exchange order that must be swapped for the actual pass at a JR exchange office in Japan upon arrival. It's important to note that while the pass was previously only available for purchase outside Japan, as of 2023, it's possible to buy the pass directly at select JR stations in Japan, though at a slightly higher price than purchasing abroad. The pass is available in 7, 14, or 21-day variants and in Ordinary or Green (first class) categories.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the transportation options from Haneda Airport to Shinjuku?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>The most convenient option is the Airport Limousine Bus, which takes 35-75 minutes depending on traffic and costs about ¥1,300. The Keikyu Line to the JR Yamanote Line is more affordable at around ¥603 and takes about 45 minutes. For a faster route, take the Tokyo Monorail to Hamamatsucho, then transfer to the JR Yamanote Line to Shinjuku (about 40 minutes, ¥650). Taxis are the most expensive option at ¥8,000-¥10,000 but offer door-to-door service in about 30-45 minutes depending on traffic. Late at night, the limousine bus or taxi may be your only options.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the recommended accommodations in Kyoto?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Kyoto offers diverse accommodation options. For a traditional experience, stay in a ryokan (Japanese inn) like Tawaraya or Hiiragiya in central Kyoto, which offer tatami rooms and kaiseki dining. Budget travelers can find hostels in the downtown area near Kawaramachi. Mid-range hotels are abundant around Kyoto Station for convenient transportation. For luxury experiences, consider The Ritz-Carlton Kyoto or Suiran near the Arashiyama district. Temple lodgings (shukubo) at places like Shunkoin Temple provide a unique cultural experience. The best areas to stay include downtown Kyoto (Kawaramachi/Shijo), Southern Higashiyama for sightseeing, or near Kyoto Station for transportation convenience.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

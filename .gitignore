@@ -1,2 +1,24 @@
-db.sqlite3
-db.sqlite3
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.so
+*.egg-info/
+*.egg
+
+# Django
+*.log
+db.sqlite3 # Or your local database file if different
+*.sqlite3-journal
+
+# Environment
+venv/
+env/
+.env # IMPORTANT: Make sure this is here!
+
+# IDE / Editor specific
+.idea/
+.vscode/
+*.swp
+*.swo

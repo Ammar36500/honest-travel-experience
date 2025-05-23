@@ -1,0 +1,578 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+              <header>Sign Up</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+          </div>
+
+          <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post">
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+                    <button type="submit" class="btn">Signup</button>
+                </form>                
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/peru2.jpg' %}" alt="Machu Picchu ancient Inca city with Huayna Picchu mountain" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Peru</h1>
+              <p class="destination-description">Explore the land of the Incas, where ancient civilizations, breathtaking mountain landscapes, and vibrant cultural traditions create an unforgettable South American adventure.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Peru Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Peru</h2>
+            
+            <p class="about-text">Peru, officially the Republic of Peru, is a country in western South America known for its archaeological treasures, diverse geography, and rich cultural heritage. Home to approximately 33 million people, Peru boasts a fascinating history as the heart of the ancient Inca civilization and earlier pre-Columbian cultures. The country features three distinct geographical regions: the arid Pacific coast, the Andean highlands, and the Amazon rainforest, making it one of the world's most biodiverse nations. Peru's cultural landscape is equally diverse, with influences from indigenous peoples, European colonization, African traditions, and Asian immigration creating a unique national identity. The country is home to 12 UNESCO World Heritage Sites, including the iconic Machu Picchu, the historic center of Lima, and the ancient geoglyphs of the Nazca Lines. Peruvian cuisine, considered among the finest in South America, blends indigenous ingredients with international influences, producing beloved dishes like ceviche, lomo saltado, and potatoes prepared in countless variations.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Varied Climate by Region</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">Spanish, Quechua, Aymara</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">Peruvian Sol (S/)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">PET (UTC-5)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/Machu Picchu.jpg' %}" alt="Ancient Inca city of Machu Picchu" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Machu Picchu</h3>
+                  <p class="destination-description">The iconic 15th-century Inca citadel set high in the Andes Mountains, offering breathtaking views and mystical ancient ruins.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Cusco.jpg' %}" alt="Historic center of Cusco with colonial buildings" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Cusco</h3>
+                  <p class="destination-description">The historic capital of the Inca Empire featuring remarkable Spanish colonial architecture built upon ancient Inca foundations.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Sacred Valley.jpg' %}" alt="Sacred Valley terraced agricultural fields" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Sacred Valley</h3>
+                  <p class="destination-description">A fertile valley with ancient Inca ruins, traditional markets, and picturesque Andean villages nestled between mountains.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/Lake Titicaca.jpg' %}" alt="Lake Titicaca with traditional reed boats" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Lake Titicaca</h3>
+                  <p class="destination-description">The world's highest navigable lake featuring floating Uros reed islands, Taquile Island, and stunning mountain backdrops.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Peruvian adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">The dry season (May-October) is ideal for visiting Machu Picchu and hiking the Inca Trail with clear skies and minimal rainfall. The wet season (November-April) brings lush landscapes but potential trail closures. The Amazon region is hot and humid year-round, while coastal areas like Lima are mild and foggy in winter (June-September) and sunny in summer (December-March).</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Long-distance buses are a comfortable and affordable option for traveling between cities. Trains provide scenic routes to Machu Picchu from Cusco/Ollantaytambo. Domestic flights save time when covering larger distances. In cities, use authorized taxis or ride-sharing apps. Consider altitude when planning your itinerary, as many destinations sit at high elevations requiring acclimatization.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Try Peru's national dish, ceviche (raw fish cured in citrus juices), in coastal areas. Sample traditional Andean foods like pachamanca (earth-oven cooked meat and vegetables), cuy (guinea pig), and thousands of varieties of potatoes. Look for "menú del día" for affordable set lunches. Don't miss the chance to try pisco sour, Peru's national cocktail, and chicha morada, a sweet purple corn drink.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-emotion-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Cultural Etiquette</h3>
+                    <p class="tip-description">Greet people with a handshake or a kiss on the cheek (between women or opposite genders). Learning basic Spanish phrases is appreciated, especially outside tourist areas. Ask permission before photographing local people, particularly in indigenous communities. Tipping is customary in restaurants (10%) and for tour guides. Respect sacred sites and follow local customs when visiting indigenous communities.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Peru travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the bus travel options within Peru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Peru bus travel options: 1) Premium companies - Cruz del Sur, Oltursa, and Excluciva offer the safest, most comfortable services with reclining seats, onboard meals, entertainment, WiFi, and GPS tracking; Lima-Arequipa costs 75-120 soles (9-12 hours). 2) Mid-range options - Tepsa, Civa, and Movil Tours provide decent comfort at lower prices; Lima-Cusco costs 80-150 soles (21+ hours, flying recommended instead). 3) Hop-on-hop-off tourist buses - Peru Hop offers flexible passes with guided stops at attractions between Lima, Cusco, and Lake Titicaca (280-800 soles depending on route). 4) Local buses - cheaper but less comfortable, unreliable schedules, and varying safety standards; best for short journeys between nearby towns. Overnight buses are popular for long distances to save on accommodation, but select premium companies for these journeys. Book 1-3 days ahead in high season (June-August) for popular routes. Most comfortable seating options are "Semi-cama" (160° recline) or "Cama"/"VIP" (180° flat bed). For mountain routes, motion sickness medication is advisable as roads are extremely winding.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Are guides necessary for visiting Machu Picchu?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Since 2019, guides are mandatory for first-time entry to Machu Picchu. Options include: 1) Pre-arranged guides through tour operators when booking your Machu Picchu package (typically $15-25 per person in a group). 2) Official guides available for hire at the entrance (120-150 soles for up to 4 people for a 2-hour tour). 3) Guides in Aguas Calientes town available the day before (negotiate 100-140 soles). Group sizes are limited to 16 people maximum per guide. Guides provide historical/cultural context and ensure you follow designated routes, as independent exploration is no longer permitted on first entry. Morning tours (6am-noon) are best for photography and fewer crowds. Spanish-speaking guides are more plentiful; for English speakers, book in advance or arrive early to find an English guide at the entrance. For second visits on the same ticket, guides are not required but much of the site remains restricted to designated paths. Licensed guides wear official ID badges; verify credentials before hiring. Guided tours typically last 2-2.5 hours; after this, you cannot re-enter (tickets are now strictly time-slotted).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are popular trekking routes in Peru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Popular Peru trekking routes: 1) Classic Inca Trail - 4 days/3 nights, 43km trek ending at Machu Picchu with permits limited to 500 daily (including guides/porters); book 6+ months ahead; costs $600-1000 with tour operator. 2) Salkantay Trek - 5 days/4 nights alternative to Inca Trail with higher altitude (4,600m) and more varied landscapes; no permit limits; $350-600. 3) Lares Trek - 3-4 days with cultural focus passing indigenous villages; less crowded than Inca Trail; $300-550. 4) Choquequirao Trek - 4-5 days to the "sister city" of Machu Picchu; challenging but rewarding with few tourists; $400-700. 5) Ausangate Circuit - 5-7 days around snow-capped mountain with rainbow mountains and hot springs; challenging high-altitude trek (5,200m passes); $500-800. 6) Huayhuash Circuit - 8-12 days in Cordillera Huayhuash; considered among world's best treks; very challenging; $700-1200. 7) Colca Canyon - 2-3 days near Arequipa; world's second deepest canyon; $150-300. Best trekking seasons: April-May and September-October (shoulder seasons with fewer crowds and more stable weather). Most multi-day treks require acclimatization in Cusco or similar altitude cities for 2-3 days beforehand.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How can I purchase Machu Picchu tickets?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Machu Picchu ticket options: 1) Official government website (machupicchu.gob.pe) - most economical at 152 soles ($42) for basic entry, but website can be problematic with international credit cards and Spanish navigation. 2) Authorized ticket resellers (GetYourGuide, Viator) - slightly higher prices ($60-70) but easier booking process. 3) Tour agencies in Cusco or online - can arrange tickets with transportation and guides. 4) Peru's Ministry of Culture office in Cusco (Avenida de la Cultura) - in-person purchase with cash. Tickets include specific entry time slots (hourly from 6am-2pm) and are limited to 4,000 daily. Additional circuit options: Machu Picchu + Huayna Picchu mountain (200 soles, limited to 400 daily); Machu Picchu + Mountain (200 soles); Machu Picchu + Museum (182 soles). Since 2019, tickets enforce maximum 4-hour stays and must be used with official guide on first entry. Purchase tickets 2-3 months in advance for high season (June-August) and Christmas/New Year period. Passport details required for all tickets; bring passport for entry verification. Last-minute tickets occasionally available 1-3 days ahead in low season.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How do I choose a tour company for the Amazon in Peru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Selecting Amazon tour companies: 1) Choose your region - Northern Amazon (Iquitos) offers deeper jungle and riverboat options but requires flights; Southern Amazon (Puerto Maldonado) is more accessible from Cusco with slightly more wildlife viewing. 2) Accommodation style - options range from basic lodges ($70-120/night) to mid-range ($150-250/night) to luxury ($300-600+/night) with significant comfort differences in this remote region. 3) Reputable operators: For Iquitos region - Delfin Amazon Cruises, Jungle Experiences, Maniti Camp; For Puerto Maldonado - Refugio Amazonas, Posada Amazonas, Inkaterra Reserva Amazonica. 4) Verify ecological practices - responsible companies employ local guides, support conservation, limit group sizes (4-8 ideal), and follow waste management protocols. 5) Minimum stay 3 nights recommended to reach more remote areas with better wildlife viewing. 6) Package inclusions - check if transfers, meals, activities, rubber boots, and park entrance fees are included. 7) Malaria/yellow fever considerations - southern Amazon has fewer mosquito-borne health concerns than northern. 8) Guides' qualifications - experienced naturalist guides significantly enhance wildlife spotting opportunities. Book 2-3 months ahead for high season (June-August).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are recommended hotels near Lima Airport?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Lima Airport (LIM) hotel options: 1) Costa del Sol Wyndham - only hotel directly connected to the terminal via covered walkway; ideal for late arrivals/early departures; 4-star with restaurant, bar, pool, and soundproofed rooms; $150-200 per night; advance booking essential. 2) Holiday Inn Lima Airport - 10-minute shuttle ride (complimentary, runs 24/7); modern rooms with good soundproofing; restaurant and fitness center; $120-160 per night. 3) Radisson Hotel Plaza del Bosque - premium option in quieter area; 15-minute paid shuttle/taxi; larger rooms and amenities for longer layovers; $140-180 per night. 4) Hotels in Las Palmeras/San Miguel area (20-minutes by taxi, $8-15): Lima Airport Suites, Hotel Manhattan, and B&B Miraflores Wasi Airport offer more economical options ($50-100) for longer layovers. 5) Airbnb apartments in Los Olivos/San Martin area provide budget options ($30-70) within 15-20 minutes but less security for late arrivals. For connections less than 8 hours, Costa del Sol Wyndham offers 6-hour day rooms. Jorge Chávez Airport neighborhood is not considered safe for walking, particularly at night; use official airport taxis or pre-arranged transportation. Most airport hotels offer online check-in and flexible cancellation policies specifically for air travelers.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the train travel options to Machu Picchu?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Train options to Machu Picchu: 1) PeruRail offers three service levels: Expedition (basic, $70-85 one-way), Vistadome (panoramic windows, snack service, $95-110), and Hiram Bingham luxury train ($495 including meals, drinks, and guided Machu Picchu tour). 2) Inca Rail provides similar tiers: Standard ($70-85), 360° (panoramic windows, $90-105), First Class ($130-150 with meal service), and Private ($9,000 for exclusive charter). 3) Routes available: Cusco (Poroy Station, 25 minutes from center) to Aguas Calientes (3.5 hours); Ollantaytambo to Aguas Calientes (1.5 hours) - most popular and frequent option. 4) During rainy season (November-April), trains often depart from Urubamba instead of Cusco due to track conditions. 5) All trains terminate at Aguas Calientes (Machu Picchu Pueblo), followed by 20-minute bus ride up to Machu Picchu entrance (separate ticket: $24 round-trip). 6) High season (June-August) trains sell out weeks in advance; book 2-3 months ahead. 7) Morning departures to Machu Picchu and afternoon/evening returns fill first. 8) Budget option: Hidroeléctrica route involves bus to Hidroeléctrica station followed by 2-3 hour flat walk along tracks to Aguas Calientes (no train needed); costs $15-30 for transportation from Cusco.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What should one know about driving in Peru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Essential Peru driving information: 1) Requirements - valid driver's license from home country plus International Driving Permit, minimum age 25 for most rentals, major credit card. 2) Road conditions vary dramatically - paved highways along coast, unpaved and dangerous mountain roads with limited guardrails, poor signage, and extreme dropoffs. 3) Rental costs - $30-50/day for basic vehicles, $60-100/day for 4WD/SUVs (recommended for mountain regions); major companies include Hertz, Budget, and local operators like Atusparia. 4) Lima driving is extremely challenging with aggressive drivers and complex unwritten rules; avoid driving in the capital. 5) Altitude affects vehicle performance - rental cars may struggle on mountain passes; choose higher-powered options. 6) Gas stations scarce outside major towns; keep tank above half-full. 7) Police checkpoints common; carry passport, license, and rental papers. 8) Driving times often double Google Maps estimates due to road conditions, slow trucks, landslides, and animals on roadways. 9) Night driving strongly discouraged due to unlit roads, pedestrians, and increased safety risks. 10) GPS/navigation systems often unreliable; download offline maps from multiple sources. 11) Consider local drivers ($100-150/day including vehicle) for challenging routes like Cusco-Puno or Andean highlands.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

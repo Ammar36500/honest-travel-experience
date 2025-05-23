@@ -1,0 +1,455 @@
+.budget-hero {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin: 30px auto;
+    margin-top: 1700px;
+    z-index: 1;
+    height: auto;
+  }
+  
+  .budget-container {
+    position: relative;
+    width: 120%;
+    overflow: hidden;
+    border-radius: 12px;
+    max-height: 800px;
+    left: -100px;
+  }
+  
+  .budget-image {
+    width: 100%;
+    display: block;
+    height: 550px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  .budget-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, 
+      rgba(0,0,0,0.7) 0%, 
+      rgba(0,0,0,0.3) 50%, 
+      rgba(0,0,0,0.1) 100%);
+    border-radius: 12px;
+  }
+  
+  .budget-overlay-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 55%;
+    padding: 18px 22px;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    border-bottom-left-radius: 12px;
+  }
+  
+  .budget-title {
+    font-size: 34px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+  }
+  
+  .budget-description {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+  }
+  
+  /* Media queries with adjusted dimensions */
+  @media screen and (max-width: 992px) {
+    .budget-image {
+      height: 350px;
+    }
+    
+    .budget-overlay-text {
+      width: 65%;
+    }
+    
+    .budget-title {
+      font-size: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .budget-image {
+      height: 300px;
+    }
+    
+    .budget-hero {
+      width: 95%;
+    }
+    
+    .budget-overlay-text {
+      width: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .budget-title {
+      font-size: 24px;
+    }
+  }
+
+  .budget-strategies {
+    width: 100%;
+    padding: 60px 0;
+    background-color: #f8f9fa;
+  }
+  
+  .strategies-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .budget-strategies .section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a202c;
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .strategies-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .strategy-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    display: flex;
+    align-items: flex-start;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .strategy-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+  }
+  
+  .strategy-icon {
+    background-color: #e6f7ff;
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-right: 20px;
+    flex-shrink: 0;
+  }
+  
+  .strategy-icon i {
+    font-size: 28px;
+    color: #0083ff;
+  }
+  
+  .strategy-content {
+    flex: 1;
+  }
+  
+  .strategy-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0 0 15px 0;
+  }
+  
+  .strategy-list {
+    padding-left: 18px;
+    margin: 0 0 15px 0;
+  }
+  
+  .strategy-list li {
+    color: #4a5568;
+    font-size: 15px;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+  
+  .strategy-savings {
+    font-size: 14px;
+    font-weight: 600;
+    color: #38a169;
+    margin: 0;
+  }
+  
+  /* Custom icon colors */
+  .strategy-card:nth-child(1) .strategy-icon {
+    background-color: #ffeee6;
+  }
+  
+  .strategy-card:nth-child(1) .strategy-icon i {
+    color: #ff7a45;
+  }
+  
+  .strategy-card:nth-child(2) .strategy-icon {
+    background-color: #e6f0ff;
+  }
+  
+  .strategy-card:nth-child(2) .strategy-icon i {
+    color: #2970ff;
+  }
+  
+  .strategy-card:nth-child(3) .strategy-icon {
+    background-color: #e6ffea;
+  }
+  
+  .strategy-card:nth-child(3) .strategy-icon i {
+    color: #38a169;
+  }
+  
+  .strategy-card:nth-child(4) .strategy-icon {
+    background-color: #e6f9ff;
+  }
+  
+  .strategy-card:nth-child(4) .strategy-icon i {
+    color: #00b5d8;
+  }
+  
+  /* Media queries for responsive design */
+  @media screen and (max-width: 992px) {
+    .strategies-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .budget-strategies .section-title {
+      font-size: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .budget-strategies {
+      padding: 40px 0;
+    }
+    
+    .strategy-card {
+      padding: 20px;
+    }
+    
+    .strategy-icon {
+      width: 50px;
+      height: 50px;
+      margin-right: 15px;
+    }
+    
+    .strategy-icon i {
+      font-size: 24px;
+    }
+    
+    .strategy-title {
+      font-size: 18px;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .strategy-card {
+      flex-direction: column;
+    }
+    
+    .strategy-icon {
+      margin-bottom: 15px;
+      margin-right: 0;
+    }
+    
+    .strategy-list li {
+      font-size: 14px;
+    }
+  }
+
+  .travel-resources {
+    width: 100%;
+    padding: 70px 0;
+    background-color: #fff;
+  }
+  
+  .resources-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .travel-resources .section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a202c;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .resources-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.6;
+  }
+  
+  .resources-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .resource-category {
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  }
+  
+  .category-title {
+    display: flex;
+    align-items: center;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a202c;
+    margin: 0 0 20px 0;
+  }
+  
+  .category-title i {
+    font-size: 24px;
+    margin-right: 10px;
+    color: #3182ce;
+  }
+  
+  .resource-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  
+  .resource-list li {
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .resource-list li:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+  }
+  
+  .resource-name {
+    display: block;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+  
+  .resource-description {
+    margin: 0;
+    color: #4a5568;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+  
+  .resource-link {
+    display: inline-block;
+    color: #3182ce;
+    font-size: 14px;
+    font-weight: 500;
+    margin-top: 8px;
+    text-decoration: none;
+  }
+  
+  .resource-link:hover {
+    text-decoration: underline;
+  }
+  
+  /* Community Tips */
+  .community-tips {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+  }
+  
+  .community-tip {
+    background-color: #fff;
+    border-left: 3px solid #3182ce;
+    padding: 15px;
+    border-radius: 0 5px 5px 0;
+  }
+  
+  .tip-quote {
+    margin: 0 0 8px 0;
+    font-size: 14px;
+    color: #2d3748;
+    line-height: 1.5;
+    font-style: italic;
+  }
+  
+  .tip-author {
+    margin: 0;
+    font-size: 13px;
+    color: #718096;
+    text-align: right;
+  }
+  
+  /* Icon color variations */
+  .resource-category:nth-child(1) .category-title i {
+    color: #3182ce; /* Blue */
+  }
+  
+  .resource-category:nth-child(2) .category-title i {
+    color: #38a169; /* Green */
+  }
+  
+  .resource-category:nth-child(3) .category-title i {
+    color: #805ad5; /* Purple */
+  }
+  
+  .resource-category:nth-child(4) .category-title i {
+    color: #dd6b20; /* Orange */
+  }
+  
+  /* Media queries for responsive design */
+  @media screen and (max-width: 992px) {
+    .resources-grid {
+      grid-template-columns: 1fr;
+      gap: 25px;
+    }
+    
+    .travel-resources .section-title {
+      font-size: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .travel-resources {
+      padding: 50px 0;
+    }
+    
+    .category-title {
+      font-size: 18px;
+    }
+    
+    .resources-footer {
+      margin-top: 30px;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .resource-category {
+      padding: 20px;
+    }
+    
+    .resources-intro {
+      font-size: 15px;
+      margin-bottom: 30px;
+    }
+  }

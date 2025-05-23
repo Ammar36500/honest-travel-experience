@@ -1,0 +1,600 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section with proper closing -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/tokyo2.jpg' %}" alt="Tokyo skyline with Mount Fuji in the background" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Tokyo</h1>
+              <p class="destination-description">Discover Japan's vibrant capital city, where ancient traditions seamlessly blend with futuristic innovation.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Tokyo Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Tokyo</h2>
+            
+            <p class="about-text">Tokyo is Japan's bustling capital city and one of the world's most populous metropolitan areas, home to over 37 million people. Once known as Edo, Tokyo has transformed from a small fishing village to a global powerhouse of technology, fashion, culture, and cuisine. The city presents a fascinating juxtaposition of ultramodern skyscrapers alongside historic temples and gardens. With its efficient public transportation, diverse neighborhoods, world-class dining, and rich cultural experiences, Tokyo offers visitors an unforgettable blend of traditional Japanese hospitality and cutting-edge innovation.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-cloud-line"></i>
+                </div>
+                <div class="info-title">Four Distinct Seasons</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">Japanese</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-yen-circle-line"></i>
+                </div>
+                <div class="info-title">Japanese Yen (¥)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">JST (UTC+9)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Attractions</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/senso-ji Temple.jpg' %}" alt="Senso-ji Temple" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Senso-ji Temple</h3>
+                  <p class="destination-description">Tokyo's oldest and most significant Buddhist temple with iconic Kaminarimon Gate.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/shibuya crossing.jpg' %}" alt="Shibuya Crossing" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Shibuya Crossing</h3>
+                  <p class="destination-description">World's busiest pedestrian intersection and iconic symbol of modern Tokyo.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/tokyo skytree.jpg' %}" alt="Tokyo Skytree" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Tokyo Skytree</h3>
+                  <p class="destination-description">Tallest tower in Japan offering breathtaking panoramic views of the entire metropolis.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/meiji shrine.jpg' %}" alt="Meiji Shrine" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Meiji Shrine</h3>
+                  <p class="destination-description">Serene Shinto shrine dedicated to Emperor Meiji and Empress Shoken, set in a peaceful forest.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your Tokyo adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Spring (March-May) for cherry blossoms and autumn (September-November) for colorful foliage. Avoid the rainy season in June and humid summer months.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-train-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Use the extensive train and subway system with a Suica or Pasmo card. JR Yamanote Line connects most major districts. Taxis are clean but expensive.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Try sushi, ramen, tempura, and yakitori. Visit Tsukiji Outer Market for fresh seafood, department store food halls, and izakaya for authentic dining experiences.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-map-pin-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Etiquette Tips</h3>
+                    <p class="tip-description">Bow when greeting, remove shoes when indicated, avoid eating while walking, and maintain quiet conversations on public transport. Tipping is not customary.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Tokyo travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended hotel options in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Tokyo hotel recommendations by area: 1) Shinjuku - convenience for transportation hub with Park Hyatt Tokyo (luxury, ¥60,000+), Citadines Central (mid-range, ¥15,000-25,000), and Tokyu Stay (budget-friendly with in-room washer/dryer, ¥10,000-15,000). 2) Shibuya - youthful area with Cerulean Tower Tokyu (upscale, ¥30,000-50,000), Shibuya Stream Excel (modern mid-range, ¥20,000-30,000), and Mustard Hotel (trendy budget option, ¥8,000-12,000). 3) Tokyo Station/Marunouchi - business district with luxury options like Four Seasons (¥50,000+) and Shangri-La (¥40,000+); mid-range Oakwood Premier (¥25,000-35,000). 4) Asakusa - traditional area with WIRED Hotel (boutique, ¥15,000-25,000), Richmond Hotel (reliable mid-range, ¥12,000-18,000), and numerous budget ryokan options (¥8,000-12,000). 5) Roppongi - nightlife district with Grand Hyatt (luxury, ¥40,000+), Sotetsu Fresa Inn (business-friendly, ¥12,000-18,000). Traditional ryokan experiences available at Sadachiyo (Asakusa, ¥20,000-30,000) or Homeikan (Hongo, ¥12,000-20,000). Hotel rooms in Tokyo tend to be smaller than Western standards; "semi-double" beds common in budget options are narrower than standard doubles. Book 3-4 months ahead for cherry blossom season (late March-early April) and autumn foliage (November).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the airport transfer options in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Tokyo airport transfer options: 1) Narita Airport (NRT) to central Tokyo - options include Narita Express train (¥3,070, 60 minutes to Tokyo Station, reserved seats), Keisei Skyliner (¥2,570, 41 minutes to Ueno, reserved seats), Airport Limousine Bus (¥3,200, 75-125 minutes depending on destination, no traffic congestion), standard trains (¥1,050-1,500, 90+ minutes with transfers), and taxis (¥20,000-25,000, 60-90 minutes depending on traffic). 2) Haneda Airport (HND) to central Tokyo - options include Tokyo Monorail (¥500 to Hamamatsucho then connect to JR lines, 20 minutes), Keikyu Line (¥300-580 depending on destination, direct access to Shinagawa/Asakusa, 20-30 minutes), Airport Limousine Bus (¥1,100-1,500, direct to major hotels/stations, 30-60 minutes), and taxis (¥6,000-10,000, 20-40 minutes depending on destination/traffic). 3) Shared shuttle services by MK Taxi or Green Tomato (¥2,000-6,000) require advance booking. 4) Most transport options operate 5:00am-midnight; for late night/early morning arrivals, either book airport hotel or use taxi/pre-arranged shuttle. 5) Luggage delivery services (takuhaibin) available at both airports (¥1,500-2,000 per piece) for direct hotel delivery within 24 hours, allowing easier transit use. JR Pass holders can use Narita Express (and JR portions of other routes) without additional charge.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the transportation options from Narita to Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Narita to Tokyo transportation options: 1) Narita Express (N'EX) - JR's premium train service with reserved seats, storage space for luggage, and direct service to Tokyo, Shinjuku, Shibuya, and Yokohama; cost ¥3,070 one-way (free with JR Pass); duration 60 minutes to Tokyo Station, 80 minutes to Shinjuku; departures every 30-60 minutes between 7:45am-9:45pm. 2) Keisei Skyliner - fastest option taking 41 minutes to Ueno Station; cost ¥2,570 one-way; requires transfer to other lines for most Tokyo destinations; reserved seats with dedicated luggage space; departures every 20-40 minutes from 7:30am-10:30pm. 3) Keisei Access Express - budget-friendly train option without reserved seats; ¥1,370 to Ueno; 70-75 minutes; runs every 40-60 minutes. 4) Airport Limousine Buses - direct service to major hotels and stations including Tokyo Station, Shinjuku, Shibuya, Ikebukuro, and Ginza; cost ¥3,200 one-way; duration 75-125 minutes depending on traffic/destination; departures every 15-30 minutes. 5) Regular trains - cheapest option using Keisei Main Line (¥1,050 to Ueno) or JR Sobu Line (¥1,390 to Tokyo Station); 90-120 minutes with transfers; best for budget travelers with light luggage. 6) Taxis/private transfers cost ¥20,000-25,000 and take 60-90 minutes but offer door-to-door convenience. Most services allow for large luggage items, though trains can be crowded during rush hours (7:30-9:30am, 5:00-7:30pm).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best train pass options in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Tokyo train pass options: 1) Tokyo Subway Ticket - covers all Tokyo Metro and Toei Subway lines (not JR or private railways); available in 24-hour (¥800), 48-hour (¥1,200), and 72-hour (¥1,500) versions; sold at airport information centers and major hotels; cost-effective for 3+ subway trips daily. 2) Tokyo Metro 24-hour Ticket (¥600) - covers only Tokyo Metro lines (not Toei or JR); sufficient for many tourist destinations but more limited. 3) Toei One-day Pass (¥700) - covers only Toei subway lines, buses, and Toden Arakawa tram; specialized use cases. 4) Common One-day Ticket (¥900) - combines both Metro and Toei networks for one day. 5) Tokyo 1-Day Ticket (¥1,600) - comprehensive coverage of JR trains (within Tokyo), all subways, and city buses; best option for extensive single-day travel. 6) Greater Tokyo Pass (¥7,200 for 3 days) - covers all private railways, subways, and buses in Tokyo plus nearby prefectures; doesn't include JR lines. 7) For longer stays, Suica/PASMO IC cards with pay-as-you-go are more convenient than multiple day passes. 8) JR Pass (national pass for tourists, from ¥15,000/7 days) typically not cost-effective for Tokyo-only travel unless making daily long-distance trips within the city. Best value is determined by your itinerary - central Tokyo sightseeing primarily uses Tokyo Metro lines, while JR Yamanote Line forms a loop connecting major districts including Shinjuku, Shibuya, Tokyo Station, Ueno, and Ikebukuro.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How does the JR Pass work in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>JR Pass usage in Tokyo: 1) Coverage within Tokyo includes JR East lines such as the Yamanote Line (circular route connecting major stations including Shinjuku, Shibuya, Tokyo, and Ueno), Chuo Line, Sobu Line, Keihin-Tohoku Line, and Narita Express (airport service). 2) Activation process requires exchanging your voucher at a JR Exchange Office (available at Narita/Haneda airports and major stations) by showing your passport; select start date upon exchange (can be any day within 30 days). 3) Once activated, simply show your pass to station staff at the manned gate ("Midori-no-madoguchi") rather than using ticket gates; staff will inspect and wave you through. 4) JR Pass cannot be used on non-JR lines including Tokyo Metro, Toei Subway, Odakyu, Keio, Keisei, or Tokyu lines, which require separate tickets. 5) Within Tokyo, JR lines primarily serve as rapid transit between districts, while subway lines provide more coverage within districts. 6) The Yamanote Line is particularly useful for tourists as it connects most major areas in approximately 60 minutes for a full loop. 7) Reserved seats on regular JR trains within Tokyo are free with the pass (useful for Narita Express) but require visiting a ticket office. 8) JR Pass is usually not economical for Tokyo-only travel; it becomes worthwhile when including day trips to Kamakura, Nikko, Hakone, or longer journeys to Kyoto/Osaka. 9) 7-day pass costs approximately ¥33,610 while regular Yamanote Line fares average ¥150-250 per trip.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the transportation options from Haneda Airport?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Haneda Airport transportation options: 1) Tokyo Monorail - connects directly to Hamamatsucho Station (JR Yamanote Line) in 13 minutes for ¥500; runs 5:00am-midnight with 3-5 minute frequencies; transfer required to reach most Tokyo destinations. 2) Keikyu Railway - direct line to Shinagawa Station (14 minutes, ¥300) with through services continuing to Asakusa and Narita Airport; runs 5:00am-midnight; convenient for south/east Tokyo destinations. 3) Airport Limousine Buses - direct service to major hotels and stations including Tokyo Station (¥1,300, 30-45 minutes), Shinjuku (¥1,400, 35-75 minutes), Shibuya (¥1,400, 40-80 minutes), and Roppongi (¥1,400, 35-80 minutes); comfortable option with luggage storage; runs 5:00am-11:30pm. 4) Taxis - fixed rates available to central areas (¥5,600-8,700 depending on destination) or metered fares (approximately ¥6,000-10,000); 20-40 minutes depending on traffic; convenient for groups or those with substantial luggage. 5) Shared shuttle services - companies like Friendly Airport Limousine offer shared rides to hotels (¥2,000-3,000 per person) with advance booking required. 6) Late-night arrivals (midnight-5:00am) have limited options: dedicated night buses to major stations (¥1,200-1,400, limited schedule) or taxis. 7) JR Pass holders cannot use Monorail or Keikyu Line without additional payment. 8) All transportation options connect from both International (Terminal 3) and Domestic (Terminals 1 and 2) with free inter-terminal shuttle buses available.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are popular parks to visit in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Tokyo's must-visit parks: 1) Shinjuku Gyoen - spacious former imperial garden with French, English, and Japanese sections; famous for cherry blossoms (late March-early April) and autumn colors (late November-early December); ¥500 entry fee; closed Mondays. 2) Ueno Park - expansive public space housing multiple museums, zoo, and scenic Shinobazu Pond; free entry with paid attractions inside; exceptional cherry blossom viewing spot. 3) Yoyogi Park - vibrant weekend gathering spot near Harajuku with street performers, picnicking locals, and cultural groups; free entry; adjacent to Meiji Shrine. 4) Inokashira Park (Kichijoji) - charming local park with swan boats, Studio Ghibli Museum nearby, and relaxed atmosphere; 20 minutes from Shinjuku; free entry. 5) Koishikawa Korakuen - carefully preserved Edo-period landscape garden near Tokyo Dome; ¥300 entry; tranquil escape from urban surroundings. 6) Rikugien Gardens - considered Tokyo's most beautiful traditional garden with seasonal illuminations; ¥300 entry; tea house overlooking central pond. 7) Hibiya Park - Japan's first Western-style park located between Ginza and Imperial Palace; free concerts and seasonal flower displays; free entry. 8) Imperial Palace East Gardens - public portion of the imperial grounds featuring historic castle foundations and manicured landscapes; free entry; closed Mondays and Fridays. Most parks open around 9:00am and close between 4:30-6:00pm depending on season; many traditional gardens prohibit eating inside while public parks allow picnicking.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How does the Suica card work in Tokyo?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Suica card usage in Tokyo: 1) Obtaining - purchase at JR station ticket machines or manned counters for ¥1,000 (includes ¥500 deposit refundable upon return, plus ¥500 initial balance); English language option available on machines; passport not required for tourists. 2) Usage - tap on card readers when entering and exiting train stations, boarding buses, or paying at compatible stores; fare automatically calculated and deducted; works on all Tokyo transportation including JR trains, all subways, buses, and private railways. 3) Recharging - add balance (¥1,000-10,000 increments) at any station ticket machine, fare adjustment machine, or compatible convenience stores (7-Eleven, Lawson, Family Mart). 4) Beyond transit - accepted at station kiosks, vending machines, convenience stores, some restaurants, and many retail shops; look for Suica symbol at payment points. 5) Digital options - add to Apple Wallet or Google Pay (requires Japanese account for initial setup, though overseas credit cards can recharge); physical card remains easier for tourists. 6) Similar cards include PASMO (Tokyo's other IC card, fully interchangeable with Suica) and regional IC cards from other Japanese cities (ICOCA, TOICA, etc.) which also work in Tokyo. 7) Transferring between lines - simply tap out of one system and into another; no need to purchase separate tickets when changing between companies. 8) Advantages over paper tickets include convenience, slightly discounted fares on some lines, and no need to calculate complicated fares in advance. Children's Suica cards (for ages 6-11) available with half-price fares but require proof of age.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </body>
+  </html>

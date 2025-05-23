@@ -1,0 +1,245 @@
+/* Hero Section */
+.hero-section {
+    width: 1520px;
+    height: 400px; 
+    margin-top: 900px; 
+    position: relative;
+    margin-bottom: 3rem;
+    overflow: hidden;
+}
+
+.hero-image {
+    width: 100%;
+    height: 100%;
+    position: relative;
+}
+
+.hero-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5));
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.hero-title {
+    color: white;
+    font-size: 5rem; 
+    text-align: center;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+    font-weight: 700;
+    letter-spacing: 2px; 
+}
+
+.world-description {
+    max-width: 1000px;
+    margin: 3rem auto 4rem;
+    padding: 0 2rem;
+}
+
+.world-description h1 {
+    font-size: 2rem;
+    color: #333;
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.world-description h1:after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 0;
+    width: 80px;
+    height: 4px;
+    background-color: #FF9800;
+}
+
+.world-description p {
+    font-size: 0.9rem;
+    line-height: 1.7;
+    color: #555;
+    margin-bottom: 1.5rem;
+}
+
+.world-description p:last-child {
+    margin-bottom: 0;
+}
+
+@media (max-width: 768px) {
+    .world-description {
+        margin: 2rem auto 3rem;
+    }
+    
+    .world-description h1 {
+        font-size: 2.5rem;
+    }
+    
+    .world-description p {
+        font-size: 1rem;
+    }
+}
+
+/* Top Destinations Section */
+.destinations-section {
+    padding: 2rem 1rem 4rem;
+    background-color: white;
+}
+
+.destinations-container {
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.section-title {
+    text-align: center;
+    margin-bottom: 1rem;
+    color: #333;
+    position: relative;
+    font-size: 2rem;
+}
+
+.section-title::after {
+    content: '';
+    display: block;
+    width: 80px;
+    height: 3px;
+    background-color: #FF9800;
+    margin: 0.5rem auto 0;
+}
+
+.section-description {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 2.5rem;
+    color: #666;
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.beach-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 2rem;
+    max-width: 1000px;
+    margin: 0 auto;
+}
+
+.destination-card {
+    display: flex;
+    flex-direction: column;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+    height: 100%;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.destination-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.destination-image {
+    height: 200px;
+}
+
+.destination-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.destination-info {
+    padding: 1.2rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.destination-name {
+    font-size: 1.2rem;
+    margin-bottom: 0.5rem;
+    color: #333;
+    font-weight: 600;
+}
+
+.destination-location {
+    font-size: 0.9rem;
+    color: #777;
+    margin-bottom: 1rem;
+    font-style: italic;
+}
+
+.destination-link {
+    margin-top: auto;
+    color: #FF9800;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+    display: inline-block;
+    padding-top: 0.5rem;
+}
+
+.destination-link:hover {
+    color: #F57C00;
+    text-decoration: underline;
+}
+
+.destination-description {
+    font-size: 0.9rem;
+    color: #555;
+    line-height: 1.5;
+    margin-bottom: 1rem;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+.destination-card {
+    min-height: 380px; 
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 3.5rem; 
+    }
+    
+    .beach-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .section-description {
+        padding: 0 1rem;
+    }
+    
+    .hero-section {
+        height: 400px; 
+    }
+}
+
+@media (max-width: 480px) {
+    .hero-title {
+        font-size: 2.5rem;
+    }
+    
+    .hero-section {
+        height: 300px; 
+    }
+}

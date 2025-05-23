@@ -1,0 +1,277 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Review Moderation - Travel Review Admin</title>
+    <link rel="stylesheet" href="{% static 'images/css/review_moderation.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/Dashboard.css' %}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <script src="{% static 'images/javascript/Moderation_Review.js' %}"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <a href="{% url 'home' %}">HTR ADMIN</a>
+            </div>
+            <nav>
+                <a href="{% url 'moderator_dashboard' %}" class="nav-item">
+                    <i class="fas fa-th-large"></i>
+                    Dashboard
+                </a>
+                <a href="{% url 'User_management' %}" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    User Management
+                </a>
+                <a href="{% url 'moderator_reviews' %}" class="nav-item active">
+                    <i class="fas fa-star"></i>
+                    Reviews
+                </a>
+                <a href="{% url 'Analytics' %}" class="nav-item">
+                    <i class="fas fa-chart-bar"></i>
+                    Analytics
+                </a>
+                <a href="{% url 'Settings' %}" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    Settings
+                </a>
+            </nav>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Top Navigation -->
+            <div class="top-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search reviews...">
+                </div>
+                <div class="user-menu">
+                    <div class="notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">1</span>
+                    </div>
+                    <div class="user-profile">
+                        <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+                        <span>{{ user.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Page Header -->
+            <div class="page-header">
+                <h1>Review Moderation</h1>
+                <p>Review and moderate user-submitted content</p>
+            </div>
+
+            <!-- Filter Section -->
+            <div class="filter-section">
+                <div class="filter-label">Filter by:</div>
+                <div class="filter-buttons">
+                    <a href="?filter=assigned" class="filter-btn {% if filter_type == 'assigned' %}active{% endif %}">
+                        Assigned to Me <span class="count">{{ counts.assigned }}</span>
+                    </a>
+                    <a href="?filter=unassigned" class="filter-btn {% if filter_type == 'unassigned' %}active{% endif %}">
+                        Unassigned <span class="count">{{ counts.unassigned }}</span>
+                    </a>
+                    <a href="?filter=all" class="filter-btn {% if filter_type == 'all' %}active{% endif %}">
+                        All Flagged <span class="count">{{ counts.all }}</span>
+                    </a>
+                </div>
+                <div class="sort-options">
+                    <span>Sort by:</span>
+                    <select id="sort-selector">
+                        <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest First</option>
+                        <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
+                        <option value="most_flags" {% if sort_by == 'most_flags' %}selected{% endif %}>Most Reported</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Reviews Container -->
+            <div class="reviews-container">
+                {% if reviews %}
+                    {% for review in reviews %}
+                    <div class="review-card {% if review.highlighted %}highlighted{% endif %}" data-review-id="{{ review.id }}">
+                        <div class="review-header">
+                            <div class="review-user">
+                                <img src="{% if review.user.profile_picture %}{{ review.user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="{{ review.user.username }}">
+                                <div class="user-details">
+                                    <div class="user-name">{{ review.user.get_full_name|default:review.user.username }}</div>
+                                    <div class="review-location">{{ review.place.name }}</div>
+                                </div>
+                            </div>
+                            <div class="review-meta">
+                                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                                <div class="review-rating">
+                                    {% for i in "12345"|make_list %}
+                                        {% if forloop.counter <= review.rating %}
+                                            <i class="fas fa-star"></i>
+                                        {% else %}
+                                            <i class="far fa-star"></i>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="review-content">
+                            <h3 class="review-title">{{ review.title }}</h3>
+                            
+                            {% if review.place.country != 'United States' and review.place.country != 'United Kingdom' %}
+                            <div class="translation-notice">
+                                <i class="fas fa-language"></i>
+                                <span>This review may be for a non-English speaking destination</span>
+                            </div>
+                            {% endif %}
+                            
+                            <div class="review-text">{{ review.content }}</div>
+                            
+                            {% if review.images.all %}
+                            <div class="review-images">
+                                {% for image in review.images.all %}
+                                <div class="review-image">
+                                    <img src="{{ image.image.url }}" alt="Review Image">
+                                </div>
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="review-flags">
+                            <div class="flag-count">
+                                <i class="fas fa-flag"></i>
+                                <span>Flagged {{ review.flags.count }} times</span>
+                            </div>
+                            {% if review.flags.first %}
+                            <div class="flag-reason">
+                                <strong>Reason:</strong> {{ review.flags.first.reason }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="fairness-indicators">
+                            <!-- Bias prevention indicators -->
+                            {% if review.place.country != 'United States' and review.place.country != 'United Kingdom' %}
+                            <div class="fairness-indicator">
+                                <i class="fas fa-globe"></i>
+                                <span>International destination - consider cultural differences</span>
+                            </div>
+                            {% endif %}
+                            
+                            <!-- Check similar reviews rejection rate -->
+                            {% if review.similar_rejections_rate > 0 %}
+                            <div class="fairness-indicator">
+                                <i class="fas fa-balance-scale"></i>
+                                <span>{{ review.similar_rejections_rate }}% of similar reviews are rejected</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="moderation-actions">
+                            <form method="post" action="/moderate-review/{{ review.id }}/">
+                                {% csrf_token %}
+                                <input type="hidden" name="action" value="approve">
+                                <button type="submit" class="action-btn approve-btn">
+                                    <i class="fas fa-check"></i>
+                                    Approve
+                                </button>
+                            </form>
+                            
+                            <button type="button" class="action-btn reject-btn" data-review-id="{{ review.id }}">
+                                <i class="fas fa-times"></i>
+                                Reject
+                            </button>
+                            
+                            <div class="dropdown">
+                                <button class="action-btn more-btn">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <div class="dropdown-content">
+                                    <form method="post" action="/moderate-review/{{ review.id }}/">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="assign">
+                                        <button type="submit" class="dropdown-btn">
+                                            <i class="fas fa-user-check"></i>
+                                            Assign to Me
+                                        </button>
+                                    </form>
+                                    
+                                    <form method="post" action="/moderate-review/{{ review.id }}/">
+                                        {% csrf_token %}
+                                        <input type="hidden" name="action" value="highlight">
+                                        <button type="submit" class="dropdown-btn">
+                                            <i class="fas fa-highlighter"></i>
+                                            {% if review.highlighted %}Remove Highlight{% else %}Highlight for Review{% endif %}
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                {% else %}
+                    <div class="empty-state">
+                        <i class="fas fa-check-circle"></i>
+                        <h3>All caught up!</h3>
+                        <p>There are no reviews that need moderation at this time.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+   <!-- Make sure your modal HTML structure looks like this -->
+<div id="rejectModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h2>Reject Review</h2>
+            <span class="close">&times;</span>
+        </div>
+        <div class="modal-body">
+            <form id="rejectForm" action="" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="reject">
+                
+                <div class="form-group">
+                    <label for="rejection_reason">Reason for rejection:</label>
+                    <select id="rejection_reason" name="rejection_reason" class="form-control" required>
+                        <option value="">-- Select a reason --</option>
+                        <option value="Inappropriate content">Inappropriate content</option>
+                        <option value="Spam or promotional">Spam or promotional</option>
+                        <option value="Fake or misleading">Fake or misleading</option>
+                        <option value="Off-topic">Off-topic</option>
+                        <option value="Duplicate">Duplicate</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="notes">Additional notes:</label>
+                    <textarea id="notes" name="notes" class="form-control" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <div class="checkbox">
+                        <input type="checkbox" id="bias-confirmation" name="bias_confirmation" required>
+                        <label for="bias-confirmation">
+                            I confirm this decision is fair and unbiased, based on objective criteria.
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary cancel-btn">Cancel</button>
+                    <button type="submit" class="btn btn-danger">Reject Review</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+
+</body>
+</html>

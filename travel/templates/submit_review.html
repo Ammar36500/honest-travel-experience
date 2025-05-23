@@ -1,5 +1,4 @@
 {% load static %}
-<script src="{% static 'images/javascript/java.js' %}"></script>
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -8,59 +7,75 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Travel Reviews</title>
     <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/review.css' %}">
     <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
   </head>
-
   <body>
     <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
       <nav class="nav">
-          <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
-          <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
-          <a href="{% url 'about' %}" class="nav-item">About Us</a>
-          <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
       </nav>
-  
-      <a href="{% url 'home' %}">
-          <img src="{% static 'images/logo.png' %}" alt="Travel logo Reviews" class="logo">
-      </a>
-  
+    
       <!-- Authentication Section -->
       {% if user.is_authenticated %}
-      <div class="profile-menu">
-          <p>Welcome, {{ user.username }}!</p>
-          <a href="{% url 'profile' %}">
-              <img src="{% static 'images/profile.png' %}" alt="Profile" class="profile-icon">
-          </a>
-          <a href="{% url 'logout' %}" class="logout-btn">Logout</a>
-      </div>
-      {% else %}
-      <button class="login-btn" onclick="openModal()">Login</button>
-      {% endif %}
-  </header>
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
   
-
-    <!-- Modal Section -->
-    <div id="loginModal" class="modal">
-      <div class="modal-content">
-        <span class="close-btn" onclick="closeModal()">&times;</span>
-        
-        <!-- Container to switch between Login and Signup -->
-        <div class="container">
-          
-          <!-- Signup Section -->
-          <div class="signup-section">
+    <div class="main-content">
+      <!-- Modal Section -->
+      <div id="loginModal" class="modal">
+        <div class="modal-content">
+          <span class="close-btn" onclick="closeModal()">&times;</span>
+          <!-- Container to switch between Login and Signup -->
+          <div class="container">
+            <!-- Signup Section -->
+            <div class="signup-section">
               <header>Sign Up</header>
               <div class="social-buttons">
-                  <button><i class='bx bxl-google'></i> Use Google</button>
-                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
               </div>
-    
               <div class="separator">
-                  <div class="line"></div>
-                  <p>Or</p>
-                  <div class="line"></div>
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
               </div>
-    
               <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="Username" required>
@@ -69,85 +84,378 @@
                 <input type="password" name="password" placeholder="Password" required>
                 <a href="#">Forget Password?</a>
                 <button type="submit" class="btn">Signup</button>
-            </form>
-          </div>
+              </form>
+            </div>
 
-          <div id="signupModal" class="modal">
-            <div class="modal-content">
+            <div id="signupModal" class="modal">
+              <div class="modal-content">
                 <span class="close-btn" onclick="closeModal()">&times;</span>
                 <h2>Sign Up</h2>
                 <form id="signupForm2" method="post">
-                    {% csrf_token %}
-                    <input type="text" name="username" placeholder="Username" required>
-                    <input type="text" name="full_name" placeholder="Full Name" required>
-                    <input type="email" name="email" placeholder="Email Address" required>
-                    <input type="password" name="password" placeholder="Password" required>
-                    <button type="submit" class="btn">Signup</button>
+                  {% csrf_token %}
+                  <input type="text" name="username" placeholder="Username" required>
+                  <input type="text" name="full_name" placeholder="Full Name" required>
+                  <input type="email" name="email" placeholder="Email Address" required>
+                  <input type="password" name="password" placeholder="Password" required>
+                  <button type="submit" class="btn">Signup</button>
                 </form>                
                 <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+              </div>
             </div>
-        </div>
-    
-          <!-- Login Section -->
-          <div class="login-section">
+  
+            <!-- Login Section -->
+            <div class="login-section">
               <header>Login</header>
               <div class="social-buttons">
-                  <button><i class='bx bxl-google'></i> Use Google</button>
-                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
               </div>
-    
               <div class="separator">
-                  <div class="line"></div>
-                  <p>Or</p>
-                  <div class="line"></div>
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
               </div>
-    
               <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
                 {% csrf_token %}
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit" class="btn">Login</button>
-            </form>
+              </form>
+            </div>
+  
           </div>
-    
         </div>
       </div>
-    </div>
-
-
-    <div class="Review-search">
-        <form>
-            <input id="searchInput" name="query" placeholder="What do you want to see..." type="text" required>
-            <button type="submit">Search</button>
-        </form>
-        <div id="searchResults" class="search-results"></div>
-    </div>
-    
-      
   
-    <div class="review-header2">
-        <h1>Write a review, make someone's trip</h1>
-        <p>Stories like yours are what helps travellers have better trips. Share your experience and help out a fellow traveller!</p>
+      <!-- 1) Featured Destinations Section -->
+      <section class="featured-section">
+        <!-- Background image for easy replacement -->
+        <img src="{% static 'images/Share.jpg' %}" alt="Share" class="featured-background">
+  
+        <div class="featured-content">
+          <div class="featured-text">
+            <h1>
+              Share Your <br>
+              Travel Stories <br>
+              <span class="highlight">With The World</span>
+            </h1>
+            <p>Join our community of passionate travelers and share your authentic experiences to help others discover amazing destinations.</p>
+  
+            <div class="featured-buttons">
+              <a href="{% url 'submit_review' %}" class="btn btn-primary">
+                <i class="ri-quill-pen-line"></i> Write a Review
+              </a>
+              <a href="{% url 'destinations' %}" class="btn btn-outline">
+                <i class="ri-compass-3-line"></i> Explore Reviews
+              </a>
+            </div>
+          </div>
+  
+          <div class="destinations-cards">
+            <div class="card-paris">
+              <img src="{% static 'images/Paris.jpg' %}" alt="Paris, France">
+              <div class="card-info">
+                <span class="location">Paris, France</span>
+                <div class="rating">
+                  <i class="ri-star-fill"></i>
+                  <span>4.9</span>
+                </div>
+              </div>
+            </div>
+  
+            <div class="card-marrakech">
+              <img src="{% static 'images/morroco.jpg' %}" alt="Marrakech, Morocco">
+              <div class="card-info">
+                <span class="location">Marrakech, Morocco</span>
+                <div class="rating">
+                  <i class="ri-star-fill"></i>
+                  <span>4.7</span>
+                </div>
+              </div>
+            </div>
+  
+            <div class="card-kyoto">
+              <img src="{% static 'images/kyoto.jpg' %}" alt="Kyoto, Japan">
+              <div class="card-info">
+                <span class="location">Kyoto, Japan</span>
+                <div class="rating">
+                  <i class="ri-star-fill"></i>
+                  <span>4.8</span>
+                </div>
+              </div>
+            </div>
+  
+            <div class="card-bali">
+              <img src="{% static 'images/bali.jpg' %}" alt="Bali, Indonesia">
+              <div class="card-info">
+                <span class="location">Bali, Indonesia</span>
+                <div class="rating">
+                  <i class="ri-star-fill"></i>
+                  <span>4.9</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div> 
+      </section>
+
+      <section class="review-section">
+         <img src="{% static 'images/background.jpg' %}" alt="Review Background" class="review-background">
+      
+        <!-- Content Above the Background -->
+        <div class="review-content">
+          <div class="review-header">
+            <h2>Share Your Travel Story</h2>
+            <p>Your experience matters! Help fellow travelers make informed decisions.</p>
+          </div>
+      
+          <div class="review-form-card">
+            <form class="review-form" id="reviewForm" method="post" action="{% url 'submit_review' %}" enctype="multipart/form-data">
+              {% csrf_token %}
+              <!-- Destination -->
+              <div class="form-group">
+                <label for="destination">Where did you go?</label>
+                <select id="destination" name="destination" required>
+                  <option value="" disabled selected>Select a destination</option>
+                  <optgroup label="Countries">
+                    <option value="Japan">Japan</option>
+                    <option value="Greece">Greece</option>
+                    <option value="Switzerland">Switzerland</option>
+                    <option value="New Zealand">New Zealand</option>
+                    <option value="Italy">Italy</option>
+                    <option value="Peru">Peru</option>
+                    <option value="China">China</option>
+                    <option value="Australia">Australia</option>
+                    <option value="Iceland">Iceland</option>
+                    <option value="India">India</option>
+                    <option value="Egypt">Egypt</option>
+                    <option value="Brazil">Brazil</option>
+                    <option value="Morocco">Morocco</option>
+                    <option value="Indonesia">Indonesia</option>
+                  </optgroup>
+                  <optgroup label="Cities & Urban Destinations">
+                    <option value="Tokyo">Tokyo</option>
+                    <option value="Paris">Paris</option>
+                    <option value="London">London</option>
+                    <option value="Rome">Rome</option>
+                    <option value="New York">New York</option>
+                    <option value="Sydney">Sydney</option>
+                    <option value="Mumbai">Mumbai</option>
+                    <option value="California">California</option>
+                    <option value="San Francisco">San Francisco</option>
+                    <option value="Los Angeles">Los Angeles</option>
+                    <option value="Rio de Janeiro">Rio de Janeiro</option>
+                    <option value="Salvador">Salvador</option>
+                  </optgroup>
+                  <optgroup label="Nature & Outdoor Attractions">
+                    <option value="Great Barrier Reef">Great Barrier Reef</option>
+                    <option value="Uluru">Uluru (Ayers Rock)</option>
+                    <option value="Twelve Apostles">Twelve Apostles</option>
+                    <option value="Navagio Beach">Navagio Beach (Greece)</option>
+                    <option value="Maya Bay">Maya Bay (Thailand)</option>
+                    <option value="Seven Mile Beach">Seven Mile Beach (Cayman Islands)</option>
+                    <option value="Matira Beach">Matira Beach (French Polynesia)</option>
+                    <option value="Amazon Rainforest">Amazon Rainforest</option>
+                    <option value="Iguazu Falls">Iguazu Falls</option>
+                    <option value="Yosemite National Park">Yosemite National Park</option>
+                  </optgroup>
+                  <optgroup label="Wine & Culinary Destinations">
+                    <option value="Napa Valley">Napa Valley</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <!-- Country-->
+              <div class="form-group">
+                <label for="country">In which country?</label>
+                <select id="country" name="country">
+                  <option value="" disabled selected>Select a country</option>
+                  <option value="Japan">Japan</option>
+                  <option value="Greece">Greece</option>
+                  <option value="France">France</option>
+                  <option value="United Kingdom">United Kingdom</option>
+                  <option value="Switzerland">Switzerland</option>
+                  <option value="New Zealand">New Zealand</option>
+                  <option value="United States">United States</option>
+                  <option value="Italy">Italy</option>
+                  <option value="Peru">Peru</option>
+                  <option value="China">China</option>
+                  <option value="Australia">Australia</option>
+                  <option value="Iceland">Iceland</option>
+                  <option value="India">India</option>
+                  <option value="Egypt">Egypt</option>
+                  <option value="Brazil">Brazil</option>
+                  <option value="Morocco">Morocco</option>
+                  <option value="Indonesia">Indonesia</option>
+                  <option value="Thailand">Thailand</option>
+                  <option value="Cayman Islands">Cayman Islands</option>
+                  <option value="French Polynesia">French Polynesia</option>
+                  <option value="Argentina">Argentina</option>
+                </select>
+              </div>
+      
+              <!-- Visit Date -->
+              <div class="form-group">
+                <label for="visitDate">When did you visit?</label>
+                <input 
+                  type="date" 
+                  id="visitDate" 
+                  name="visitDate" 
+                  required
+                />
+              </div>
+      
+              <!-- Review Title -->
+              <div class="form-group">
+                <label for="reviewTitle">Give your review a title</label>
+                <input 
+                  type="text" 
+                  id="reviewTitle" 
+                  name="reviewTitle" 
+                  placeholder="Sum up your experience" 
+                  required
+                />
+              </div>
+      
+              <div class="rating-stars">
+                <input type="radio" name="rating" id="star5" value="5"><label for="star5"></label>
+                <input type="radio" name="rating" id="star4" value="4"><label for="star4"></label>
+                <input type="radio" name="rating" id="star3" value="3"><label for="star3"></label>
+                <input type="radio" name="rating" id="star2" value="2"><label for="star2"></label>
+                <input type="radio" name="rating" id="star1" value="1"><label for="star1"></label>
+                <input type="hidden" id="rating-value" name="rating_value" value="" required>
+              </div>
+              
+              <!-- Experience Details -->
+              <div class="form-group">
+                <label for="experienceDetails">Tell us about your experience</label>
+                <textarea 
+                  id="experienceDetails" 
+                  name="experienceDetails" 
+                  placeholder="Share the details of your journey..."
+                  required
+                ></textarea>
+              </div>
+      
+              <!-- Photo Upload -->
+              <div class="form-group">
+                <label>Share your photos</label>
+                <div class="photo-upload">
+                  <input type="file" name="photos" id="photos" multiple accept="image/*">
+                  <p>Drag and drop your photos here or click to browse</p>
+                </div>
+              </div>
+      
+              <!-- Submit -->
+              <button type="submit" class="btn-submit">Submit Review</button>
+              <p class="terms-text">
+                By submitting, you agree to our 
+                <a href="#">Terms of Service</a> and 
+                <a href="#">Privacy Policy</a>
+              </p>
+            </form>
+          </div>
+      
+          <!-- Tips Section -->
+          <div class="tips-box">
+            <div class="tip">
+              <i class="ri-information-line"></i>
+              <div class="tip-content">
+                <h3>Be Detailed</h3>
+                <p>Share specific experiences and helpful tips</p>
+              </div>
+            </div>
+      
+            <div class="tip">
+              <i class="ri-user-smile-line"></i>
+              <div class="tip-content">
+                <h3>Be Honest</h3>
+                <p>Share both positive and constructive feedback</p>
+              </div>
+            </div>
+      
+            <div class="tip">
+              <i class="ri-image-line"></i>
+              <div class="tip-content">
+                <h3>Add Photos</h3>
+                <p>Help others visualize your experience</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>      
     </div>
 
-    <div class="image-gallery1">
-        <div class="image-container1">
-            <img src="{% static 'images/review .png' %}" alt="Review Image 1">
-            <p>Discover hidden gems</p>
-        </div>
-        <div class="image-container1">
-            <img src="{% static 'images/trip.png' %}" alt="Review Image 2">
-            <p>Share your experience</p>
-        </div>
-        <div class="image-container1">
-            <img src="{% static 'images/message.png' %}" alt="Review Image 3">
-            <p>Help fellow travelers</p>
-        </div>
-    </div>
+    <!-- Add this below the review-header -->
+<div id="successPage" class="success-page" style="display: none;">
+  <div class="success-icon">
+    <i class="ri-check-line"></i>
+  </div>
+  <h2>Thank You for Your Review!</h2>
+  <p id="successMessage">Your review has been submitted successfully.</p>
+  <div class="success-buttons">
+    <a href="{% url 'home' %}" class="btn btn-primary">Go to Homepage</a>
+    <a href="{% url 'submit_review' %}" class="btn btn-outline">Write Another Review</a>
+  </div>
+</div>
 
-    <div class="reviews-title">
-        <h2>Your reviews are here</h2>
-    </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const destinationSelect = document.getElementById('destination');
+    if (destinationSelect) {
+      destinationSelect.onchange = function() {
+        const destination = this.value;
+        const countrySelect = document.getElementById('country');
+        if (!countrySelect) return;
+        
+        // Original mappings
+        if (destination === "Japan") countrySelect.value = "Japan";
+        if (destination === "Greece") countrySelect.value = "Greece";
+        if (destination === "Switzerland") countrySelect.value = "Switzerland";
+        if (destination === "New Zealand") countrySelect.value = "New Zealand";
+        if (destination === "Italy") countrySelect.value = "Italy";
+        if (destination === "Peru") countrySelect.value = "Peru";
+        if (destination === "China") countrySelect.value = "China";
+        if (destination === "Australia") countrySelect.value = "Australia";
+        if (destination === "Iceland") countrySelect.value = "Iceland";
+        if (destination === "India") countrySelect.value = "India";
+        if (destination === "Egypt") countrySelect.value = "Egypt";
+        if (destination === "Brazil") countrySelect.value = "Brazil";
+        if (destination === "Morocco") countrySelect.value = "Morocco";
+        if (destination === "Indonesia") countrySelect.value = "Indonesia";
+        if (destination === "Tokyo") countrySelect.value = "Japan";
+        if (destination === "Paris") countrySelect.value = "France";
+        if (destination === "London") countrySelect.value = "United Kingdom";
+        if (destination === "Rome") countrySelect.value = "Italy";
+        if (destination === "New York") countrySelect.value = "United States";
+        if (destination === "Sydney") countrySelect.value = "Australia";
+        if (destination === "Mumbai") countrySelect.value = "India";
+        if (destination === "California") countrySelect.value = "United States";
+        if (destination === "Navagio Beach") countrySelect.value = "Greece";
+        if (destination === "Maya Bay") countrySelect.value = "Thailand";
+        if (destination === "Seven Mile Beach") countrySelect.value = "Cayman Islands";
+        if (destination === "Matira Beach") countrySelect.value = "French Polynesia";
+        
+        // New mappings for the destinations you created
+        if (destination === "Great Barrier Reef") countrySelect.value = "Australia";
+        if (destination === "Uluru") countrySelect.value = "Australia";
+        if (destination === "Twelve Apostles") countrySelect.value = "Australia";
+        if (destination === "Rio de Janeiro") countrySelect.value = "Brazil";
+        if (destination === "Salvador") countrySelect.value = "Brazil";
+        if (destination === "Iguazu Falls") countrySelect.value = "Argentina";
+        if (destination === "Amazon Rainforest") countrySelect.value = "Brazil";
+        if (destination === "San Francisco") countrySelect.value = "United States";
+        if (destination === "Los Angeles") countrySelect.value = "United States";
+        if (destination === "Yosemite National Park") countrySelect.value = "United States";
+        if (destination === "Napa Valley") countrySelect.value = "United States";
+      }
+    }
+  })
+</script>
+
+<script src="{% static 'images/javascript/Submit.js' %}"></script>
+<script src="{% static 'images/javascript/Profile.js' %}"></script>
 
   </body>
 </html>

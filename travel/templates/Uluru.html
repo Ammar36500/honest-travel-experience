@@ -1,0 +1,591 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Uluru - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/Uluru.jpg' %}" alt="Uluru at sunset" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">Uluru (Ayers Rock)</h1>
+              <p class="destination-description">Experience the spiritual heart of Australia's Red Centre – a sacred monolith of immense cultural significance that transforms with mesmerizing color changes throughout the day.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About Uluru Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About Uluru</h2>
+            
+            <p class="about-text">Uluru, also known as Ayers Rock, is a massive sandstone monolith rising dramatically from the surrounding desert plains in Australia's Northern Territory. This UNESCO World Heritage site stands 348 meters (1,142 feet) high with a circumference of 9.4 kilometers (5.8 miles), but extends several kilometers below the ground, making it comparable to an iceberg with the majority of its mass hidden beneath the surface. Geologically, Uluru formed approximately 550 million years ago when sand deposited in an inland sea was compressed into sandstone and then tilted to its current near-vertical position through tectonic activity. While often described as the world's largest monolith, geologists classify it more specifically as an inselberg ("island mountain"). The rock's striking red color comes from the oxidation of iron-bearing minerals present in the sandstone, with the intensity of color changing dramatically throughout the day—from ochre-brown at dawn to glowing red at sunset. Beyond its geological significance, Uluru holds profound cultural importance for the Anangu people, the traditional Aboriginal owners, who have lived in the area for more than 30,000 years. The rock features numerous sacred sites, ancient rock art, and is central to Aboriginal Tjukurpa (creation stories and law). In 1985, the Australian government returned ownership of Uluru to the Anangu people, who subsequently lease the land to Parks Australia to be jointly managed as Uluru-Kata Tjuta National Park. In 2019, climbing Uluru was permanently banned in accordance with the wishes of the traditional owners, for whom the site holds deep spiritual significance.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-map-pin-line"></i>
+                </div>
+                <div class="info-title">Northern Territory, Australia</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-award-line"></i>
+                </div>
+                <div class="info-title">UNESCO World Heritage</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-sun-line"></i>
+                </div>
+                <div class="info-title">Desert Climate</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-ancient-gate-line"></i>
+                </div>
+                <div class="info-title">Sacred Aboriginal Site</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Experiences Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Experiences</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/uluru-sunset.jpg' %}" alt="Uluru sunset viewing" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Sunset & Sunrise Viewing</h3>
+                  <p class="destination-description">Witness the mesmerizing color transformation of Uluru at the dedicated viewing areas, where the rock shifts through spectacular hues of orange, red, and purple as the sun rises or sets.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/uluru-base-walk.jpg' %}" alt="Walking around Uluru base" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Base Walk</h3>
+                  <p class="destination-description">Take the 10.6km loop trail around the entire base of Uluru, discovering sacred waterholes, ancient rock art sites, and diverse desert vegetation while learning about Aboriginal culture.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/kata-tjuta.jpg' %}" alt="Kata Tjuta rock formation" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Kata Tjuta (The Olgas)</h3>
+                  <p class="destination-description">Explore this nearby collection of 36 massive domed rock formations, walking through the Valley of the Winds or Walpa Gorge to experience another sacred site in the Red Centre.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/field-of-light.jpg' %}" alt="Field of Light art installation" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Field of Light</h3>
+                  <p class="destination-description">Experience Bruce Munro's internationally acclaimed art installation, where 50,000 stems of light bloom as darkness falls over the desert, creating a magical illuminated landscape.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section (Condensed) -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for visiting Uluru</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">The ideal time to visit Uluru is during the Australian winter and shoulder seasons (May to September), when daytime temperatures are pleasant (20-30°C/68-86°F) and nights are cool but not freezing. This period offers comfortable conditions for walking and outdoor activities. Summer (December-February) brings extreme heat, with temperatures regularly exceeding 40°C (104°F), making outdoor activities challenging and potentially dangerous—if visiting during summer, limit activities to early morning or late afternoon. April and October offer good compromises between weather and crowds. The rare occurrence of rainfall transforms the landscape, creating temporary waterfalls cascading down Uluru's sides and bringing desert wildflowers into bloom (most likely August-September). Sunset and sunrise viewing are spectacular year-round but can be crowded; for photography, the hour after sunrise and before sunset offers the most dramatic lighting conditions. Park entry is AUD$38 per adult (valid for 3 days) and can be purchased online or at the entry station. The national park opens daily at 5am (earlier during summer) and closes after sunset.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-car-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Getting There & Around</h3>
+                    <p class="tip-description">Uluru is accessible via flights to Ayers Rock Airport (Connellan Airport) from Sydney, Melbourne, Brisbane, and Alice Springs, with transfers to accommodations available. Alternatively, many visitors drive or take tours from Alice Springs (450km/280 miles, approximately 4.5 hours driving). Car rental is available in Alice Springs or at Ayers Rock Airport, with 2WD vehicles sufficient for sealed roads to main attractions. The free Uluru Hop-on Hop-off shuttle operates within Ayers Rock Resort daily from sunrise to sunset, connecting accommodations with the Town Square, visitor center, and various lookouts. For exploring the national park, options include self-driving (ideal for flexibility), guided tours (providing cultural interpretation), and camel tours (for a unique desert experience). Tour categories range from budget group tours to exclusive private experiences, with prices from AUD$80 for basic sunset tours to AUD$300+ for premium experiences including meals. Bicycle rentals are available at the resort for exploring nearby areas. When self-driving, carry plenty of water, inform someone of your plans, and be aware of wildlife on roads, particularly at dawn and dusk.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-hotel-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Accommodation & Facilities</h3>
+                    <p class="tip-description">All accommodation is located at Ayers Rock Resort in Yulara, 20km from Uluru. Options range from 5-star luxury at Sails in the Desert (AUD$420+) to the mid-range Desert Gardens Hotel (AUD$300+) and budget-friendly Outback Pioneer Hotel & Lodge (from AUD$170) and Ayers Rock Campground (powered sites from AUD$52). Book accommodation well in advance, especially during peak season (June-August) and school holidays. The resort complex includes restaurants, cafes, a supermarket, bank, post office, and medical center. Mobile coverage is generally good within the resort and main viewing areas but can be patchy elsewhere. The Uluru-Kata Tjuta Cultural Centre within the national park provides insights into Aboriginal culture, art, and history through exhibits, demonstrations, and ranger-guided programs. Free activities at Ayers Rock Resort include bush yarns, guided garden walks, bush food experiences, didgeridoo performances, and astronomy sessions. Fuel is available at the resort but is significantly more expensive than in major cities, so fill up in Alice Springs if driving from there. Drinking water refill stations are available at the Cultural Centre and major viewing areas.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-information-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Cultural Respect & Safety</h3>
+                    <p class="tip-description">Uluru holds deep spiritual significance for the Anangu people, so visitors should approach the site with respect and cultural sensitivity. Climbing Uluru is permanently prohibited in accordance with traditional owners' wishes. Photography is permitted in most areas, but specific sacred sites around Uluru are marked with "no photography" signs—please respect these restrictions. Stay on marked walking trails and don't remove any natural materials or disturb wildlife. The desert environment presents challenges requiring preparation: carry at least 1 liter of water per person per hour of walking; wear sun protection including wide-brimmed hats, sunglasses, and SPF 50+ sunscreen; dress in lightweight, light-colored clothing with long sleeves for sun protection. Sturdy, closed-toe walking shoes are essential for trails. Walks may close when temperatures exceed 36°C (97°F) for safety reasons. Flies can be numerous in warmer months—fly nets provide relief. Be aware of potential wildlife encounters including venomous snakes and spiders, particularly when walking through vegetation. Flash flooding can occur during rare heavy rainfall—avoid dry creek beds if rain threatens. Before hiking, check weather conditions and trail status at the Cultural Centre or resort information desk. The Uluru-Kata Tjuta National Park operates under "take in, take out" waste management—no public bins are provided, so carry out all trash.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+    <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">Uluru FAQ</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>How many days should I spend at Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>While Uluru can technically be visited as a day trip from Alice Springs, a minimum of two to three days is recommended for a satisfying experience. This timeframe allows for viewing Uluru at both sunrise and sunset (essential experiences capturing the rock's changing colors), completing the 10.6km Base Walk at a leisurely pace, and visiting the Uluru-Kata Tjuta Cultural Centre to understand the site's cultural significance. A three-day visit also enables exploration of nearby Kata Tjuta (The Olgas), located 40km from Uluru, where you can experience the Valley of the Winds Walk (2-3 hours) or Walpa Gorge Walk (1 hour). Evening experiences such as the Field of Light installation, stargazing tours, or desert dining experiences add another dimension to your visit. If you're interested in Aboriginal cultural experiences like bush tucker tours, dot painting workshops, or storytelling sessions, consider adding a fourth day. Many visitors underestimate the time needed at each site and the impact of the desert climate on their energy levels. The 3-day park pass makes a three-night stay economical. For photographers, extra time allows capturing Uluru and Kata Tjuta in different lighting conditions. Those driving from Alice Springs should add a day at each end of the itinerary for travel time (4.5 hours each way).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What Aboriginal cultural experiences are available at Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Uluru offers numerous opportunities to engage with Aboriginal culture, particularly that of the Anangu people, the traditional owners. Ranger-guided walks at the base of Uluru (free with park entry, scheduled several times weekly) provide insights into Tjukurpa (Aboriginal law and creation stories) and explain the rock's significance. The Uluru-Kata Tjuta Cultural Centre features exhibits, artifacts, and audio-visual presentations about Anangu culture, with Aboriginal rangers sometimes available for discussions. Maruku Arts, a cooperative of 900+ Aboriginal artists, operates a gallery at the Cultural Centre and the resort, offering authentic Aboriginal art and occasional artist demonstrations. Guided bush tucker tours (AUD$70-120) with Aboriginal guides teach visitors about traditional food sources, medicinal plants, and survival techniques in the desert environment. Aboriginal dot painting workshops (AUD$50-70) at the resort provide hands-on cultural experiences where you create your own artwork while learning about symbols and storytelling traditions. For an immersive experience, SEIT Outback Australia offers small-group tours to Aboriginal communities near Uluru, providing opportunities to interact with community members, purchase art directly from artists, and observe traditional daily activities (advance booking essential). The Sounds of Silence dinner includes didgeridoo performances and storytelling under the stars. Free daily cultural activities at Ayers Rock Resort include spear and boomerang throwing demonstrations, bush yarns with Aboriginal storytellers, and didgeridoo performances. For respectful engagement, listen more than you speak, ask permission before taking photographs of Aboriginal people, and be aware that some knowledge is considered sacred and may not be shared with visitors.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best photography spots at Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Uluru offers spectacular photography opportunities throughout the day, with lighting conditions constantly changing the rock's appearance. The Talinguru Nyakunytjaku viewing area, located southeast of Uluru, provides elevated views capturing both sunrise over the rock and Kata Tjuta in the distance—arrive 45 minutes before sunrise for optimal positioning. The sunset viewing area, on the western side, features multiple elevated platforms and is ideal for capturing the famous red glow at sunset (arrive at least an hour before sunset to secure a good spot). For reflective shots, visit shortly after rainfall when temporary pools form around the base, creating mirror images of the monolith. The Mala Walk offers close-up perspectives of textures, caves, and Aboriginal rock art, with morning light best highlighting these features. For scale comparison, the Lungkata Walk section features unobstructed views where you can include people or vegetation in the foreground. The Base Walk presents numerous unique compositions, with the Mutitjulu Waterhole offering a peaceful scene of a permanent waterhole against the backdrop of dramatic rock walls (best photographed in late morning). Kata Tjuta provides alternative perspectives, with the sunset viewing platform offering compositions of both Uluru and Kata Tjuta in the same frame. For night photography, the Field of Light installation creates otherworldly foreground interest for starscape shots, while dark sky locations away from resort lights allow for spectacular Milky Way photography when the moon is not bright. Desert Park lookout offers telephoto opportunities of Uluru framed by desert oaks. Remember that drones are prohibited in the national park, and some areas around Uluru prohibit photography of specific sacred sites (clearly marked with signs).</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What's the difference between Uluru and Kata Tjuta?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>While often mentioned together, Uluru and Kata Tjuta are distinctly different formations with unique geological and cultural characteristics. Geologically, Uluru is a single massive sandstone monolith formed from arkose, a coarse sandstone with high feldspar content, giving it its characteristic red color and relatively smooth surface with distinct features. In contrast, Kata Tjuta consists of 36 conglomerate domes composed of cobbles, pebbles, and boulders cemented by a sandstone matrix, resulting in rougher, more weathered surfaces. Uluru rises 348 meters above the surrounding plain with a circumference of 9.4km, while Kata Tjuta's highest point (Mount Olga) reaches 546 meters, with the entire formation covering a larger area (22km circumference). Culturally, both sites hold deep significance for the Anangu people, featuring in different aspects of Tjukurpa (Aboriginal law and spirituality). Men's business is more associated with Kata Tjuta, making much of its cultural knowledge restricted, while more Uluru stories are publicly shared. Visitor experiences differ as well: Uluru offers a complete Base Walk circuit with numerous marked features and stories, while Kata Tjuta provides two main walks—Valley of the Winds (challenging but rewarding with spectacular views between the domes) and the easier Walpa Gorge walk. Photography tends to focus on Uluru's dramatic color changes at sunrise/sunset, while Kata Tjuta is often photographed for its dramatic shapes and valleys. Kata Tjuta typically receives fewer visitors, offering a more peaceful experience, and is located 40km west of Uluru (a 45-minute drive), with both included in the same national park entry fee. Both sites are equally worth visiting for complete appreciation of the region's natural and cultural significance.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the dining options at Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>All dining options at Uluru are located within Ayers Rock Resort in Yulara, offering a variety of experiences across different price points. For fine dining, Tali at Sails in the Desert offers contemporary Australian cuisine with indigenous ingredients (AUD$120-160 for three courses), while Walpa Bar serves premium cocktails and small plates. Mid-range options include Ilkari Restaurant's buffet breakfast and dinner (AUD$45 for breakfast, AUD$75 for dinner) and Arnguli Grill's à la carte menu featuring Australian produce and native ingredients. For casual dining, Gecko's Cafe serves all-day pizzas, burgers, and salads (AUD$25-35), while Ayers Wok focuses on Asian cuisine in a food-court setting. Budget-friendly options include the Outback Pioneer BBQ, where you can cook your own steak, kangaroo, or barramundi on communal BBQs (AUD$20-40), and the Outback Pioneer Kitchen offering take-away pizzas and burgers. The IGA supermarket in the Town Square provides groceries for self-catering, with prices higher than in major cities but reasonable for remote areas. Unique dining experiences include the popular Sounds of Silence dinner (AUD$230), featuring a bush-tucker inspired buffet with sparkling wine served at sunset overlooking Uluru, followed by a guided stargazing experience. The more premium Tali Wiru experience (AUD$380) offers a four-course dinner with paired wines on a private dune with didgeridoo performances and storytelling. The Cultural Centre cafe serves light refreshments, bush tucker samples, and coffee within the national park. Advance bookings are essential for specialty dining experiences (Sounds of Silence, Tali Wiru) and recommended for all restaurants during peak season (June-September). Most restaurants accommodate dietary requirements with advance notice. Water dispensers are available throughout the resort—bring refillable bottles to stay hydrated in the desert climate.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>Which tours are worth doing at Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Several tour experiences enhance an Uluru visit beyond self-guided exploration. Ranger-guided Mala Walks (free with park entry) provide cultural insights not available through signage alone, making this a high-value experience even for independent travelers. For sunrise/sunset viewing, small group tours (AUD$70-120) offer conveniences including transportation, expert commentary, and refreshments at prime viewing locations—AAT Kings and SEIT Outback Australia are reputable operators. Aboriginal cultural tours with Anangu guides (AUD$90-150) provide authentic perspectives on bush foods, traditional tools, and cultural practices not available elsewhere. Astronomy tours (AUD$50-100) utilize powerful telescopes and expert guides to explore the Southern Hemisphere's night sky far from light pollution—these complement Uluru's daytime experiences wonderfully. The Field of Light Star Pass (AUD$95) includes exclusive viewing of Bruce Munro's installation with sparkling wine and canapes, offering excellent value compared to standard admission. For photographers, dedicated photo tours (AUD$150-270) access optimal locations at ideal times with technical guidance. Camel tours (AUD$80-135) offer unique perspectives of Uluru at sunrise or sunset with their elevated vantage point and leisurely pace. Helicopter flights (AUD$150 for 15 minutes, AUD$285 for 36 minutes) provide spectacular aerial views of both Uluru and Kata Tjuta. For comprehensive experiences, multi-day camping tours from Alice Springs (AUD$300-600) include Kings Canyon alongside Uluru and Kata Tjuta. Adventure options include motorcycle tours, segway tours around the base of Uluru, and skydiving experiences for unique perspectives. When choosing tours, small groups (maximum 10-12 people) generally provide better experiences than larger coaches. Most tour operators at Uluru have strong reputations—read recent reviews focusing on guide knowledge and cultural sensitivity rather than just price.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What should I pack for Uluru?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Packing for Uluru requires preparation for extreme desert conditions and limited shopping options. Essential clothing items include lightweight, breathable long-sleeved shirts and long pants (providing sun protection without overheating), a wide-brimmed hat that covers ears and neck, closed walking shoes with good grip for uneven terrain, moisture-wicking socks, a lightweight raincoat (rare rainfall creates spectacular waterfall effects worth experiencing), and a warm jacket or fleece, even in summer, as night temperatures can drop significantly (winter nights can approach freezing). For sun protection, bring high SPF (50+) sunscreen, SPF lip balm, UV-protecting sunglasses, and consider a neck gaiter or scarf for additional coverage. A fly net for your face is invaluable during fly season (September-March). For hydration and sustainability, bring multiple reusable water bottles or a hydration pack (minimum 3-liter capacity for hiking) and a small daypack for carrying water, snacks, and essentials on walks. Photography equipment should include a camera with wide-angle lens capabilities, plenty of memory cards, spare batteries, lens cleaning supplies (dust is common), and a tripod for sunrise/sunset shots. Health supplies should include basic first aid items, personal medications, insect repellent, hand sanitizer, and blister treatment products. Electronic essentials include adapters for Australian outlets (Type I), a headlamp or flashlight for night navigation, and portable chargers as power points may be limited during excursions. While basic supplies are available at the resort's supermarket, they come at premium prices, so pack essentials before arrival. Cash is useful for smaller purchases, though credit cards are widely accepted. Consider bringing binoculars for wildlife spotting and star gazing, and a good book or offline entertainment for relaxation time, as internet connectivity can be limited and expensive.</p>
+        </div>
+      </details>
+    </div>
+</div>
+</section>
+
+      <!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+    <div class="reviews-container">
+      <h2 class="section-title">Reviews from {{ country_name }}</h2>
+      
+      <!-- Metrics Section (Similar to the image) -->
+      <div class="standalone-metrics">
+        <div class="metrics-header">
+          <div class="overall-score-container">
+            <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+            <div class="overall-stars">
+              {% with overall_rating=review_metrics.avg_rating %}
+                {% for i in "12345" %}
+                  {% if forloop.counter <= overall_rating %}
+                    <span class="star-full"></span>
+                  {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                    <span class="star-half"></span>
+                  {% else %}
+                    <span class="star-empty"></span>
+                  {% endif %}
+                {% endfor %}
+              {% endwith %}
+            </div>
+            <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+            <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+          </div>
+        </div>
+        
+        <div class="metrics-bars">
+          <div class="metric-row">
+            <span class="metric-label">Excellent</span>
+            <div class="metric-bar-container">
+              <div class="metric-bar excellent-bar"></div>
+            </div>
+            <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+          </div>
+          
+          <div class="metric-row">
+            <span class="metric-label">Very good</span>
+            <div class="metric-bar-container">
+              <div class="metric-bar very-good-bar"></div>
+            </div>
+            <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+          </div>
+          
+          <div class="metric-row">
+            <span class="metric-label">Average</span>
+            <div class="metric-bar-container">
+              <div class="metric-bar average-bar"></div>
+            </div>
+            <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+          </div>
+          
+          <div class="metric-row">
+            <span class="metric-label">Poor</span>
+            <div class="metric-bar-container">
+              <div class="metric-bar poor-bar"></div>
+            </div>
+            <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+          </div>
+          
+          <div class="metric-row">
+            <span class="metric-label">Terrible</span>
+            <div class="metric-bar-container">
+              <div class="metric-bar terrible-bar"></div>
+            </div>
+            <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+          </div>
+        </div>
+      
+      <!-- Review Filters -->
+      <div class="reviews-filters">
+        <form method="GET" action="" class="filter-form">
+          <div class="filter-group">
+            <label for="rating-filter">Filter by rating:</label>
+            <select id="rating-filter" name="rating" onchange="this.form.submit()">
+              <option value="">All ratings</option>
+              <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+              <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+              <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+              <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+              <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="date-filter">Filter by date:</label>
+            <select id="date-filter" name="date_from" onchange="this.form.submit()">
+              <option value="">All time</option>
+              <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+              <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+              <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+              <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+              <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+            </select>
+          </div>
+          
+          {% if current_rating_filter or current_date_filter %}
+            <div class="filter-group">
+              <a href="?" class="clear-filters">Clear filters</a>
+            </div>
+          {% endif %}
+        </form>
+      </div>
+      
+      
+      <div class="reviews-carousel-wrapper">
+        <div class="reviews-carousel">
+          {% if country_reviews %}
+            {% for review in country_reviews %}
+              <div class="review-card">
+                <div class="review-header">
+                  <h3 class="review-title">{{ review.title }}</h3>
+                  <p class="review-location">{{ review.place.name }}</p>
+                  
+                  <!-- Star Rating Display -->
+                  <div class="rating">
+                    {% for i in "12345" %}
+                      {% if forloop.counter <= review.rating %}
+                        <i class="ri-star-fill"></i>
+                      {% else %}
+                        <i class="ri-star-line"></i>
+                      {% endif %}
+                    {% endfor %}
+                  </div>
+                </div>
+                
+                <div class="review-content">
+                  <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                  
+                  <!-- Review Images (show only first image in carousel) -->
+                  {% if review.images.all|length > 0 %}
+                    <div class="review-image-container">
+                      <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                      {% if review.images.all|length > 1 %}
+                        <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                      {% endif %}
+                    </div>
+                  {% endif %}
+                </div>
+                
+                <div class="review-footer">
+                  <div class="reviewer-info">
+                    <div class="reviewer-avatar">
+                      {% if review.user.profile_picture %}
+                        <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                      {% else %}
+                        <i class="ri-user-fill"></i>
+                      {% endif %}
+                    </div>
+                    <div class="reviewer-details">
+                      <p class="reviewer-name">{{ review.user.username }}</p>
+                      <p class="review-count">{{ review.user.review_count }} reviews</p>
+                    </div>
+                  </div>
+                  
+                  <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                  
+                  {% if not is_moderator %}
+                    <div class="review-actions">
+                      <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                        <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                      </button>
+                      <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                        <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                      </button>
+                      <button class="action-btn flag-review" data-id="{{ review.id }}">
+                        <i class="ri-flag-line"></i>
+                      </button>
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="no-reviews">
+              <i class="ri-file-list-3-line"></i>
+              <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+              <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+            </div>
+          {% endif %}
+        </div>
+        
+        <!-- Navigation arrows for the carousel -->
+        {% if country_reviews %}
+          <div class="carousel-controls">
+            <button class="carousel-control prev">
+              <i class="ri-arrow-left-s-line"></i>
+            </button>
+            <button class="carousel-control next">
+              <i class="ri-arrow-right-s-line"></i>
+            </button>
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+  
+        <script src="{% static 'images/javascript/java.js' %}"></script>
+        <script src="{% static 'images/javascript/Profile.js' %}"></script>
+      </body>
+    </html>
+

@@ -1,0 +1,320 @@
+{% load static %}
+{% load humanize %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Analytics - Travel Review Admin</title>
+    <link rel="stylesheet" href="{% static 'images/css/Dashboard.css' %}" /> <link rel="stylesheet" href="{% static 'images/css/analytics.css' %}" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@3.9.1/dist/chart.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="sidebar">
+            <div class="logo">
+                <a href="{% url 'home' %}">HTR ADMIN</a>
+            </div>
+            <nav>
+                <a href="{% url 'moderator_dashboard' %}" class="nav-item">
+                    <i class="fas fa-th-large"></i> Dashboard
+                </a>
+                <a href="{% url 'User_management' %}" class="nav-item">
+                    <i class="fas fa-users"></i> User Management
+                </a>
+                <a href="{% url 'moderator_reviews' %}" class="nav-item active">
+                    <i class="fas fa-star"></i> Reviews
+                </a>
+                <a href="{% url 'Analytics' %}" class="nav-item"> <i class="fas fa-chart-bar"></i> Analytics
+                </a>
+                <a href="{% url 'Settings' %}" class="nav-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </nav>
+        </div>
+
+        <div class="main-content">
+            <div class="top-nav">
+                <div class="search-bar">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search analytics..." />
+                </div>
+                <div class="user-menu">
+                    <div class="notification">
+                        <i class="fas fa-bell"></i>
+                        <span class="notification-badge">1</span>
+                    </div>
+                    <div class="user-profile">
+                        <img
+                          src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}"
+                          alt="Profile"
+                          class="profile-icon"
+                          id="profileIconBtn"
+                        />
+                        <span>{{ user.username }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="page-header">
+                <h1>Analytics Dashboard</h1>
+                <p>Comprehensive analytics and insights for your travel review platform</p>
+            </div>
+
+            <div class="date-range-selector">
+                <div class="date-range-label">Date Range:</div>
+                <div class="date-range-buttons">
+                    <button class="date-range-btn" data-range="last-7-days">Last 7 Days</button>
+                    <button class="date-range-btn active" data-range="last-30-days">Last 30 Days</button>
+                    <button class="date-range-btn" data-range="last-90-days">Last 90 Days</button>
+                    <button class="date-range-btn" data-range="last-year">Last Year</button>
+                    <button class="date-range-btn custom" data-range="custom">
+                        <i class="fas fa-calendar"></i> Custom
+                    </button>
+                </div>
+            </div>
+
+            <div id="loading-indicator" style="display: none;">
+                <div class="loading-spinner"></div>
+                <p>Loading data...</p>
+            </div>
+
+            <div class="data-source-info">
+                <div class="info-icon"><i class="fas fa-info-circle"></i></div>
+                <div class="info-content">
+                    <p>Showing data from <span id="date-range-start">{{ period_start|date:"M d, Y" }}</span> to <span id="date-range-end">{{ period_end|date:"M d, Y" }}</span></p>
+                    <p class="last-updated">Last updated: <span id="last-updated-time">{% now "M d, Y H:i" %}</span></p>
+                </div>
+                <div class="refresh-control">
+                    <button id="refresh-stats" class="refresh-btn"><i class="fas fa-sync-alt"></i> Refresh</button>
+                    <div class="auto-refresh-toggle">
+                        <input type="checkbox" id="auto-refresh" class="toggle-input">
+                        <label for="auto-refresh" class="toggle-label">Auto refresh</label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card" data-stat="new_reviews">
+                    <span class="vs-text">vs previous period</span>
+                    <div class="stat-icon icon-blue"><i class="fas fa-clipboard-list"></i></div>
+                    <div class="stat-value">{{ stats.new_reviews.value|intcomma }}</div>
+                    <div class="stat-label">New Reviews</div>
+                    <div class="stat-change {% if stats.new_reviews.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.new_reviews.is_positive %}up{% else %}down{% endif %}"></i> {{ stats.new_reviews.change|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="stat-card" data-stat="approval_rate">
+                    <span class="vs-text">vs previous period</span>
+                    <div class="stat-icon icon-green"><i class="fas fa-check-circle"></i></div>
+                    <div class="stat-value">{{ stats.approval_rate.value|floatformat:1 }}%</div>
+                    <div class="stat-label">Approval Rate</div>
+                    <div class="stat-change {% if stats.approval_rate.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.approval_rate.is_positive %}up{% else %}down{% endif %}"></i> {{ stats.approval_rate.change|floatformat:1 }}%
+                    </div>
+                </div>
+                <div class="stat-card" data-stat="avg_rating">
+                    <span class="vs-text">vs previous period</span>
+                    <div class="stat-icon icon-yellow"><i class="fas fa-star"></i></div>
+                    <div class="stat-value">{{ stats.avg_rating.value|floatformat:1 }}</div>
+                    <div class="stat-label">Avg. Rating</div>
+                    <div class="stat-change {% if stats.avg_rating.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.avg_rating.is_positive %}up{% else %}down{% endif %}"></i> {{ stats.avg_rating.change|floatformat:1 }}
+                    </div>
+                </div>
+                <div class="stat-card" data-stat="active_users">
+                    <span class="vs-text">vs previous period</span>
+                    <div class="stat-icon icon-purple"><i class="fas fa-users"></i></div>
+                    <div class="stat-value">{{ stats.active_users.value|intcomma }}</div>
+                    <div class="stat-label">Active Users</div>
+                    <div class="stat-change {% if stats.active_users.is_positive %}positive{% else %}negative{% endif %}">
+                        <i class="fas fa-arrow-{% if stats.active_users.is_positive %}up{% else %}down{% endif %}"></i> {{ stats.active_users.change|floatformat:1 }}%
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Review Trends</div>
+                    <div class="card-actions"></div>
+                </div>
+                <div class="chart-container large"><canvas id="reviewTrendsChart"></canvas></div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header"><div class="card-title">Top Places</div></div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>DESTINATION</th> <th>COUNTRY</th> <th>REVIEWS</th>
+                                <th>AVG. RATING</th> <th>SENTIMENT</th> <th>TRENDING</th>
+                            </tr>
+                        </thead>
+                        <tbody id="top-destinations-tbody"> {% for destination in top_destinations %}
+                            <tr>
+                                <td>{{ destination.name }}</td> <td>{{ destination.country }}</td> <td>{{ destination.review_count }}</td>
+                                <td>
+                                    <div class="rating">
+                                        {% with ''|center:5 as range %}{% for _ in range %}
+                                            {% if forloop.counter <= destination.avg_rating|floatformat:0 %}<i class="fas fa-star"></i>
+                                            {% elif forloop.counter <= destination.avg_rating|add:"0.5"|floatformat:0 %}<i class="fas fa-star-half-alt"></i>
+                                            {% else %}<i class="far fa-star"></i>{% endif %}
+                                        {% endfor %}{% endwith %}
+                                        <span>{{ destination.avg_rating|floatformat:1 }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="sentiment {{ destination.sentiment_class }}">
+                                        <i class="fas {{ destination.sentiment_icon }}"></i> <span>{{ destination.sentiment }}</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="trend {{ destination.trending_direction }}">
+                                        <i class="fas fa-arrow-{{ destination.trending_direction }}"></i> <span>{{ destination.trending_value }}%</span>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% empty %}<tr><td colspan="6" class="text-center">No places found</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="content-card">
+                <div class="card-header"><div class="card-title">Review Edit Activity</div></div>
+                <div class="stats-grid" style="margin-bottom: 20px;">
+                     <div class="stat-card" data-stat="total_edits">
+                         <span class="vs-text">in selected period</span>
+                         <div class="stat-icon icon-orange"><i class="fas fa-pencil-alt"></i></div>
+                         <div class="stat-value" id="total-edits-value">0</div>
+                         <div class="stat-label">Total Reviews Edited</div>
+                         <div class="stat-change neutral" id="total-edits-change"><i class="fas fa-minus"></i> --%</div>
+                     </div>
+                </div>
+                <div class="table-responsive">
+                    <div class="table-title" style="margin-bottom: 10px;">Edits per Moderator</div>
+                    <table class="data-table" id="moderator-edits-table">
+                        <thead><tr><th>MODERATOR</th><th>REVIEWS EDITED</th></tr></thead>
+                        <tbody><tr><td colspan="2" style="text-align:center; padding: 20px; color: #777;">Loading edit data...</td></tr></tbody>
+                    </table>
+                </div>
+                <div class="table-responsive" style="margin-top: 30px;">
+                    <div class="table-title" style="margin-bottom: 10px;">Recent Review Edits</div>
+                    <table class="data-table" id="edit-log-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 25%;">Timestamp</th>
+                                <th style="width: 25%;">Moderator</th>
+                                <th style="width: 15%;">Review ID</th>
+                                <th style="width: 35%;">Review Title / Place</th>
+                            </tr>
+                        </thead>
+                        <tbody id="edit-log-details-tbody">
+                            <tr><td colspan="4" style="text-align:center; padding: 20px; color: #777;">Loading edit log details...</td></tr>
+                        </tbody>
+                    </table>
+                    <p style="text-align: center; font-size: 0.85em; color: #666; margin-top: 10px;">Showing the latest edit activities.</p>
+                </div>
+                </div>
+
+            <div class="content-card">
+                <div class="card-header">
+                    <div class="card-title">Admin Performance</div>
+                    <div class="card-actions">
+                        <button class="export-btn" id="exportAdminPerformanceBtn"> <i class="fas fa-download"></i> Export
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="data-table">
+                        <thead>
+                            <tr>
+                                <th>ADMIN</th><th>REVIEWS PROCESSED</th><th>AVG. RESPONSE TIME</th>
+                                <th>APPROVAL RATE</th><th>CONSISTENCY SCORE</th><th>LANGUAGES</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for admin in admin_performance %}
+                            <tr>
+                                <td>
+                                    <div class="user-cell">
+                                        {% if admin.avatar %}<img src="{{ admin.avatar }}" alt="{{ admin.name }}">
+                                        {% else %}<img src="{% static 'images/admin-avatar-placeholder.png' %}" alt="{{ admin.name }}">{% endif %}
+                                        <div class="user-info"><div class="user-name">{{ admin.name }}</div></div>
+                                    </div>
+                                </td>
+                                <td>{{ admin.reviews_processed|default:"0"|intcomma }}</td>
+                                <td>{{ admin.avg_response_time|default:"0h" }}</td>
+                                <td>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar {{ admin.approval_rate_class|default:'bg-info' }}" data-width="{{ admin.approval_rate|default:0 }}"></div>
+                                        <span>{{ admin.approval_rate|default:0 }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="progress-bar-container">
+                                        <div class="progress-bar {{ admin.consistency_class|default:'bg-info' }}" data-width="{{ admin.consistency_score|default:0 }}"></div>
+                                        <span>{{ admin.consistency_score|default:0 }}%</span>
+                                    </div>
+                                </td>
+                                <td>{{ admin.languages|default:"English" }}</td>
+                            </tr>
+                            {% empty %}<tr><td colspan="6" class="text-center">No admin users available</td></tr>{% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="fairness-insight-panel">
+                     <div class="insight-header"><i class="fas fa-lightbulb"></i> Bias Prevention Insights</div>
+                     <div class="insight-content">
+                         <ul>
+                             {% if admin_performance %}
+                                 {% for admin in admin_performance %}
+                                     {% if admin.approval_rate < 60 %}
+                                         <li><strong>Potential bias detected:</strong> Admin {{ admin.name }} has significantly lower approval rates ({{ admin.approval_rate }}%) and should receive additional review training.</li>
+                                     {% endif %}
+                                 {% endfor %}
+                                 <li><strong>Language gap identified:</strong> Only 2 admins review Japanese content, creating a 3.2h longer response time for these reviews.</li>
+                                 <li><strong>Geographic bias trend:</strong> Reviews from Southeast Asia have a 15% lower approval rate when processed by non-Asian admins.</li>
+                             {% else %}
+                                 <li><strong>Insight not available:</strong> Insufficient data to generate bias prevention insights.</li>
+                             {% endif %}
+                         </ul>
+                     </div>
+                     <div class="insight-actions">
+                         <button class="primary-btn">View Detailed Report</button> </div>
+                </div>
+            </div>
+        </div> 
+    </div> 
+    <div id="reviewDetailModal" class="modal" style="display: none;"> <div class="modal-content large"> <span class="close-modal-btn">&times;</span>
+        <h2 id="modalReviewTitle">Review Details</h2>
+        <hr>
+        <div id="modalReviewContent" class="modal-body">
+            <p><strong>User:</strong> <span id="modalReviewUser"></span></p>
+            <p><strong>Place:</strong> <span id="modalReviewPlace"></span> (<span id="modalReviewCountry"></span>)</p>
+            <p><strong>Rating:</strong> <span id="modalReviewRating"></span></p>
+            <p><strong>Visit Date:</strong> <span id="modalReviewVisitDate"></span></p>
+            <p><strong>Submitted:</strong> <span id="modalReviewSubmittedDate"></span></p>
+            <p><strong>Status:</strong> <span id="modalReviewStatus"></span></p>
+            <div class="review-content-container">
+                <strong>Content:</strong>
+                <p id="modalReviewTextContent"></p>
+            </div>
+            </div>
+         <div id="modalLoadingIndicator" style="display: none; text-align: center; padding: 20px;">
+             <i class="fas fa-spinner fa-spin"></i> Loading...
+         </div>
+         <div id="modalErrorIndicator" style="display: none; text-align: center; padding: 20px; color: red;">
+             Error loading review details.
+         </div>
+    </div>
+</div>
+
+    <script src="{% static 'images/javascript/Analytics.js' %}"></script>
+</body>
+</html>

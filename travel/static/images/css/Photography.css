@@ -1,0 +1,258 @@
+.photo-hero {
+    position: relative;
+    display: block;
+    width: 100%;
+    margin: 30px auto;
+    margin-top: 900px;
+    z-index: 1;
+    height: auto;
+  }
+  
+  .photo-container {
+    position: relative;
+    width: 120%;
+    overflow: hidden;
+    border-radius: 12px;
+    max-height: 500px;
+    left: -130px;
+  }
+  
+  .photo-image {
+    width: 100%;
+    display: block;
+    height: 500px;
+    object-fit: cover;
+    border-radius: 12px;
+  }
+  
+  .photo-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, 
+      rgba(0,0,0,0.7) 0%, 
+      rgba(0,0,0,0.3) 50%, 
+      rgba(0,0,0,0.1) 100%);
+    border-radius: 12px;
+  }
+  
+  .photo-overlay-text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 55%;
+    padding: 18px 22px;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
+    border-bottom-left-radius: 12px;
+  }
+  
+  .photo-title {
+    font-size: 34px;
+    font-weight: bold;
+    margin: 0 0 10px 0;
+  }
+  
+  .photo-description {
+    font-size: 14px;
+    line-height: 1.5;
+    margin: 0 0 12px 0;
+  }
+  
+  /* Media queries with adjusted dimensions */
+  @media screen and (max-width: 992px) {
+    .photo-image {
+      height: 350px;
+    }
+    
+    .photo-overlay-text {
+      width: 65%;
+    }
+    
+    .photo-title {
+      font-size: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .photo-image {
+      height: 300px;
+    }
+    
+    .photo-hero {
+      width: 95%;
+    }
+    
+    .photo-overlay-text {
+      width: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+    
+    .photo-title {
+      font-size: 24px;
+    }
+  }
+
+  .photo-essentials {
+    width: 100%;
+    padding: 70px 0;
+    background-color: #f8f9fa;
+  }
+  
+  .essentials-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+  }
+  
+  .photo-essentials .section-title {
+    font-size: 32px;
+    font-weight: 700;
+    color: #1a202c;
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .section-intro {
+    text-align: center;
+    max-width: 800px;
+    margin: 0 auto 50px;
+    font-size: 16px;
+    color: #4a5568;
+    line-height: 1.6;
+  }
+  
+  .essentials-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 30px;
+  }
+  
+  .essential-card {
+    background-color: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  
+  .essential-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+  }
+  
+  .essential-icon {
+    position: absolute;
+    top: -20px;
+    left: 25px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #3182ce;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+  
+  .essential-icon i {
+    font-size: 24px;
+  }
+  
+  .essential-title {
+    margin: 15px 0 20px 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1a202c;
+    padding-left: 40px;
+  }
+  
+  .essential-list {
+    padding-left: 20px;
+    margin: 0 0 20px 0;
+  }
+  
+  .essential-list li {
+    margin-bottom: 10px;
+    color: #4a5568;
+    font-size: 15px;
+    line-height: 1.5;
+  }
+  
+  .essential-tip {
+    font-style: italic;
+    color: #718096;
+    font-size: 14px;
+    padding: 12px 15px;
+    background-color: #f0f4f8;
+    border-radius: 6px;
+    margin: 0;
+  }
+  
+  /* Icon color variations */
+  .essential-card:nth-child(1) .essential-icon {
+    background-color: #e53e3e; /* Red for Camera Equipment */
+  }
+  
+  .essential-card:nth-child(2) .essential-icon {
+    background-color: #38a169; /* Green for Composition */
+  }
+  
+  .essential-card:nth-child(3) .essential-icon {
+    background-color: #d69e2e; /* Yellow for Lighting */
+  }
+  
+  .essential-card:nth-child(4) .essential-icon {
+    background-color: #805ad5; /* Purple for Post-Processing */
+  }
+  
+  /* Media queries for responsive design */
+  @media screen and (max-width: 992px) {
+    .essentials-grid {
+      grid-template-columns: 1fr;
+      gap: 40px;
+    }
+    
+    .photo-essentials .section-title {
+      font-size: 28px;
+    }
+  }
+  
+  @media screen and (max-width: 768px) {
+    .photo-essentials {
+      padding: 50px 0;
+    }
+    
+    .essential-icon {
+      width: 45px;
+      height: 45px;
+    }
+    
+    .essential-icon i {
+      font-size: 20px;
+    }
+    
+    .essential-title {
+      font-size: 18px;
+    }
+  }
+  
+  @media screen and (max-width: 576px) {
+    .section-intro {
+      font-size: 15px;
+      margin-bottom: 40px;
+    }
+    
+    .essential-card {
+      padding: 20px;
+    }
+    
+    .essential-list li {
+      font-size: 14px;
+    }
+  }

@@ -1,0 +1,601 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>About Us - Travel Reviews</title>
+    <!-- Main site CSS -->
+    <link rel="stylesheet" href="{% static 'images/css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'images/css/country.css' %}">
+    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon"/>
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.5.0/fonts/remixicon.css" rel="stylesheet">
+  </head>
+  <body>
+    <header>
+      <div class="left-header">
+        <a href="{% url 'home' %}">
+          <img src="{% static 'images/logo2.png' %}" alt="Travel logo Reviews" class="logo">
+        </a>
+        
+        <!-- Extra wide search bar -->
+        <div class="header-search">
+          <form method="GET" action="{% url 'search' %}">
+            <div class="header-search-bar">
+              <i class="ri-search-line search-icon"></i>
+              <input type="text" name="q" placeholder="Search..." class="header-search-input">
+            </div>
+          </form>
+        </div>
+      </div>
+    
+      <nav class="nav">
+        <a href="{% url 'destinations' %}" class="nav-item">Destinations</a>
+        <a href="{% url 'submit_review' %}" class="nav-item">Write a Review</a>
+        <a href="{% url 'about' %}" class="nav-item">About Us</a>
+        <a href="{% url 'contact' %}" class="nav-item">Contact</a>
+      </nav>
+    
+      <!-- Authentication Section -->
+      {% if user.is_authenticated %}
+<div class="profile-menu">
+  <div class="dropdown">
+    <img src="{% if user.profile_picture %}{{ user.profile_picture.url }}{% else %}{% static 'images/profile.png' %}{% endif %}" alt="Profile" class="profile-icon" id="profileIconBtn">
+    <div class="dropdown-content" id="profileDropdown">
+      <a href="{% url 'profile' %}"><i class="ri-user-line"></i> Profile</a>
+      <a href="{% url 'submit_review' %}"><i class="ri-edit-line"></i> Write a review</a>
+      <a href="#"><i class="ri-settings-line"></i> Account info</a>
+      <form method="post" action="{% url 'logout' %}" id="logout-form">
+        {% csrf_token %}
+        <a href="javascript:void(0);" onclick="document.getElementById('logout-form').submit();"><i class="ri-logout-box-line"></i> Sign out</a>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<button class="login-btn" onclick="openModal()">Login</button>
+{% endif %}
+    </header>
+
+  <div class="main-content">
+    <!-- Modal Section -->
+    <div id="loginModal" class="modal">
+      <div class="modal-content">
+        <span class="close-btn" onclick="closeModal()">&times;</span>
+        
+        <!-- Container to switch between Login and Signup -->
+        <div class="container">
+          
+          <!-- Signup Section -->
+          <div class="signup-section">
+            <header>Sign Up</header>
+            <div class="social-buttons">
+                <button><i class='bx bxl-google'></i> Use Google</button>
+                <button><i class='bx bxl-apple'></i> Use Apple</button>
+            </div>
+        
+            <div class="separator">
+                <div class="line"></div>
+                <p>Or</p>
+                <div class="line"></div>
+            </div>
+        
+            <form id="signupForm1" method="post" data-signup-url="{% url 'register' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="text" name="full_name" placeholder="Full Name" required>
+                <input type="email" name="email" placeholder="Email Address" required>
+                <input type="password" name="password" placeholder="Password" required>
+                
+                <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> 
+                    <input type="checkbox" 
+                           name="terms_accepted" 
+                           id="id_terms_accepted1" {# Unique ID #}
+                           required 
+                           style="width: auto; vertical-align: middle; margin-right: 5px;">
+                    <label for="id_terms_accepted1" style="display: inline; vertical-align: middle;">
+                        I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                    </label>
+                </div>
+                <a href="#">Forget Password?</a>
+                <button type="submit" class="btn">Signup</button>
+            </form>
+        </div>
+        
+        <div id="signupModal" class="modal">
+            <div class="modal-content">
+                <span class="close-btn" onclick="closeModal()">&times;</span>
+                <h2>Sign Up</h2>
+                <form id="signupForm2" method="post"> {# Consider adding data-signup-url here too if handled via AJAX #}
+                    {% csrf_token %}
+                    <input type="text" name="username" placeholder="Username" required>
+                    <input type="text" name="full_name" placeholder="Full Name" required>
+                    <input type="email" name="email" placeholder="Email Address" required>
+                    <input type="password" name="password" placeholder="Password" required>
+        
+                    <div style="margin-top: 10px; margin-bottom: 10px; text-align: left;"> {# Basic container for styling #}
+                        <input type="checkbox" 
+                               name="terms_accepted" 
+                               id="id_terms_accepted2" {# Unique ID #}
+                               required 
+                               style="width: auto; vertical-align: middle; margin-right: 5px;">
+                        <label for="id_terms_accepted2" style="display: inline; vertical-align: middle;">
+                            I agree to the <a href="{% url 'terms_page' %}" target="_blank" style="color: #007bff; text-decoration: underline;">Terms of Service</a>
+                        </label>
+                    </div>
+                    <button type="submit" class="btn">Signup</button>
+                </form>
+                <p>Already have an account? <a href="javascript:openLogin()">Login</a></p>
+            </div>
+        </div>
+    
+          <!-- Login Section -->
+          <div class="login-section">
+              <header>Login</header>
+              <div class="social-buttons">
+                  <button><i class='bx bxl-google'></i> Use Google</button>
+                  <button><i class='bx bxl-apple'></i> Use Apple</button>
+              </div>
+    
+              <div class="separator">
+                  <div class="line"></div>
+                  <p>Or</p>
+                  <div class="line"></div>
+              </div>
+    
+              <form id="loginForm" method="post" data-login-url="{% url 'login' %}">
+                {% csrf_token %}
+                <input type="text" name="username" placeholder="Username" required>
+                <input type="password" name="password" placeholder="Password" required>
+                <button type="submit" class="btn">Login</button>
+            </form>
+          </div>
+    
+        </div>
+      </div>
+    </div>
+
+    <div class="page-wrapper">
+        <!-- Banner section with proper closing -->
+        <div class="destination-banner">
+          <div class="banner-container">
+            <img src="{% static 'images/California2.jpg' %}" alt="California coastline with Big Sur" class="banner-image">
+            <div class="banner-overlay"></div>
+            <div class="destination-overlay-text">
+              <h1 class="destination-title">California</h1>
+              <p class="destination-description">Experience the Golden State's stunning coastlines, iconic cities, majestic mountains, and world-famous entertainment.</p>
+              <div class="destination-meta">
+                <!-- Meta content here -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+      <!-- About California Section -->
+      <section class="about-destination">
+          <div class="about-container">
+            <h2 class="section-title">About California</h2>
+            
+            <p class="about-text">California is the most populous state in the United States, known for its diverse landscapes spanning from the Pacific Coast to the Sierra Nevada mountains, from the Mojave Desert to ancient redwood forests. Home to Hollywood, Silicon Valley, and world-class wine regions, California offers an incredible blend of natural beauty, cultural innovation, and endless opportunities for adventure. With its rich history, from the Gold Rush to today's tech boom, the Golden State continues to capture the imagination of travelers worldwide.</p>
+            
+            <div class="info-tiles">
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-sun-fill"></i>
+                </div>
+                <div class="info-title">Mediterranean Climate</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-translate"></i>
+                </div>
+                <div class="info-title">English & Spanish</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-money-dollar-circle-line"></i>
+                </div>
+                <div class="info-title">US Dollar (USD)</div>
+              </div>
+              
+              <div class="info-tile">
+                <div class="icon">
+                  <i class="ri-time-fill"></i>
+                </div>
+                <div class="info-title">PT/PST (GMT-7/8)</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Top Destinations Section -->
+      <section class="top-destinations">
+          <div class="destinations-container">
+            <h2 class="section-title">Top Destinations</h2>
+            
+            <div class="destinations-grid">
+              <div class="destination-card">
+                <img src="{% static 'images/san francisco.jpg' %}" alt="San Francisco" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">San Francisco</h3>
+                  <p class="destination-description">Iconic Golden Gate Bridge, cable cars, and vibrant neighborhoods.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/los angeles.jpg' %}" alt="Los Angeles" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Los Angeles</h3>
+                  <p class="destination-description">Hollywood, beaches, and the entertainment capital of the world.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/yosemite.jpg' %}" alt="Yosemite National Park" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Yosemite</h3>
+                  <p class="destination-description">Breathtaking granite cliffs, waterfalls, and ancient sequoia trees.</p>
+                </div>
+              </div>
+              
+              <div class="destination-card">
+                <img src="{% static 'images/napa valley.jpg' %}" alt="Napa Valley" class="destination-image">
+                <div class="destination-info">
+                  <h3 class="destination-name">Napa Valley</h3>
+                  <p class="destination-description">World-renowned wineries and picturesque rolling vineyards.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      <!-- Travel Tips Section -->
+      <section class="travel-tips">
+          <div class="tips-container">
+            <div class="tips-header">
+              <h2 class="section-title">Travel Tips</h2>
+              <p class="tips-subtitle">Essential information for your California adventure</p>
+            </div>
+            
+            <div class="tips-content-container">
+              <div class="tips-list">
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-calendar-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Best Time to Visit</h3>
+                    <p class="tip-description">Spring (April-May) and fall (September-October) offer mild weather and fewer crowds. Summer is peak tourist season.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-car-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Transportation</h3>
+                    <p class="tip-description">Rent a car for flexibility, especially for coastal drives. Major cities have public transportation systems.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-restaurant-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Local Cuisine</h3>
+                    <p class="tip-description">Try California cuisine featuring fresh produce, seafood, and fusion dishes. Don't miss Mexican food, In-N-Out Burger, and local wines.</p>
+                  </div>
+                </div>
+                
+                <div class="tip-item">
+                  <div class="tip-icon">
+                    <i class="ri-route-line"></i>
+                  </div>
+                  <div class="tip-content">
+                    <h3 class="tip-title">Iconic Drives</h3>
+                    <p class="tip-description">Experience the Pacific Coast Highway (Highway 1) for breathtaking coastal views and the famous Big Sur stretch.</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+     <!-- Super Simple FAQ Implementation -->
+<section class="travel-faqs">
+  <div class="faq-container">
+    <h2 class="section-title">California travel advice</h2>
+    <p class="faq-intro">These questions are the most asked questions and are answerd here.</p>
+    
+    <div class="faq-list">
+      <!-- FAQ Item 1 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some tips for driving along the California coast?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>When driving along the California coast, especially on Highway 1, allow plenty of extra time as the winding roads typically require slower speeds than Google Maps estimates. The most scenic stretch between Monterey and San Simeon (Big Sur) takes 3-4 hours without stops, but you'll want to plan for viewpoint breaks. Check for road closures in advance, especially during winter when landslides can close sections of Highway 1. Drive north to south when possible, as you'll be on the ocean side of the road with better views and easier access to pullouts. Fill your gas tank frequently as stations can be scarce and expensive in remote coastal areas. Download offline maps as cell service is spotty along many stretches. For photography, morning fog often clears by midday, though the late afternoon "golden hour" offers the best lighting for coastal shots. Notable stops include Bixby Bridge, McWay Falls, Pfeiffer Beach, and the elephant seal rookery near San Simeon. Consider splitting the drive with overnight stays in charming coastal towns like Mendocino, Carmel, Cambria, or Morro Bay.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 2 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the travel options between Los Angeles and San Francisco?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Multiple transportation options connect Los Angeles and San Francisco. Flying is fastest (1.5 hours in the air) with 30+ daily flights operated by major airlines including Southwest, United, and Alaska. Prices typically range from $70-200 one-way, and both cities have public transit connections to their airports. Driving offers flexibility with two main routes: Interstate 5 (the most direct at 380 miles, 5-6 hours) or the scenic coastal Highway 1 (430 miles, 8-10 hours without stops, best split over 2-3 days). Amtrak's Coast Starlight train provides a scenic 12-hour journey with Pacific Ocean views ($50-90 for coach seats, $200+ for private roomettes). Budget-conscious travelers can take Greyhound or Flixbus, with fares starting around $20-40 for the 7-8 hour journey. For a unique experience, Amtrak's San Joaquins train with connecting thruway bus service costs $40-70 and takes about 8 hours. Each option offers different trade-offs between cost, speed, comfort, and scenery. If you have time, consider a one-way coastal drive and return flight or train to experience the best of California's landscapes.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 3 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are popular road trip routes in California?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>California offers several iconic road trip routes. The Pacific Coast Highway (Highway 1) from San Francisco to San Diego showcases stunning coastal views over 600 miles, with highlights including Big Sur, Santa Barbara, and Malibu. Allow 5-7 days minimum. The Eastern Sierra Scenic Byway (Highway 395) runs along the eastern edge of the Sierra Nevada, connecting Lake Tahoe to Death Valley with access to Mammoth Lakes, Ancient Bristlecone Pine Forest, and Mount Whitney. This 375-mile route is best in fall for colorful aspens. California's section of Historic Route 66 runs 315 miles from Needles to Santa Monica, passing through the Mojave Desert and quirky roadside attractions. The Napa Valley and Sonoma Wine Country loop is perfect for a weekend trip from San Francisco, covering 100 miles of scenic vineyards. For desert landscapes, Joshua Tree to Death Valley (225 miles) offers otherworldly scenery and stargazing opportunities, ideal in winter and spring. The Redwood Highway (Highway 101) through Northern California showcases the world's tallest trees over 175 miles from Leggett to Crescent City, with side trips to magnificent groves. Each route has optimal seasons—coastal routes are good year-round but best in fall for clear skies, desert routes in winter/spring, and mountain routes in summer/fall.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 4 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some recommended itineraries for California parks?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>For Yosemite National Park, a 3-day itinerary should include day 1 in Yosemite Valley (Tunnel View, Bridalveil Fall, Yosemite Falls, Valley Loop Trail), day 2 exploring Glacier Point Road and hiking to Sentinel Dome or Taft Point, and day 3 driving Tioga Road to Tuolumne Meadows and Tenaya Lake (summer/early fall only). Book accommodations 5-6 months in advance or stay in gateway towns like Oakhurst or Mariposa. For Death Valley National Park, a 2-day winter itinerary covers Zabriskie Point at sunrise, Badwater Basin (lowest point in North America), Artist's Drive, Mesquite Flat Sand Dunes, and Ubehebe Crater. Stay at Furnace Creek or Stovepipe Wells. A 3-day Sequoia and Kings Canyon National Parks trip should include the General Sherman Tree (world's largest tree by volume), Congress Trail, Moro Rock, Grant Grove, and panoramic views from Kings Canyon Scenic Byway. For a weeklong California desert park tour, combine 2 days in Joshua Tree National Park (Hidden Valley, Keys View, Cholla Cactus Garden), 2 days in Death Valley, and day trips to Mojave National Preserve and Anza-Borrego Desert State Park, best in spring for wildflower blooms. A coastal park tour should include Point Reyes National Seashore, Redwood National and State Parks, and Julia Pfeiffer Burns State Park in Big Sur. Make reservations well in advance for popular parks, especially for summer visits. Purchase an America the Beautiful Pass ($80) if visiting multiple national parks.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 5 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the best beach destinations in California?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>California's best beaches vary significantly along its 840-mile coastline. Southern California offers warm swimming waters and classic beach culture. Coronado Beach in San Diego features sparkling sand and the historic Hotel Del Coronado. Laguna Beach combines stunning coves like Crescent Bay and Shaw's Cove with an artsy town atmosphere. Huntington Beach ("Surf City USA") is ideal for surf lessons and beachside dining. For family trips, Santa Monica offers the iconic pier with amusement park rides and wide, clean beaches with excellent facilities. Central California beaches are more dramatic and often windier with cooler waters. Pfeiffer Beach in Big Sur is known for its purple sand and keyhole rock formation. Carmel Beach offers white sand backed by cypress trees and a charming village. Northern California features rugged, wild coastlines better for scenic beauty than swimming due to cold water and dangerous currents. Mendocino County's Glass Beach displays colorful sea glass instead of sand. Point Reyes National Seashore offers dramatic, uncrowded beaches like Limantour Beach. The best beach weather occurs from June-October in Southern California, September-October (during "Indian summer") in Northern California, and May-October for Big Sur and Central Coast. Always check local conditions as beaches can experience dangerous rip currents, sudden large waves, and fog, particularly in northern regions.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 6 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are some tips for planning an RV trip in California?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>When planning a California RV trip, reserve campgrounds 6-9 months in advance for popular destinations like Yosemite and coastal state parks through ReserveCalifornia.com or Recreation.gov. For coastal regions, choose a smaller RV (under 25 feet) as many scenic roads have length restrictions, particularly on Highway 1 through Big Sur where RVs longer than 30 feet are not recommended. Be aware that California state parks typically have size limits of 35 feet for RVs and 31 feet for trailers. Download essential apps including Campendium, iOverlander, and The Dyrt for finding campgrounds, and GasBuddy for locating fuel stations that accommodate RVs. Factor in California's higher fuel costs (typically 30% above national average) and practice driving on mountainous, winding roads before tackling challenging routes. In summer, prioritize coastal areas and higher elevations, reserving desert regions like Death Valley and Joshua Tree for winter trips when temperatures are pleasant. Consider RV resort options in wine country (Calistoga RV Park), near the coast (Morro Dunes RV Park), or in the mountains (Yosemite Lakes RV Resort) as alternatives to hard-to-book public campgrounds. Many Californian Walmart locations no longer allow overnight parking, so always have a backup plan. For boondocking (dispersed camping), Bureau of Land Management areas in the eastern Sierra and near Joshua Tree offer free options, but come prepared with sufficient water and supplies.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 7 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the highlights of a Highway 1 road trip?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>A Highway 1 road trip offers California's most spectacular coastal scenery over 656 miles from Dana Point to Leggett. Starting in Southern California, Huntington Beach and Malibu offer classic beaches and surfing culture. Santa Barbara enchants with Spanish architecture and nearby wineries. The Central Coast features charming seaside towns like Pismo Beach (famous for clam chowder and dune buggy riding) and Morro Bay with its distinctive volcanic rock. Big Sur provides the most dramatic 90-mile stretch with cliffside vistas, redwood groves, and landmarks including Bixby Bridge (one of the world's highest single-span arch bridges), McWay Falls (an 80-foot waterfall flowing directly onto the beach), and Pfeiffer Beach with purple-hued sand. Monterey Bay is home to the world-class Monterey Bay Aquarium and scenic 17-Mile Drive (requiring a $10.75 entrance fee). Nearby Carmel-by-the-Sea offers European village charm and white-sand beaches. Half Moon Bay features outstanding seafood restaurants and massive winter waves at Mavericks surf break. San Francisco's Golden Gate Bridge marks the northern transition to more rugged coastline. Further north, Point Reyes National Seashore, Bodega Bay (filming location for Hitchcock's "The Birds"), Mendocino's Victorian village, and the Avenue of the Giants redwood forest provide distinctive experiences. The optimal driving direction is north to south for better ocean views and pullout access. Allow at least 5 days for the full route, though 7-10 days is ideal for exploration without rushing.</p>
+        </div>
+      </details>
+      
+      <!-- FAQ Item 8 -->
+      <details class="faq-item">
+        <summary class="faq-question">
+          <h3>What are the Amtrak travel options in California?</h3>
+        </summary>
+        <div class="faq-answer">
+          <p>Amtrak offers several scenic train routes through California. The Coast Starlight runs daily between Seattle and Los Angeles, covering California's coast with spectacular Pacific Ocean views between San Luis Obispo and Santa Barbara. The 12-hour Los Angeles to San Francisco segment costs $50-90 for coach seats and $200+ for private roomettes. The Pacific Surfliner connects San Diego, Los Angeles, and San Luis Obispo with unreserved coach seating allowing flexible travel plans and large windows showcasing beach views. Fares range from $30-60 one-way with 12 daily departures on the southern portion. The Capitol Corridor serves Northern California between Auburn, Sacramento, and San Jose with 15 daily trains and easy connections to San Francisco via bus. The San Joaquins connects the Central Valley from Bakersfield to Oakland or Sacramento with connecting thruway buses to Los Angeles and many tourist destinations. The California Zephyr offers a scenic cross-country route from Chicago to Emeryville (San Francisco) through the Sierra Nevada mountains. All routes allow bringing bicycles (some require reservations) and feature café cars. The California Rail Pass offers 7 days of travel within a 21-day period for $159, covering all routes except the Coast Starlight. Book through the Amtrak app or website, with significant discounts for booking 14+ days in advance or for seniors, military members, and AAA members. Business class upgrades offer complimentary beverages, additional legroom, and priority boarding.</p>
+        </div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- Country Reviews Section with Metrics Above -->
+<section class="country-reviews">
+  <div class="reviews-container">
+    <h2 class="section-title">Reviews from {{ country_name }}</h2>
+    
+    <!-- Metrics Section (Similar to the image) -->
+    <div class="standalone-metrics">
+      <div class="metrics-header">
+        <div class="overall-score-container">
+          <span class="overall-score">{{ review_metrics.avg_rating|floatformat:1 }}</span>
+          <div class="overall-stars">
+            {% with overall_rating=review_metrics.avg_rating %}
+              {% for i in "12345" %}
+                {% if forloop.counter <= overall_rating %}
+                  <span class="star-full"></span>
+                {% elif forloop.counter <= overall_rating|add:"0.5" %}
+                  <span class="star-half"></span>
+                {% else %}
+                  <span class="star-empty"></span>
+                {% endif %}
+              {% endfor %}
+            {% endwith %}
+          </div>
+          <div class="review-count">{{ review_metrics.total_count }} reviews</div>
+          <div class="review-checks">We perform checks on reviews. <span class="info-icon">i</span></div>
+        </div>
+      </div>
+      
+      <div class="metrics-bars">
+        <div class="metric-row">
+          <span class="metric-label">Excellent</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar excellent-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.excellent }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Very good</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar very-good-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.very_good }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Average</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar average-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.average }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Poor</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar poor-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.poor }}</span>
+        </div>
+        
+        <div class="metric-row">
+          <span class="metric-label">Terrible</span>
+          <div class="metric-bar-container">
+            <div class="metric-bar terrible-bar"></div>
+          </div>
+          <span class="metric-count">{{ review_metrics.rating_distribution.terrible }}</span>
+        </div>
+      </div>
+    
+    <!-- Review Filters -->
+    <div class="reviews-filters">
+      <form method="GET" action="" class="filter-form">
+        <div class="filter-group">
+          <label for="rating-filter">Filter by rating:</label>
+          <select id="rating-filter" name="rating" onchange="this.form.submit()">
+            <option value="">All ratings</option>
+            <option value="5" {% if current_rating_filter == 5 %}selected{% endif %}>5 stars only</option>
+            <option value="4" {% if current_rating_filter == 4 %}selected{% endif %}>4 stars only</option>
+            <option value="3" {% if current_rating_filter == 3 %}selected{% endif %}>3 stars only</option>
+            <option value="2" {% if current_rating_filter == 2 %}selected{% endif %}>2 stars only</option>
+            <option value="1" {% if current_rating_filter == 1 %}selected{% endif %}>1 star only</option>
+          </select>
+        </div>
+        
+        <div class="filter-group">
+          <label for="date-filter">Filter by date:</label>
+          <select id="date-filter" name="date_from" onchange="this.form.submit()">
+            <option value="">All time</option>
+            <option value="today" {% if current_date_filter == "today" %}selected{% endif %}>Today</option>
+            <option value="week" {% if current_date_filter == "week" %}selected{% endif %}>Past week</option>
+            <option value="month" {% if current_date_filter == "month" %}selected{% endif %}>Past month</option>
+            <option value="three_months" {% if current_date_filter == "three_months" %}selected{% endif %}>Past 3 months</option>
+            <option value="year" {% if current_date_filter == "year" %}selected{% endif %}>Past year</option>
+          </select>
+        </div>
+        
+        {% if current_rating_filter or current_date_filter %}
+          <div class="filter-group">
+            <a href="?" class="clear-filters">Clear filters</a>
+          </div>
+        {% endif %}
+      </form>
+    </div>
+    
+    
+    <div class="reviews-carousel-wrapper">
+      <div class="reviews-carousel">
+        {% if country_reviews %}
+          {% for review in country_reviews %}
+            <div class="review-card">
+              <div class="review-header">
+                <h3 class="review-title">{{ review.title }}</h3>
+                <p class="review-location">{{ review.place.name }}</p>
+                
+                <!-- Star Rating Display -->
+                <div class="rating">
+                  {% for i in "12345" %}
+                    {% if forloop.counter <= review.rating %}
+                      <i class="ri-star-fill"></i>
+                    {% else %}
+                      <i class="ri-star-line"></i>
+                    {% endif %}
+                  {% endfor %}
+                </div>
+              </div>
+              
+              <div class="review-content">
+                <p class="review-text">{{ review.content|truncatechars:150 }}</p>
+                
+                <!-- Review Images (show only first image in carousel) -->
+                {% if review.images.all|length > 0 %}
+                  <div class="review-image-container">
+                    <img src="{{ review.images.first.image.url }}" alt="Image for {{ review.title }}" class="review-thumbnail">
+                    {% if review.images.all|length > 1 %}
+                      <div class="more-images-badge">+{{ review.images.all|length|add:"-1" }}</div>
+                    {% endif %}
+                  </div>
+                {% endif %}
+              </div>
+              
+              <div class="review-footer">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">
+                    {% if review.user.profile_picture %}
+                      <img src="{{ review.user.profile_picture.url }}" alt="{{ review.user.username }}">
+                    {% else %}
+                      <i class="ri-user-fill"></i>
+                    {% endif %}
+                  </div>
+                  <div class="reviewer-details">
+                    <p class="reviewer-name">{{ review.user.username }}</p>
+                    <p class="review-count">{{ review.user.review_count }} reviews</p>
+                  </div>
+                </div>
+                
+                <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                
+                {% if not is_moderator %}
+                  <div class="review-actions">
+                    <button class="action-btn thumbs-up" data-id="{{ review.id }}">
+                      <i class="ri-thumb-up-line"></i> {{ review.thumbs_up_count }}
+                    </button>
+                    <button class="action-btn thumbs-down" data-id="{{ review.id }}">
+                      <i class="ri-thumb-down-line"></i> {{ review.thumbs_down_count }}
+                    </button>
+                    <button class="action-btn flag-review" data-id="{{ review.id }}">
+                      <i class="ri-flag-line"></i>
+                    </button>
+                  </div>
+                {% endif %}
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-reviews">
+            <i class="ri-file-list-3-line"></i>
+            <p>No reviews available for {{ country_name }} matching your filters. Try different filters or be the first to share your experience!</p>
+            <a href="{% url 'submit_review' %}" class="cta-button">Write a Review</a>
+          </div>
+        {% endif %}
+      </div>
+      
+      <!-- Navigation arrows for the carousel -->
+      {% if country_reviews %}
+        <div class="carousel-controls">
+          <button class="carousel-control prev">
+            <i class="ri-arrow-left-s-line"></i>
+          </button>
+          <button class="carousel-control next">
+            <i class="ri-arrow-right-s-line"></i>
+          </button>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+      <script src="{% static 'images/javascript/java.js' %}"></script>
+      <script src="{% static 'images/javascript/Profile.js' %}"></script>
+    </main>
+    </body>
+  </html>
